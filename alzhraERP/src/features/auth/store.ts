@@ -263,7 +263,8 @@ export const useAuthStore = create<AuthState>()(
                 if (
                   event === 'INITIAL_SESSION' ||
                   event === 'TOKEN_REFRESHED' ||
-                  event === 'SIGNED_IN'
+                  event === 'SIGNED_IN' ||
+                  event === 'PASSWORD_RECOVERY'
                 ) {
                   if (!session.user?.id) return;
 
@@ -287,6 +288,19 @@ export const useAuthStore = create<AuthState>()(
                     }
                   } catch {
                     logger.warn('Auth', `Profile fetch after ${event} failed`);
+                  }
+
+                  // ⚡ رابط استعادة كلمة المرور يُنشئ جلسة ويُطلق PASSWORD_RECOVERY
+                  // دون أي تنقّل: كان المستخدم يهبط على لوحة التحكم ولا يرى نموذج
+                  // كلمة المرور الجديدة أبداً — أي أن الاستعادة كانت معطّلة فعلياً.
+                  // نوجّهه صراحةً إلى المسار المخصّص بعد إثبات الجلسة. المسار محروق
+                  // هنا لا عبر useNavigate لأن المخزن خارج شجرة الموجّه.
+                  if (event === 'PASSWORD_RECOVERY' && typeof window !== 'undefined') {
+                    window.location.hash = '#/update-password';
+                    logger.info(
+                      'Auth',
+                      'Password recovery session — redirected to /update-password'
+                    );
                   }
                 }
               } catch (err) {

@@ -118,14 +118,12 @@ export const AppRoutes: React.FC = () => {
           </GuestGuard>
         }
       />
-      <Route
-        path={ROUTES.AUTH.UPDATE_PASSWORD}
-        element={
-          <GuestGuard>
-            <UpdatePasswordPage />
-          </GuestGuard>
-        }
-      />
+      {/*
+        ⚡ بلا GuestGuard عن قصد: رابط استعادة كلمة المرور يُنشئ جلسة مصادَقة،
+        وGuestGuard يطرد كل مستخدم مُصادَق إلى لوحة التحكم — فكان يمنع المستخدم
+        من رؤية نموذج كلمة المرور الجديدة. الصفحة نفسها تتعامل مع غياب الجلسة.
+      */}
+      <Route path={ROUTES.AUTH.UPDATE_PASSWORD} element={<UpdatePasswordPage />} />
 
       {/* Public Dedicated Supplier Portal (Token-Based Access) */}
       <Route
