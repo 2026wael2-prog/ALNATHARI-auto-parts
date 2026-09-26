@@ -18,6 +18,15 @@ yarn-error.log*
 .env.local
 .env.development.local
 .env.test.local
+# Local env backups. The `.env` rule above matches that exact name only, so
+# ".env.backup-*" / ".env.bak" would otherwise be tracked and published.
+.env.backup*
+.env.bak*
+.env*.bak
+
+# Local audit scaffolding (holds a live schema dump and DB diagnostics; this is
+# not appropriate to publish from a public repository)
+_audit/
 # backup
 src_backup/
 

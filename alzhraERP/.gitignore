@@ -25,6 +25,10 @@ scripts/verify-fixes.mjs
 .env.development.local
 .env.test.local
 .env.production.local
+# Local env backups (see the note in the root .gitignore)
+.env.backup*
+.env.bak*
+.env*.bak
 
 # backup
 src_backup/
