@@ -15,6 +15,11 @@ import type { PurchaseListRow } from '../../purchases/service';
  */
 export interface ReturnReportRow {
   id: string;
+  /**
+   * ⚡ مصدر الصف. وضع «نظرة عامة» يدمج مرتجعات المبيعات والمشتريات في جدول
+   * واحد بلا عمود يفرّق بينهما، فيظهر اسم مورد تحت عنوان «العميل».
+   */
+  kind: 'sale' | 'purchase';
   invoice_number: string | null;
   issue_date: string | null;
   created_at: string;
@@ -36,6 +41,7 @@ const asText = (value: string | null | undefined): string | null =>
 /** تحويل سجل مرتجع مبيعات إلى النوع الموحد */
 export const normalizeSalesReturn = (row: SalesReturn): ReturnReportRow => ({
   id: row.id,
+  kind: 'sale',
   invoice_number: row.invoice_number,
   issue_date: row.issue_date,
   created_at: row.created_at,
@@ -46,13 +52,16 @@ export const normalizeSalesReturn = (row: SalesReturn): ReturnReportRow => ({
   exchange_rate: row.exchange_rate ?? null,
   party: row.party === null || row.party === undefined ? null : { name: row.party.name },
   reference_invoice_id: row.reference_invoice_id ?? null,
-  return_reason: null,
+  // ⚡ كان مُثبَّتاً على null: السبب موجود في القاعدة لكل مرتجع (يُرسَل عند
+  // الإنشاء عبر p_return_reason) لكنه لم يكن يُقرأ، فتعرض الشاشة «-» دائماً.
+  return_reason: row.return_reason ?? null,
   invoice_items: row.invoice_items ?? null,
 });
 
 /** تحويل سجل مرتجع مشتريات إلى النوع الموحد */
 export const normalizePurchaseReturn = (row: PurchaseListRow): ReturnReportRow => ({
   id: row.id,
+  kind: 'purchase',
   invoice_number: row.invoice_number,
   issue_date: row.issue_date,
   // created_at غير متاح في استعلام المشتريات — نستخدم issue_date

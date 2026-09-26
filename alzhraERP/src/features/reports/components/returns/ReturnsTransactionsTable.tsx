@@ -82,7 +82,12 @@ const ReturnsTransactionsTable: React.FC<Props> = ({
                 التاريخ
               </th>
               <th className="px-3.5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300">
-                {type === 'purchase' ? 'المورد' : 'العميل'}
+                {/*
+                  ⚡ في وضع «نظرة عامة» يُدمج النوعان في جدول واحد، فالعنوان
+                  المفرد («العميل» أو «المورد») يوسم نصف الصفوف خطأً. «الطرف»
+                  يصدق على الحالتين، والشارة في عمود المرجع تبيّن النوع.
+                */}
+                {reportView === 'overview' ? 'الطرف' : type === 'purchase' ? 'المورد' : 'العميل'}
               </th>
               <th className="px-3.5 py-2.5 text-center text-xs font-bold text-slate-600 dark:text-slate-300">
                 الفاتورة الأصلية
@@ -112,6 +117,17 @@ const ReturnsTransactionsTable: React.FC<Props> = ({
                     <span className="text-xs font-bold text-slate-800 dark:text-white">
                       {item.invoice_number}
                     </span>
+                    {reportView === 'overview' && (
+                      <span
+                        className={
+                          item.kind === 'purchase'
+                            ? 'mr-1.5 rounded bg-violet-500/10 px-1.5 py-0.5 text-[10px] font-bold text-violet-600'
+                            : 'mr-1.5 rounded bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-bold text-sky-600'
+                        }
+                      >
+                        {item.kind === 'purchase' ? 'مشتريات' : 'مبيعات'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3.5 py-2.5 font-mono text-xs text-slate-500">
                     {item.issue_date || '—'}
@@ -121,7 +137,10 @@ const ReturnsTransactionsTable: React.FC<Props> = ({
                   </td>
                   <td className="px-3.5 py-2.5 text-center">
                     <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                      {item.reference_invoice?.invoice_number || 'داخلي'}
+                      {/* «داخلي» كانت قيمة احتياطية صامتة تُعرض لكل صف حتى
+                          حين يكون الربط موجوداً فعلاً. الآن تُعرض «غير مرتبط»
+                          فقط عندما لا توجد فاتورة أصلية بحق. */}
+                      {item.reference_invoice?.invoice_number || 'غير مرتبط'}
                     </span>
                   </td>
                   <td className="px-3.5 py-2.5 text-xs text-slate-600 dark:text-slate-400">

@@ -25,6 +25,8 @@ export interface SalesReturn {
   currency_code?: string | null;
   exchange_rate?: number | null;
   reference_invoice_id?: string | null;
+  /** سبب الإرجاع كما خُزِّن عند الإنشاء (كان يُرسَل في p_return_reason ولم يُقرأ) */
+  return_reason?: string | null;
   party?: {
     id: string;
     name: string;
@@ -50,6 +52,7 @@ export type SalesReturnQueryResult = Pick<
   | 'notes'
   | 'created_at'
   | 'reference_invoice_id'
+  | 'return_reason'
   | 'currency_code'
   | 'exchange_rate'
 > & {
@@ -114,6 +117,7 @@ export const useSalesReturns = (filters?: {
             cost_price
           ),
           reference_invoice_id,
+          return_reason,
           created_at
         `
         )

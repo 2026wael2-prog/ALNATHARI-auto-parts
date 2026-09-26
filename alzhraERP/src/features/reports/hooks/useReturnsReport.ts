@@ -1,4 +1,6 @@
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '../../../lib/supabaseClient';
 import { useSalesReturns } from '../../sales/hooks/useSalesReturns';
 import { usePurchaseReturns } from '../../purchases/hooks/usePurchaseReturns';
 import { exportReturnsToExcel } from '../../../core/utils/returnsExcelExporter';
@@ -48,26 +50,31 @@ export const useReturnsReport = () => {
       case 'today':
         startDate = endDate;
         break;
+      // ⚡ كل مدى هنا كان لا يطابق تسميته في ReturnsFilterBar:
+      //   «آخر 7 أيام»  كان اليوم−7 = 8 أيام
+      //   «آخر 30 يوم»  كان شهراً تقويمياً كاملاً (28–31 يوماً)
+      //   «السنة الحالية» كان سنة متدرّجة تبدأ من مثل هذا اليوم من السنة الماضية!
       case 'week': {
-        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
         startDate = formatLocalDate(d);
         break;
       }
       case 'month': {
-        const d = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
         startDate = formatLocalDate(d);
         break;
       }
       case 'year': {
-        const d = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-        startDate = formatLocalDate(d);
+        // السنة الحالية فعلاً: من 1 يناير، لا نافذة متدرّجة.
+        startDate = formatLocalDate(new Date(now.getFullYear(), 0, 1));
         break;
       }
       case 'custom':
         startDate = filters.startDate || endDate;
         break;
       default: {
-        const d = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        // يطابق 'month' (آخر 30 يوماً) حتى لا يختلف السلوك الافتراضي عن المختار
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
         startDate = formatLocalDate(d);
       }
     }
@@ -86,10 +93,45 @@ export const useReturnsReport = () => {
 
   const { data: purchaseReturns, isLoading: purchaseLoading } = usePurchaseReturns();
 
+  // ⚡ أرقام الفواتير الأصلية: الاستعلام لا يجلبها والتضمين الذاتي في PostgREST
+  // غامض هنا (قيدان أجنبيان من invoices إلى نفسها: PGRST201)، فيُجلب الرقم
+  // بطلب واحد مقيَّد بالمعرّفات بدل الاعتماد على embed غير موثوق.
+  const referenceIds = useMemo(
+    () => [
+      ...new Set(
+        (salesReturns || [])
+          .map(r => r.reference_invoice_id)
+          .filter((v): v is string => typeof v === 'string' && v.length > 0)
+      ),
+    ],
+    [salesReturns]
+  );
+
+  const { data: referenceNumbers } = useQuery({
+    queryKey: ['returns_reference_invoice_numbers', referenceIds],
+    enabled: referenceIds.length > 0,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<Map<string, string>> => {
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('id, invoice_number')
+        .in('id', referenceIds);
+      if (error) throw error;
+      return new Map((data ?? []).map(r => [r.id, r.invoice_number ?? '']));
+    },
+  });
+
   // توحيد نوعي البيانات (مبيعات/مشتريات) في مصفوفتين موحدتين
   const normalizedSalesReturns = useMemo(
-    () => (salesReturns || []).map(normalizeSalesReturn),
-    [salesReturns]
+    () =>
+      (salesReturns || []).map(normalizeSalesReturn).map(r => ({
+        ...r,
+        // كان الحقل لا يُملأ إطلاقاً فتظهر «داخلي» لكل صف رغم أن الربط موجود
+        reference_invoice: r.reference_invoice_id
+          ? { invoice_number: referenceNumbers?.get(r.reference_invoice_id) ?? null }
+          : null,
+      })),
+    [salesReturns, referenceNumbers]
   );
   const normalizedPurchaseReturns = useMemo(
     () => (purchaseReturns || []).map(normalizePurchaseReturn),
@@ -238,7 +280,8 @@ export const useReturnsReport = () => {
         invoiceNumber: r.invoice_number ?? '',
         issueDate: r.issue_date ?? '',
         customerName: r.party?.name ?? '',
-        referenceInvoice: r.reference_invoice?.invoice_number ?? r.reference_invoice_id ?? '',
+        // كان يسقط إلى معرّف UUID خام عند غياب الرقم، فيُطبع في الملف.
+        referenceInvoice: r.reference_invoice?.invoice_number ?? '',
         returnReason: r.return_reason ?? '',
         items: r.invoice_items?.length || 0,
         totalAmount: Number(r.total_amount) || 0,
