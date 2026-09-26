@@ -88,8 +88,8 @@ const FAQSection: React.FC<{ sectionRef?: React.RefObject<HTMLDivElement | null>
       <div className="mx-auto max-w-[1440px]">
         <SectionHeader
           badge="الأسئلة الشائعة"
-          title="كل ما تريد معرفته عن نظام الزهراء"
-          highlightedWord="الزهراء"
+          title="كل ما تريد معرفته عن نظام الجعفري"
+          highlightedWord="الجعفري"
           description="إجابات سريعة وموجزة على أكثر الاستفسارات شيوعاً حول النظام."
           accent="blue"
         />

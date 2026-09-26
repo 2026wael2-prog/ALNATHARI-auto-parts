@@ -65,7 +65,7 @@ export const generateStatementExcelWorkbook = async (
       : `حتى تاريخ: ${todayFormatted}`;
 
   // 1. Corporate Brand Header
-  rows.push([company.name_ar || 'منظومة الزهراء المحاسبية']); // Row 0
+  rows.push([company.name_ar || 'منظومة الجعفري المحاسبية']); // Row 0
   rows.push(['كشف حساب مالي تفصيلي | STATEMENT OF ACCOUNT']); // Row 1
   rows.push([
     `${company.address ? `العنوان: ${company.address}  |  ` : ''}${company.phone ? `هاتف: ${company.phone}  |  ` : ''}${company.tax_number ? `الرقم الضريبي: ${company.tax_number}` : ''}`,
@@ -179,7 +179,7 @@ export const generateStatementExcelWorkbook = async (
       `📌 تعليمات السداد البنكي: البنك: ${company.bank_name || '—'} | الآيبان (IBAN): ${company.bank_account_iban || '—'}`,
     ]);
   }
-  rows.push(['تم استخراج هذا الكشف آلياً من منظومة الزهراء لإدارة المبيعات والمحاسبة.']);
+  rows.push(['تم استخراج هذا الكشف آلياً من منظومة الجعفري لإدارة المبيعات والمحاسبة.']);
 
   const ws = XLSX.utils.aoa_to_sheet(rows);
 

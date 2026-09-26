@@ -77,7 +77,7 @@ describe('debtsService.prepareReminder', () => {
     const prepared = debtsService.prepareReminder(
       row({ party_phone: '777123456', outstanding_balance: 250, days_overdue: 5 }),
       'مرحباً {{customer_name}}، مستحق {{amount}} — تأخير {{days_overdue}} أيام.',
-      { companyName: 'الزهراء', signature: 'التحصيل' }
+      { companyName: 'الجعفري', signature: 'التحصيل' }
     );
     expect(prepared.message).toContain('250.00');
     expect(prepared.recipient).toBe('777123456');

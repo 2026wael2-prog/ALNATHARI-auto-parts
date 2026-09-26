@@ -60,7 +60,7 @@ const PricingCard: React.FC<{ plan: LandingPricingPlan; index: number; onStart: 
         type="button"
         onClick={() => {
           if (plan.id === 'enterprise') {
-            window.location.href = `mailto:${LANDING_CONTACT_EMAIL}?subject=استفسار باقة المؤسسات - نظام الزهراء`;
+            window.location.href = `mailto:${LANDING_CONTACT_EMAIL}?subject=استفسار باقة المؤسسات - نظام الجعفري`;
           } else {
             onStart();
           }

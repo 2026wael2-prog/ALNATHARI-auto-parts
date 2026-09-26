@@ -48,7 +48,7 @@ const SmartRecommendations: React.FC<Props> = ({ cartItems, onAdd }) => {
         <div className="mb-3 flex items-center gap-2">
           <Sparkles size={14} className="animate-pulse text-amber-300" />
           <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-100">
-            توصيات ذكاء الزهراء
+            توصيات ذكاء الجعفري
           </h4>
         </div>
 

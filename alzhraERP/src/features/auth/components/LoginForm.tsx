@@ -223,9 +223,9 @@ export const LoginForm: React.FC = () => {
 
       <div className="border-t border-gray-100 pt-6 text-center dark:border-slate-800">
         <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          Al-Zahra Smart ERP
+          Al-Jaafari Smart ERP
         </p>
-        <p className="text-xs font-black text-gray-700 dark:text-slate-300">نظام الزهراء الذكي</p>
+        <p className="text-xs font-black text-gray-700 dark:text-slate-300">نظام الجعفري الذكي</p>
       </div>
     </form>
   );

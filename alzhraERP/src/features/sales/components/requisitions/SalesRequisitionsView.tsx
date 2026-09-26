@@ -81,7 +81,7 @@ export const SalesRequisitionsView: React.FC = () => {
     setIsExportingExcel(true);
     try {
       await exportRequisitionsToExcel({
-        companyName: company?.name_ar || company?.name_en || 'مؤسسة الزهراء لقطع الغيار',
+        companyName: company?.name_ar || company?.name_en || 'مؤسسة الجعفري لقطع الغيار',
         companyAddress: company?.address || '',
         taxNumber: company?.tax_number || '',
         supplier,
@@ -437,7 +437,7 @@ export const SalesRequisitionsView: React.FC = () => {
         <div ref={printRef}>
           <RequisitionsPrintSheet
             company={{
-              name: company?.name_ar || company?.name_en || 'مؤسسة الزهراء',
+              name: company?.name_ar || company?.name_en || 'مؤسسة الجعفري',
               phone: company?.phone ?? undefined,
               address: company?.address ?? undefined,
               tax_number: company?.tax_number ?? undefined,

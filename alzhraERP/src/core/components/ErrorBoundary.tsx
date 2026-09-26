@@ -1,6 +1,6 @@
 // ============================================
 // Error Boundary - حدود الأخطاء المخصصة
-// Al-Zahra Smart ERP
+// Al-Jaafari Smart ERP
 // ============================================
 
 import { Component, type ReactNode } from 'react';

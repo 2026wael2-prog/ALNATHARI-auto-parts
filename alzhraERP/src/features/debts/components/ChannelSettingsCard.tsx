@@ -173,7 +173,7 @@ const SmsFields: React.FC<ChannelFieldsProps> = ({ form, keys, patch, patchKey }
       id="sms-sender"
       label="معرّف المُرسل (Sender ID)"
       value={form.sms_sender_id}
-      placeholder="ALZAHRA"
+      placeholder="ALJAAFARI"
       onChange={value => {
         patch({ sms_sender_id: value });
       }}

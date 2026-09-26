@@ -30,7 +30,7 @@ const ExpenseTable: React.FC<ExpenseTableProps> = ({
       currency: e.currency_code,
       status: e.status,
     }));
-    exportToCSV(exportData, 'Al-Zahra-Expenses', headers);
+    exportToCSV(exportData, 'Al-Jaafari-Expenses', headers);
   };
 
   const columns = [

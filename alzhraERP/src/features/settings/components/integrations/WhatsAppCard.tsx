@@ -35,7 +35,7 @@ const WhatsAppCard: React.FC<Props> = ({ config, onUpdate }) => {
       const res = await messagingApi.sendNotification(
         companyId,
         'test_connection',
-        'اختبار اتصال Al-Zahra Smart ERP مع WhatsApp ناجح! 🚀'
+        'اختبار اتصال Al-Jaafari Smart ERP مع WhatsApp ناجح! 🚀'
       );
 
       if (res.success) {

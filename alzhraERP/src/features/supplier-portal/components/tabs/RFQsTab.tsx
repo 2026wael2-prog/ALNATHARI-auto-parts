@@ -10,7 +10,7 @@ interface RFQsTabProps {
 export const RFQsTab: React.FC<RFQsTabProps> = ({ rfqs, onOpenQuotationFromRFQ }) => {
   const handleShareWhatsApp = (rfq: VendorRFQ) => {
     const lines = [
-      `*طلب تسعير جديد من الزهراء ERP*`,
+      `*طلب تسعير جديد من الجعفري ERP*`,
       `رقم الطلب: ${rfq.rfq_number}`,
       `العنوان: ${rfq.title}`,
       `عدد الأصناف: ${rfq.items_count} صنف`,

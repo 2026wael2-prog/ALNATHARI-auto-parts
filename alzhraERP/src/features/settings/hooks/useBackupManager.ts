@@ -37,7 +37,7 @@ export const useBackupManager = () => {
       showToast('جاري تجهيز بيانات النظام...', 'info');
       const data = await settingsService.exportSystemData();
       showToast('جاري الرفع إلى Google Drive...', 'info');
-      const fileName = `AlZahra_Backup_${formatLocalDate()}`;
+      const fileName = `AlJaafari_Backup_${formatLocalDate()}`;
       await GoogleDriveService.uploadJSONFile(fileName, data, token);
       showToast('تم الرفع إلى حسابك في جوجل درايف بنجاح', 'success');
     } catch (error: unknown) {

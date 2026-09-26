@@ -1,6 +1,6 @@
 /**
  * Purchases Types - Barrel Export
- * Al-Zahra Smart ERP
+ * Al-Jaafari Smart ERP
  */
 
 export * from './domain';

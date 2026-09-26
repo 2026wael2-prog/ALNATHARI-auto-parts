@@ -48,7 +48,7 @@ describe('buildCompanyDoc', () => {
   it('يستخدم الاسم الاحتياطي ويُفرغ الحقول غير المتوفرة عند غياب الشركة', () => {
     const doc = buildCompanyDoc(null);
 
-    expect(doc.name_ar).toBe('منظومة الزهراء المحاسبية');
+    expect(doc.name_ar).toBe('منظومة الجعفري المحاسبية');
     expect(doc.address).toBe('');
     expect(doc.phone).toBe('');
     expect(doc.tax_number).toBe('');
@@ -59,7 +59,7 @@ describe('buildCompanyDoc', () => {
 
   it('يطبّع null والنص الفارغ إلى قيم آمنة ويُمرّر المتوفر كما هو', () => {
     const doc = buildCompanyDoc({
-      name_ar: 'شركة الزهراء',
+      name_ar: 'شركة الجعفري',
       address: null,
       phone: '777111222',
       tax_number: '',
@@ -68,7 +68,7 @@ describe('buildCompanyDoc', () => {
       bank_account_iban: 'YE00 0000 0000',
     });
 
-    expect(doc.name_ar).toBe('شركة الزهراء');
+    expect(doc.name_ar).toBe('شركة الجعفري');
     expect(doc.address).toBe('');
     expect(doc.phone).toBe('777111222');
     expect(doc.tax_number).toBe('');

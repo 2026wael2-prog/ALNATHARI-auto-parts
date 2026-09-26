@@ -170,7 +170,7 @@ export const SupplierPortalPage: React.FC = () => {
     showToast('جاري تصدير كتالوج الأصناف إلى Excel...', 'info');
     try {
       await exportProductCatalogToExcel({
-        companyName: user?.company_name || 'Al-Zahra Smart ERP',
+        companyName: user?.company_name || 'Al-Jaafari Smart ERP',
         currency: 'SAR',
         products,
       });
@@ -299,7 +299,7 @@ export const SupplierPortalPage: React.FC = () => {
         }}
         initialItems={quotationDraftItems}
         allProducts={products}
-        companyName={user?.company_name || 'Al-Zahra Smart ERP'}
+        companyName={user?.company_name || 'Al-Jaafari Smart ERP'}
         supplierName={user?.name || user?.full_name || 'المورد المعتمد'}
         {...(activeQuotationId ? { existingQuotationId: activeQuotationId } : {})}
         onSubmitQuotation={handleSubmitQuotation}

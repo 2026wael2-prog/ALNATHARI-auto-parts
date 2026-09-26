@@ -86,7 +86,7 @@ export const WhatsappTab: React.FC<WhatsappTabProps> = ({ currentHeaderConfig, u
               },
             })
           }
-          placeholder="مثال: مرحباً بكم في مؤسسة الزهراء"
+          placeholder="مثال: مرحباً بكم في مؤسسة الجعفري"
           className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs dark:border-slate-700 dark:bg-slate-800"
         />
       </div>

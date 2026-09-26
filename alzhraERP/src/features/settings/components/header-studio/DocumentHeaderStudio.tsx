@@ -92,7 +92,7 @@ export const DocumentHeaderStudio: React.FC = () => {
   };
 
   const resolvedCompany = {
-    name: company?.name_ar || 'مؤسسة الزهراء للتجارة والخدمات',
+    name: company?.name_ar || 'مؤسسة الجعفري للتجارة والخدمات',
     logo_url: company?.logo_url ?? undefined,
     phone: company?.phone || '00966500000000',
     email: 'info@alzhra-erp.com',

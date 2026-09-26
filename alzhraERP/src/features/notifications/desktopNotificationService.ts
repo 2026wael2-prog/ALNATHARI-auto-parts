@@ -61,7 +61,7 @@ export function startTitleFlash(alertText = '🔔 إشعار جديد!'): void {
 
   let isAlert = true;
   titleInterval = window.setInterval(() => {
-    document.title = isAlert ? `(${alertText}) الزهراء ERP` : originalDocumentTitle;
+    document.title = isAlert ? `(${alertText}) الجعفري ERP` : originalDocumentTitle;
     isAlert = !isAlert;
   }, 1000);
 
@@ -148,7 +148,7 @@ export async function sendTestDesktopNotification(): Promise<boolean> {
   }
 
   const notif = showDesktopNotification({
-    title: '🔔 نظام الزهراء ERP — إشعار سطح المكتب',
+    title: '🔔 نظام الجعفري ERP — إشعار سطح المكتب',
     body: 'تم تفعيل ظهور الإشعارات فوق جميع التطبيقات في جهازك بنجاح!',
     requireInteraction: true,
     tag: 'alzhra-test-notification',

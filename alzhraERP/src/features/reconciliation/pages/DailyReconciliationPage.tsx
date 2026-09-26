@@ -237,7 +237,7 @@ const DailyReconciliationPage: React.FC = () => {
                 actualCard={actualCard}
                 floatRetained={floatRetained}
                 cashToOwner={cashToOwner}
-                shopName={user?.company_name || 'مؤسسة الزهراء'}
+                shopName={user?.company_name || 'مؤسسة الجعفري'}
               />
             </>
           )}
@@ -547,7 +547,7 @@ const DailyReconciliationPage: React.FC = () => {
           actualCard={actualCard}
           floatRetained={floatRetained}
           cashToOwner={cashToOwner}
-          shopName={user?.company_name || 'مؤسسة الزهراء'}
+          shopName={user?.company_name || 'مؤسسة الجعفري'}
         />
       )}
 

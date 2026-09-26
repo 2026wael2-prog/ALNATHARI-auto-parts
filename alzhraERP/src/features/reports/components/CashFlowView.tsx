@@ -114,7 +114,7 @@ const CashFlowView: React.FC = () => {
                   eventType="cash_flow"
                   title="مشاركة تقرير السيولة"
                   className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-hover)] p-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-700"
-                  message={`💰 تقرير السيولة النقدية - الزهراء سمارت\n━━━━━━━━━━━━━━\n🏦 إجمالي النقد المتاح: ${formatCurrency(data?.currentLiquidity || 0)}\n\n📊 التدفق الشهري الأخير:\n  • الوارد: ${formatCurrency(monthlyIn)}\n  • الصادر: ${formatCurrency(monthlyOut)}\n  • الصافي: ${formatCurrency(monthlyIn - monthlyOut)}\n📅 التاريخ: ${reportDate}`}
+                  message={`💰 تقرير السيولة النقدية - الجعفري سمارت\n━━━━━━━━━━━━━━\n🏦 إجمالي النقد المتاح: ${formatCurrency(data?.currentLiquidity || 0)}\n\n📊 التدفق الشهري الأخير:\n  • الوارد: ${formatCurrency(monthlyIn)}\n  • الصادر: ${formatCurrency(monthlyOut)}\n  • الصافي: ${formatCurrency(monthlyIn - monthlyOut)}\n📅 التاريخ: ${reportDate}`}
                 />
               </div>
             </div>

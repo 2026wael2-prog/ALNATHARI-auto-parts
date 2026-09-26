@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// 🎨 Theme Presets — Al-Zahra Smart ERP
+// 🎨 Theme Presets — Al-Jaafari Smart ERP
 // ═══════════════════════════════════════════════════════════════
 // Modular presets exported from ./presets/
 // Preserves exact types, categories and runtime compatibility.

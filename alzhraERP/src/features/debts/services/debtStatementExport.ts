@@ -29,7 +29,7 @@ export interface CompanyHeaderSource extends CompanyDocExtras {
 }
 
 /** الاسم الاحتياطي حين لا تحمل الشركة اسماً عربياً. */
-const FALLBACK_COMPANY_NAME = 'منظومة الزهراء المحاسبية';
+const FALLBACK_COMPANY_NAME = 'منظومة الجعفري المحاسبية';
 
 /** نص آمن: null/undefined/'' → البديل المطلوب (بلا انهيار على الحقول الغائبة). */
 const orFallback = (value: string | null | undefined, fallback: string): string =>

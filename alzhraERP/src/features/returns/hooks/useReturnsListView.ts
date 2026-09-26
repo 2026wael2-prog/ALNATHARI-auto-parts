@@ -191,7 +191,7 @@ export const useReturnsListView = (
   const handleExportExcel = async (): Promise<void> => {
     if (processedReturns.length === 0) return;
     await exportReturnsToExcel({
-      companyName: 'Al-Zahra',
+      companyName: 'Al-Jaafari',
       returns: processedReturns.map(row => toExportRow(row, type)),
       summary: {
         totalReturns: totalAmount,

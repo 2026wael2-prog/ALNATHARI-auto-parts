@@ -108,7 +108,7 @@ export const SupplierQuotationPrintModal: React.FC<Props> = ({
                 )}
                 <div>
                   <h2 className="text-base font-black text-slate-950">
-                    {company.name_ar || 'مؤسسة الزهراء'}
+                    {company.name_ar || 'مؤسسة الجعفري'}
                   </h2>
                   <p className="text-[10px] font-medium text-slate-500">
                     إدارة المشتريات والتوريدات

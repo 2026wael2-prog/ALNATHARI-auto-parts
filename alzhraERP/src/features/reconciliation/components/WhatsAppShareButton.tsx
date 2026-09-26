@@ -21,7 +21,7 @@ export const WhatsAppShareButton: React.FC<WhatsAppShareButtonProps> = ({
   actualCard,
   floatRetained,
   cashToOwner,
-  shopName = 'محل الزهراء',
+  shopName = 'محل الجعفري',
   className = '',
 }) => {
   const [copied, setCopied] = useState(false);

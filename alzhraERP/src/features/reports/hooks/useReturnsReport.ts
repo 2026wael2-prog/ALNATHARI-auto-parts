@@ -233,7 +233,7 @@ export const useReturnsReport = () => {
           : [...filteredSalesReturns, ...filteredPurchaseReturns];
 
     const excelData = {
-      companyName: 'Al-Zahra Smart',
+      companyName: 'Al-Jaafari Smart',
       returns: returns.map((r: ReturnReportRow) => ({
         invoiceNumber: r.invoice_number ?? '',
         issueDate: r.issue_date ?? '',

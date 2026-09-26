@@ -1,5 +1,5 @@
 /**
- * Unified Logger System — Al-Zahra Smart ERP
+ * Unified Logger System — Al-Jaafari Smart ERP
  * ============================================
  * Replaces scattered console.log/warn/error calls with a centralized,
  * configurable logger. Includes:

@@ -22,7 +22,7 @@ export interface DebtRiskAnalysis {
 }
 
 const SYSTEM_DEBT_ROLE =
-  'أنت خبير مالي وإداري متخصص في إدارة الائتمان والتحصيل لمنظومة الزهراء المحاسبية. ' +
+  'أنت خبير مالي وإداري متخصص في إدارة الائتمان والتحصيل لمنظومة الجعفري المحاسبية. ' +
   'تتميز باللباقة العالية، الدقة المحاسبية، والقدرة على صياغة رسائل واتساب احترافية تناسب الثقافة العربية وتراعي الحفاظ على علاقة العميل مع ضمان سرعة التحصيل. ' +
   'أخرج دائماً JSON صالح فقط.';
 
@@ -102,7 +102,7 @@ export const debtAiService = {
 قم بصياغة رسالة واتساب احترافية ومؤثرة لتذكير العميل بسداد مديونيته:
 
 بيانات العميل والمديونية:
-- اسم المنشأة: ${companyName || 'منظومة الزهراء'}
+- اسم المنشأة: ${companyName || 'منظومة الجعفري'}
 - اسم العميل: ${row.party_name}
 - إجمالي الرصيد المستحق: ${row.outstanding_balance} ${row.currency_code}
 - المبلغ المتأخر: ${row.overdue_amount} ${row.currency_code}
@@ -161,7 +161,7 @@ ${toneInstructions[tone]}
 
 بيانات العميل:
 - اسم العميل: ${row.party_name}
-- المنشأة: ${companyName || 'منظومة الزهراء'}
+- المنشأة: ${companyName || 'منظومة الجعفري'}
 - التصنيف: ${row.category}
 - الرصيد القائم: ${row.outstanding_balance} ${row.currency_code}
 - المبلغ المتأخر: ${row.overdue_amount} ${row.currency_code}
@@ -269,7 +269,7 @@ ${toneInstructions[tone]}
 
     return `🧾 *كشف حساب مالي ملخص*
 ━━━━━━━━━━━━━━━━━━
-🏢 *المنشأة:* ${companyName || 'منظومة الزهراء'}
+🏢 *المنشأة:* ${companyName || 'منظومة الجعفري'}
 👤 *العميل:* ${partyName}
 📅 *الفترة:* ${dateRangeText || new Date().toLocaleDateString('en-GB')}
 ━━━━━━━━━━━━━━━━━━

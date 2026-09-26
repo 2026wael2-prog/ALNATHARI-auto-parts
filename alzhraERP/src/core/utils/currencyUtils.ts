@@ -1,5 +1,5 @@
 /**
- * Currency Utilities for Al-Zahra Smart ERP
+ * Currency Utilities for Al-Jaafari Smart ERP
  * Unified currency conversion and formatting functions
  */
 

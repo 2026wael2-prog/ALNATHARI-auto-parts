@@ -67,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               {title}
             </h1>
             <span className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-[var(--app-text-secondary)] md:hidden">
-              Al-Zahra Smart ERP
+              Al-Jaafari Smart ERP
             </span>
           </div>
         </div>

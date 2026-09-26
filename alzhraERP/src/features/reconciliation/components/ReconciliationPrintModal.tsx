@@ -23,7 +23,7 @@ export const ReconciliationPrintModal: React.FC<ReconciliationPrintModalProps> =
   actualCard,
   floatRetained,
   cashToOwner,
-  shopName = 'مؤسسة الزهراء لقطع الغيار',
+  shopName = 'مؤسسة الجعفري لقطع الغيار',
 }) => {
   const printAreaRef = useRef<HTMLDivElement>(null);
 

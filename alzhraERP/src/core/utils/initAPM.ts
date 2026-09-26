@@ -1,5 +1,5 @@
 /**
- * APM Initialization — Al-Zahra Smart ERP
+ * APM Initialization — Al-Jaafari Smart ERP
  * ==========================================
  * Plugs the logger into an APM backend at app startup.
  *

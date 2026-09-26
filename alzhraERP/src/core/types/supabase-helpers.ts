@@ -1,7 +1,7 @@
 // ============================================
 // Supabase Type Helpers
 // helpers لاستخراج الأنواع من Database Types
-// Al-Zahra Smart ERP
+// Al-Jaafari Smart ERP
 // ============================================
 
 import type { Database } from '../database.types';

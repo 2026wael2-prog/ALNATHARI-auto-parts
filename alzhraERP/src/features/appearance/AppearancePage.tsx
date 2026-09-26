@@ -1,6 +1,15 @@
-
 import React, { useState, useMemo } from 'react';
-import { Palette, Crown, Droplets, Type, Wand2, Save, RotateCcw, Sparkles, Filter } from 'lucide-react';
+import {
+  Palette,
+  Crown,
+  Droplets,
+  Type,
+  Wand2,
+  Save,
+  RotateCcw,
+  Sparkles,
+  Filter,
+} from 'lucide-react';
 import { useThemeStore } from '../../lib/themeStore';
 import { THEME_PRESETS, THEME_CATEGORIES } from './constants';
 import ThemePresetCard from './components/ThemePresetCard';
@@ -13,43 +22,71 @@ import FontSelector from './components/FontSelector';
 import EffectsCustomizer from './components/EffectsCustomizer';
 import { cn } from '../../core/utils';
 
-type CategoryFilter = 'all' | 'premium' | 'automotive' | 'glass' | 'bento' | 'royal' | 'accounting' | 'beige' | 'classic' | 'nature' | 'bold' | 'corporate' | 'night' | 'seasonal' | 'artistic' | 'industry';
+type CategoryFilter =
+  | 'all'
+  | 'premium'
+  | 'automotive'
+  | 'glass'
+  | 'bento'
+  | 'royal'
+  | 'accounting'
+  | 'beige'
+  | 'classic'
+  | 'nature'
+  | 'bold'
+  | 'corporate'
+  | 'night'
+  | 'seasonal'
+  | 'artistic'
+  | 'industry';
 
 const AppearancePage: React.FC = () => {
   const {
-    mode, setMode, activePresetId, setPreset,
-    draftSettings, accentColor, font, radius, fontSize, shadowStrength, glassBlur, glassOpacity,
-    saveAppearanceSettings, revertAppearanceSettings
+    mode,
+    setMode,
+    activePresetId,
+    setPreset,
+    draftSettings,
+    accentColor,
+    font,
+    radius,
+    fontSize,
+    shadowStrength,
+    glassBlur,
+    glassOpacity,
+    saveAppearanceSettings,
+    revertAppearanceSettings,
   } = useThemeStore();
 
   const [activeTab, setActiveTab] = useState<AppearanceTab>('premium');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const { showToast } = useFeedbackStore();
 
-  const hasUnsavedChanges = useMemo(() =>
-    draftSettings.accentColor !== accentColor ||
-    draftSettings.font !== font ||
-    draftSettings.radius !== radius ||
-    draftSettings.fontSize !== fontSize ||
-    draftSettings.shadowStrength !== shadowStrength ||
-    draftSettings.glassBlur !== glassBlur ||
-    draftSettings.glassOpacity !== glassOpacity,
+  const hasUnsavedChanges = useMemo(
+    () =>
+      draftSettings.accentColor !== accentColor ||
+      draftSettings.font !== font ||
+      draftSettings.radius !== radius ||
+      draftSettings.fontSize !== fontSize ||
+      draftSettings.shadowStrength !== shadowStrength ||
+      draftSettings.glassBlur !== glassBlur ||
+      draftSettings.glassOpacity !== glassOpacity,
     [draftSettings, accentColor, font, radius, fontSize, shadowStrength, glassBlur, glassOpacity]
   );
 
   const handleSave = () => {
     saveAppearanceSettings();
-    showToast("تم حفظ إعدادات المظهر بنجاح!", 'success');
+    showToast('تم حفظ إعدادات المظهر بنجاح!', 'success');
   };
 
   const handleRevert = () => {
     revertAppearanceSettings();
-    showToast("تم التراجع عن التغييرات غير المحفوظة", 'info');
+    showToast('تم التراجع عن التغييرات غير المحفوظة', 'info');
   };
 
   const handlePresetSelect = (id: string) => {
     setPreset(id);
-    showToast("تم تطبيق النمط المختار ✨", 'success');
+    showToast('تم تطبيق النمط المختار ✨', 'success');
   };
 
   const handleModeChange = (newMode: ThemeMode) => {
@@ -85,7 +122,23 @@ const AppearancePage: React.FC = () => {
     if (categoryFilter !== 'all') return null; // Don't group when a specific category is selected
 
     const groups: Array<{ category: string; presets: typeof THEME_PRESETS }> = [];
-    const categories = ['premium', 'automotive', 'glass', 'bento', 'royal', 'accounting', 'beige', 'classic', 'nature', 'bold', 'corporate', 'night', 'seasonal', 'artistic', 'industry'] as const;
+    const categories = [
+      'premium',
+      'automotive',
+      'glass',
+      'bento',
+      'royal',
+      'accounting',
+      'beige',
+      'classic',
+      'nature',
+      'bold',
+      'corporate',
+      'night',
+      'seasonal',
+      'artistic',
+      'industry',
+    ] as const;
 
     for (const cat of categories) {
       const catPresets = filteredPresets.filter(p => p.category === cat);
@@ -126,19 +179,21 @@ const AppearancePage: React.FC = () => {
     switch (activeTab) {
       case 'premium':
         return (
-          <div className="space-y-6 animate-in fade-in duration-500">
+          <div className="animate-in fade-in space-y-6 duration-500">
             {/* Category Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
               <Filter size={14} className="text-gray-400" />
               {CATEGORY_FILTERS.map(cat => (
                 <button
                   key={cat.id}
-                  onClick={() => { setCategoryFilter(cat.id); }}
+                  onClick={() => {
+                    setCategoryFilter(cat.id);
+                  }}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all duration-300 border-2",
+                    'flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide transition-all duration-300 md:px-4 md:py-2 md:text-xs',
                     categoryFilter === cat.id
-                      ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
-                      : "bg-[var(--app-surface)] text-gray-500 dark:text-slate-400 border-gray-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-800"
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'border-gray-100 bg-[var(--app-surface)] text-gray-500 hover:border-blue-200 dark:border-slate-800 dark:text-slate-400 dark:hover:border-blue-800'
                   )}
                 >
                   <span>{cat.emoji}</span>
@@ -157,17 +212,17 @@ const AppearancePage: React.FC = () => {
                     <div className="flex items-center gap-2 px-1">
                       <span className="text-base md:text-lg">{catInfo.emoji}</span>
                       <div>
-                        <h3 className="text-[11px] md:text-sm font-bold text-gray-700 dark:text-slate-200">
+                        <h3 className="text-[11px] font-bold text-gray-700 dark:text-slate-200 md:text-sm">
                           {catInfo.label}
                         </h3>
-                        <p className="text-[10px] md:text-[10px] text-gray-400 dark:text-slate-500 font-bold">
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 md:text-[10px]">
                           {catInfo.description}
                         </p>
                       </div>
-                      <div className="flex-1 border-t border-gray-100 dark:border-slate-800 mr-2" />
+                      <div className="mr-2 flex-1 border-t border-gray-100 dark:border-slate-800" />
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4">
-                      {group.presets.map((preset) => (
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3">
+                      {group.presets.map(preset => (
                         <ThemePresetCard
                           key={preset.id}
                           preset={preset}
@@ -184,12 +239,12 @@ const AppearancePage: React.FC = () => {
               <>
                 <div className="flex items-center gap-2 px-1">
                   <Sparkles size={14} className="text-blue-500" />
-                  <h3 className="text-[11px] md:text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 md:text-sm">
                     {filteredPresets.length} نمط متوفر
                   </h3>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 md:gap-4">
-                  {filteredPresets.map((preset) => (
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-3">
+                  {filteredPresets.map(preset => (
                     <ThemePresetCard
                       key={preset.id}
                       preset={preset}
@@ -202,17 +257,18 @@ const AppearancePage: React.FC = () => {
             )}
 
             {filteredPresets.length === 0 && (
-              <div className="text-center py-12">
+              <div className="py-12 text-center">
                 <span className="text-4xl">🎨</span>
-                <p className="text-sm font-bold text-gray-400 dark:text-slate-500 mt-3">
+                <p className="mt-3 text-sm font-bold text-gray-400 dark:text-slate-500">
                   لا توجد أنماط لهذا التصنيف في الوضع الحالي
                 </p>
               </div>
             )}
 
-            <div className="p-4 md:p-5 bg-blue-50 dark:bg-blue-900/10 rounded-2xl md:rounded-[2rem] border border-blue-100 dark:border-blue-900/20">
-              <p className="text-[10px] md:text-xs font-bold text-blue-800 dark:text-blue-300 leading-relaxed text-center">
-                💡 تم تصميم هذه الأنماط خصيصاً لتوفير أفضل تجربة مستخدم لنظام "الزهراء". يمكنك التعديل يدوياً على الألوان والخطوط من التبويبات الأخرى.
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/20 dark:bg-blue-900/10 md:rounded-[2rem] md:p-5">
+              <p className="text-center text-[10px] font-bold leading-relaxed text-blue-800 dark:text-blue-300 md:text-xs">
+                💡 تم تصميم هذه الأنماط خصيصاً لتوفير أفضل تجربة مستخدم لنظام "الجعفري". يمكنك
+                التعديل يدوياً على الألوان والخطوط من التبويبات الأخرى.
               </p>
             </div>
           </div>
@@ -228,25 +284,27 @@ const AppearancePage: React.FC = () => {
     }
   };
 
-
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-slate-950">
+    <div className="flex h-full flex-col bg-gray-50 dark:bg-slate-950">
       <MicroHeader
         title="تخصيص هوية النظام"
         icon={Palette}
         iconColor="text-blue-500"
         tabs={TABS}
         activeTab={activeTab}
-        onTabChange={(id) => { setActiveTab(id as AppearanceTab); }}
+        onTabChange={id => {
+          setActiveTab(id as AppearanceTab);
+        }}
       />
 
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar pb-24">
-        <div className="max-w-none mx-auto space-y-6 md:space-y-8">
-
-          <div className="bg-[var(--app-surface)] p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] border-2 border-gray-100 dark:border-slate-800 shadow-sm">
-            <div className="flex items-center gap-2 mb-3 md:mb-4 px-1">
-              <span className="w-1.5 h-4 bg-blue-600 rounded-full"></span>
-              <h3 className="text-[11px] md:text-sm font-bold text-gray-400 uppercase tracking-widest">نمط العرض الافتراضي</h3>
+      <div className="custom-scrollbar flex-1 overflow-y-auto p-4 pb-24 md:p-6">
+        <div className="mx-auto max-w-none space-y-6 md:space-y-8">
+          <div className="rounded-2xl border-2 border-gray-100 bg-[var(--app-surface)] p-4 shadow-sm dark:border-slate-800 md:rounded-[2.5rem] md:p-6">
+            <div className="mb-3 flex items-center gap-2 px-1 md:mb-4">
+              <span className="h-4 w-1.5 rounded-full bg-blue-600"></span>
+              <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-400 md:text-sm">
+                نمط العرض الافتراضي
+              </h3>
             </div>
             <ModeSelector activeMode={mode} onChange={handleModeChange} />
           </div>
@@ -256,21 +314,31 @@ const AppearancePage: React.FC = () => {
       </div>
 
       {/* Unsaved Changes Bar */}
-      <div className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 transition-transform duration-500 px-4",
-        hasUnsavedChanges ? "translate-y-[-1.5rem]" : "translate-y-full"
-      )}>
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-slate-950/95 backdrop-blur-2xl rounded-2xl md:rounded-[2.5rem] shadow-2xl p-3 md:p-4 flex justify-between items-center border border-white/10 ring-1 ring-blue-500/20">
+      <div
+        className={cn(
+          'fixed bottom-0 left-0 right-0 z-50 px-4 transition-transform duration-500',
+          hasUnsavedChanges ? 'translate-y-[-1.5rem]' : 'translate-y-full'
+        )}
+      >
+        <div className="mx-auto max-w-3xl">
+          <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/95 p-3 shadow-2xl ring-1 ring-blue-500/20 backdrop-blur-2xl md:rounded-[2.5rem] md:p-4">
             <div className="flex items-center gap-3 pr-2">
-              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
-              <p className="text-white font-bold text-[10px] md:text-xs uppercase tracking-widest">تعديلات غير محفوظة</p>
+              <div className="h-2 w-2 animate-pulse rounded-full bg-amber-500"></div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white md:text-xs">
+                تعديلات غير محفوظة
+              </p>
             </div>
             <div className="flex gap-2">
-              <button onClick={handleRevert} className="flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl md:rounded-2xl font-bold text-[10px] uppercase tracking-tighter transition-all">
+              <button
+                onClick={handleRevert}
+                className="flex items-center gap-2 rounded-xl bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-tighter text-white transition-all hover:bg-white/10 md:rounded-2xl md:px-5 md:py-2.5"
+              >
                 <RotateCcw size={14} /> تراجع
               </button>
-              <button onClick={handleSave} className="flex items-center gap-2 px-6 md:px-8 py-2 md:py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl md:rounded-2xl font-bold text-[10px] uppercase tracking-tighter shadow-lg shadow-blue-500/20 transition-all">
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2 text-[10px] font-bold uppercase tracking-tighter text-white shadow-lg shadow-blue-500/20 transition-all hover:bg-blue-700 md:rounded-2xl md:px-8 md:py-2.5"
+              >
                 <Save size={14} /> حفظ الإعدادات
               </button>
             </div>

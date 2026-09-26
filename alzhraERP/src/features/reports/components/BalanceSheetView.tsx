@@ -171,7 +171,7 @@ const BalanceSheetView: React.FC = () => {
             eventType="balance_sheet"
             title="مشاركة الميزانية العمومية"
             className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-hover)] px-3 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-200 dark:text-slate-200 dark:hover:bg-slate-700"
-            message={`🏦 الميزانية العمومية (المركز المالي) - الزهراء سمارت\n━━━━━━━━━━━━━━\n💼 إجمالي الأصول: ${formatCurrency(totalAssets)}\n📋 إجمالي الخصوم: ${formatCurrency(totalLiabilities)}\n🏛️ حقوق الملكية: ${totalEquity < 0 ? `(${formatCurrency(Math.abs(totalEquity))})` : formatCurrency(totalEquity)}\n${isBalanced ? '✅ الميزانية متزنة' : `❌ غير متزنة - الفرق: ${formatCurrency(Math.abs(totalAssets - totalLiabEquity))}`}\n📅 التاريخ: ${reportDate}`}
+            message={`🏦 الميزانية العمومية (المركز المالي) - الجعفري سمارت\n━━━━━━━━━━━━━━\n💼 إجمالي الأصول: ${formatCurrency(totalAssets)}\n📋 إجمالي الخصوم: ${formatCurrency(totalLiabilities)}\n🏛️ حقوق الملكية: ${totalEquity < 0 ? `(${formatCurrency(Math.abs(totalEquity))})` : formatCurrency(totalEquity)}\n${isBalanced ? '✅ الميزانية متزنة' : `❌ غير متزنة - الفرق: ${formatCurrency(Math.abs(totalAssets - totalLiabEquity))}`}\n📅 التاريخ: ${reportDate}`}
           />
         </div>
       </div>

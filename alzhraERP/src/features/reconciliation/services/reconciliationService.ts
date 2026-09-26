@@ -120,7 +120,7 @@ export const reconciliationService = {
       `🔒 *المتبقي بالدرج لبكرة (فكة):* ${floatRetained.toFixed(2)} ر.س`,
       `💼 *الصافي المسلم للمالك:* ${cashToOwner.toFixed(2)} ر.س`,
       `━━━━━━━━━━━━━━━━━━━━`,
-      `تم الإقفال بنجاح عبر نظام الزهراء Smart ERP`,
+      `تم الإقفال بنجاح عبر نظام الجعفري Smart ERP`,
     ]
       .filter(Boolean)
       .join('\n');

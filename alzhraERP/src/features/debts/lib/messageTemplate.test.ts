@@ -9,7 +9,7 @@ describe('renderReminderTemplate', () => {
     dueDate: '2026-08-20',
     daysOverdue: 3,
     invoiceNumber: 'INV-100',
-    companyName: 'الزهراء',
+    companyName: 'الجعفري',
     signature: 'فريق التحصيل',
   };
 
@@ -22,7 +22,7 @@ describe('renderReminderTemplate', () => {
     expect(out).toContain('2026-08-20');
     expect(out).toContain('3 أيام');
     expect(out).toContain('INV-100');
-    expect(out).toContain('الزهراء');
+    expect(out).toContain('الجعفري');
     expect(out).toContain('فريق التحصيل');
     expect(out).not.toContain('{{');
   });

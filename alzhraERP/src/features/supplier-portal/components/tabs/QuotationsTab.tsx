@@ -16,7 +16,7 @@ export const QuotationsTab: React.FC<QuotationsTabProps> = ({
 }) => {
   const handleShareWhatsApp = (quote: VendorQuotation) => {
     const lines = [
-      `*عرض سعر من الزهراء ERP*`,
+      `*عرض سعر من الجعفري ERP*`,
       `رقم العرض: ${quote.quotation_number}`,
       `المورد: ${quote.supplier_name}`,
       `المراجعة: #${quote.current_revision_number}`,

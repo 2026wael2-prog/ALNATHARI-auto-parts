@@ -1,6 +1,6 @@
 /**
  * Domain Types for Sales Feature
- * Al-Zahra Smart ERP
+ * Al-Jaafari Smart ERP
  *
  * These types provide type-safe representations of sales domain entities
  * with proper mapping to and from database types.

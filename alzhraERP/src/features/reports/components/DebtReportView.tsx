@@ -157,7 +157,7 @@ const DebtReportView: React.FC = () => {
               eventType="debt_report"
               title="مشاركة المركز"
               className="rounded-lg bg-white/20 px-2.5 py-1 text-xs text-white transition-all hover:bg-white/30"
-              message={`📊 تقرير المركز المالي - الزهراء سمارت\n━━━━━━━━━━━━━━\n✅ مستحقات (عملاء): ${formatCurrency(data?.summary.receivables || 0, baseCurrency)}\n🔴 التزامات (موردين): ${formatCurrency(data?.summary.payables || 0, baseCurrency)}\n📊 صافي المركز: ${formatCurrency(Math.abs(netPosition), baseCurrency)} ${netPosition >= 0 ? '(لصالحك)' : '(عليك)'}\n📅 التاريخ: ${formatLocalDate(new Date())}`}
+              message={`📊 تقرير المركز المالي - الجعفري سمارت\n━━━━━━━━━━━━━━\n✅ مستحقات (عملاء): ${formatCurrency(data?.summary.receivables || 0, baseCurrency)}\n🔴 التزامات (موردين): ${formatCurrency(data?.summary.payables || 0, baseCurrency)}\n📊 صافي المركز: ${formatCurrency(Math.abs(netPosition), baseCurrency)} ${netPosition >= 0 ? '(لصالحك)' : '(عليك)'}\n📅 التاريخ: ${formatLocalDate(new Date())}`}
             />
           </div>
         </div>

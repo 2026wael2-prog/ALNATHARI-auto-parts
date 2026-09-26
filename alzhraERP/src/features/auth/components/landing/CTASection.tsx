@@ -42,7 +42,7 @@ const CTASection: React.FC<CTASectionProps> = ({ sectionRef, authTab, onTabChang
               <span className="text-blue-400">مبيعاتك ومخزونك؟</span>
             </h2>
             <p className="mb-5 text-xs font-normal leading-relaxed text-slate-300 sm:mb-6 sm:text-sm">
-              انضم إلى مئات أصحاب مراكز ومحلات قطع الغيار الذين يعتمدون على نظام الزهراء لتشغيل
+              انضم إلى مئات أصحاب مراكز ومحلات قطع الغيار الذين يعتمدون على نظام الجعفري لتشغيل
               أعمالهم اليومية بدقة وسرعة.
             </p>
 

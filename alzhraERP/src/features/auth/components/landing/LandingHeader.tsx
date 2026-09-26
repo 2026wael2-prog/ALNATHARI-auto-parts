@@ -50,7 +50,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({
                 className="block text-sm font-black leading-none tracking-tight sm:text-base"
                 style={{ color: 'var(--app-text)' }}
               >
-                نظام الزهراء
+                نظام الجعفري
               </span>
               <span className="mt-0.5 block text-[10px] font-bold text-blue-600 dark:text-blue-400 sm:text-[10px]">
                 Auto Parts ERP

@@ -231,7 +231,7 @@ export function formatPartsForWhatsApp(vehicle: VehicleInfo, parts: ExcelGridPar
 
   lines.push(`━━━━━━━━━━━━━━━━━━`);
   lines.push(`📦 *إجمالي القطع:* ${String(parts.length)}`);
-  lines.push(`🏢 *نظام الزهراء لقطع الغيار*`);
+  lines.push(`🏢 *نظام الجعفري لقطع الغيار*`);
 
   return lines.join('\n');
 }

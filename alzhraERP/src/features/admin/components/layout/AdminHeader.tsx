@@ -95,7 +95,7 @@ export const AdminHeader: React.FC = () => {
             </span>
           </div>
           <p className="text-[11px] text-[var(--app-text-secondary)]">
-            Al-Zahra Smart ERP: عمليات المنصة العليا
+            Al-Jaafari Smart ERP: عمليات المنصة العليا
           </p>
         </div>
       </div>

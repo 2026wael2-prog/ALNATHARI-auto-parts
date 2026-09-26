@@ -58,7 +58,7 @@ export const generateQuotationPDF = async (options: PDFQuotationOptions): Promis
   doc.setFont('Helvetica', 'bold');
   doc.text('Client Organization:', 18, y + 8);
   doc.setFont('Helvetica', 'normal');
-  doc.text(options.companyName || 'Al-Zahra Smart ERP', 18, y + 14);
+  doc.text(options.companyName || 'Al-Jaafari Smart ERP', 18, y + 14);
   if (options.companyTaxNumber) {
     doc.text(`Tax / VAT #: ${options.companyTaxNumber}`, 18, y + 20);
   }

@@ -393,7 +393,7 @@ export const BondVoucherModal: React.FC<BondVoucherModalProps> = ({ isOpen, onCl
               <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-3 text-[10px] text-slate-400 dark:border-slate-800/80">
                 <span className="flex items-center gap-1 font-mono">
                   <ShieldCheck size={12} className="text-emerald-500" />
-                  مستند محاسبي معتمد بنظام الزهراء الذكي ERP
+                  مستند محاسبي معتمد بنظام الجعفري الذكي ERP
                 </span>
                 <span className="font-mono">طُبع في: {formatLocalDate()}</span>
               </div>

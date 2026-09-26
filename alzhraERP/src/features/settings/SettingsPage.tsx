@@ -443,7 +443,7 @@ const SettingsPage: React.FC = () => {
           <div className="border-t border-gray-100 p-3 dark:border-slate-800">
             <div className="rounded-xl border border-blue-100 bg-gradient-to-l from-blue-50 to-indigo-50 p-2.5 dark:border-blue-900/30 dark:from-blue-950/30 dark:to-indigo-950/30">
               <p className="mb-0.5 text-[10px] font-bold uppercase text-blue-800 dark:text-blue-400">
-                الزهراء سمارت ERP
+                الجعفري سمارت ERP
               </p>
               <p className="text-[10px] font-bold text-blue-600/60 dark:text-blue-400/50">
                 v2.0 — نظام إدارة متكامل

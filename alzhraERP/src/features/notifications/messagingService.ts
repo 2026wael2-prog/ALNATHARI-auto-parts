@@ -74,7 +74,7 @@ export const messagingService = {
   testConnection: async (companyId: string): Promise<{ success: boolean; results?: any[] }> => {
     const testMessage = `✅ اختبار الاتصال ناجح!
 ━━━━━━━━━━━━━━
-🔗 نظام الزهراء سمارت ERP
+🔗 نظام الجعفري سمارت ERP
 📅 ${new Date().toLocaleDateString('ar-SA-u-nu-latn')}
 ⏰ ${new Date().toLocaleTimeString('ar-SA-u-nu-latn')}`;
 

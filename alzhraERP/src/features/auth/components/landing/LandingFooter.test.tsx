@@ -43,7 +43,7 @@ describe('LandingFooter', () => {
     );
     expect(screen.getByRole('link', { name: 'زيارة الموقع التعريفي' })).toHaveAttribute(
       'href',
-      'https://alzahra-erp.app'
+      'https://aljaafari-alzhra.vercel.app'
     );
   });
 });

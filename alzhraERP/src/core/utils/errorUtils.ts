@@ -1,5 +1,5 @@
 /**
- * محرك معالجة الأخطاء الذكي لنظام الزهراء
+ * محرك معالجة الأخطاء الذكي لنظام الجعفري
  */
 export interface AppError extends Error {
   code: string;

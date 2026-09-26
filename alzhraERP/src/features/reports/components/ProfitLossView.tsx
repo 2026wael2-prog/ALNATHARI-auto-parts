@@ -137,7 +137,7 @@ const ProfitLossView: React.FC = () => {
             eventType="profit_loss"
             title="مشاركة تقرير الأداء المالي"
             className="rounded-lg border border-[var(--app-border)] bg-[var(--app-surface)] px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-            message={`📊 تقرير الأرباح والخسائر - الزهراء سمارت\n━━━━━━━━━━━━━━\n📗 إجمالي الإيرادات: ${formatCurrency(totalRevenues)}\n📕 إجمالي المصروفات: ${formatCurrency(totalExpenses)}\n${isProfit ? '✅' : '🔴'} صافي ${isProfit ? 'الربح' : 'الخسارة'}: ${formatCurrency(Math.abs(data?.netProfit || 0))}\n📅 التاريخ: ${reportDate}`}
+            message={`📊 تقرير الأرباح والخسائر - الجعفري سمارت\n━━━━━━━━━━━━━━\n📗 إجمالي الإيرادات: ${formatCurrency(totalRevenues)}\n📕 إجمالي المصروفات: ${formatCurrency(totalExpenses)}\n${isProfit ? '✅' : '🔴'} صافي ${isProfit ? 'الربح' : 'الخسارة'}: ${formatCurrency(Math.abs(data?.netProfit || 0))}\n📅 التاريخ: ${reportDate}`}
           />
         </div>
       </div>

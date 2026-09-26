@@ -102,7 +102,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollToRegister, scrollToFea
               variants={itemVariants}
               className="mx-auto mt-3 max-w-lg text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300 sm:mt-4 sm:text-sm sm:leading-7 lg:mx-0"
             >
-              نظام الزهراء يربط المخزون، المبيعات، المحاسبة ومطابقة قطع الغيار في واجهة واحدة سريعة
+              نظام الجعفري يربط المخزون، المبيعات، المحاسبة ومطابقة قطع الغيار في واجهة واحدة سريعة
               ومريحة لجميع أعمالك.
             </motion.p>
 

@@ -288,8 +288,8 @@ const StatementView: React.FC<StatementViewProps> = ({ partyType, initialPartyId
 
   const company = {
     nameAr:
-      invoiceSettings?.company_name_ar || settingsCompany?.name_ar || 'منظومة الزهراء المحاسبية',
-    nameEn: invoiceSettings?.company_name_en || settingsCompany?.name_en || 'Al-Zahra ERP',
+      invoiceSettings?.company_name_ar || settingsCompany?.name_ar || 'منظومة الجعفري المحاسبية',
+    nameEn: invoiceSettings?.company_name_en || settingsCompany?.name_en || 'Al-Jaafari ERP',
     address: invoiceSettings?.company_address || settingsCompany?.address || '',
     phone: invoiceSettings?.company_phone || settingsCompany?.phone || '',
     taxNumber: settingsCompany?.tax_number || '---',

@@ -40,7 +40,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
               </div>
               <div>
                 <span className="block text-base font-black leading-none text-white">
-                  نظام الزهراء
+                  نظام الجعفري
                 </span>
                 <span className="mt-0.5 block text-[10px] font-bold text-blue-500">
                   Auto Parts ERP
@@ -57,7 +57,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
                 {
                   icon: Globe,
                   label: 'زيارة الموقع التعريفي',
-                  href: 'https://alzahra-erp.app',
+                  href: 'https://aljaafari-alzhra.vercel.app',
                   external: true,
                 },
                 {
@@ -69,7 +69,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
                 {
                   icon: Users,
                   label: 'التواصل مع فريق الدعم',
-                  href: `mailto:${LANDING_CONTACT_EMAIL}?subject=دعم%20نظام%20الزهراء`,
+                  href: `mailto:${LANDING_CONTACT_EMAIL}?subject=دعم%20نظام%20الجعفري`,
                   external: false,
                 },
               ].map(({ icon: Icon, label, href, external }) => (
@@ -142,7 +142,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
               </li>
               <li>
                 <a
-                  href={`mailto:${LANDING_CONTACT_EMAIL}?subject=سياسة الخصوصية%20-%20نظام%20الزهراء`}
+                  href={`mailto:${LANDING_CONTACT_EMAIL}?subject=سياسة الخصوصية%20-%20نظام%20الجعفري`}
                   className="transition-colors hover:text-blue-400"
                 >
                   سياسة الخصوصية
@@ -150,7 +150,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
               </li>
               <li>
                 <a
-                  href={`mailto:${LANDING_CONTACT_EMAIL}?subject=شروط الاستخدام%20-%20نظام%20الزهراء`}
+                  href={`mailto:${LANDING_CONTACT_EMAIL}?subject=شروط الاستخدام%20-%20نظام%20الجعفري`}
                   className="transition-colors hover:text-blue-400"
                 >
                   شروط الاستخدام
@@ -206,7 +206,7 @@ const LandingFooter: React.FC<LandingFooterProps> = ({
 
         <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-900 pt-5 md:flex-row">
           <p className="text-xs text-slate-500">
-            © {new Date().getFullYear()} نظام الزهراء. جميع الحقوق محفوظة.
+            © {new Date().getFullYear()} نظام الجعفري. جميع الحقوق محفوظة.
           </p>
           <div className="flex items-center gap-1.5 text-xs text-slate-500">
             صنع بـ <Heart size={13} className="fill-rose-500 text-rose-500" /> لخدمة قطاع قطع الغيار

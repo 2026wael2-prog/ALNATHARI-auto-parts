@@ -89,10 +89,10 @@ describe('reconciliationService', () => {
         1200,
         200,
         1720,
-        'محل الزهراء لقطع الغيار'
+        'محل الجعفري لقطع الغيار'
       );
 
-      expect(msg).toContain('إقفال يومية محل الزهراء لقطع الغيار');
+      expect(msg).toContain('إقفال يومية محل الجعفري لقطع الغيار');
       expect(msg).toContain('2026-09-05');
       expect(msg).toContain('أحمد');
       expect(msg).toContain('محمد');
@@ -127,7 +127,7 @@ describe('reconciliationService', () => {
         0,
         100,
         1180,
-        'محل الزهراء'
+        'محل الجعفري'
       );
 
       expect(msg).toContain('*سندات قبض نقدية:* +250.00 ر.س');

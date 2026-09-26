@@ -1,6 +1,6 @@
 {
-  "app_title": "الزهراء Smart ERP",
-  "app_subtitle": "نظام الزهراء لقطع غيار السيارات",
+  "app_title": "الجعفري Smart ERP",
+  "app_subtitle": "نظام الجعفري لقطع غيار السيارات",
   "loading": "جاري التحميل...",
   "password_weak": "ضعيفة",
   "password_medium": "متوسطة",
@@ -77,7 +77,7 @@
   "page_not_found_title": "404 - الصفحة غير موجودة",
   "page_not_found_desc": "عذراً، لم نتمكن من العثور على الصفحة التي تبحث عنها.",
   "register_page_title": "إنشاء حساب جديد",
-  "register_page_subtitle": "ابدأ إدارة أعمالك مع نظام الزهراء",
+  "register_page_subtitle": "ابدأ إدارة أعمالك مع نظام الجعفري",
   "full_name": "الاسم الكامل",
   "company_name": "اسم الشركة / المحل",
   "register_button": "تسجيل حساب جديد",
