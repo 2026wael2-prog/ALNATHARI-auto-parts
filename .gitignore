@@ -103,8 +103,11 @@ test-results/
 # one-off DB maintenance workspaces & data dumps
 # (may contain real tenant data: audit logs, index surgery scripts, baselines)
 سوبابيس/
-.tenant-transfer*/
-.tenant-xfer*/
+# Every tenant-transfer/backup workspace. Broadened from the explicit
+# `.tenant-transfer*/` + `.tenant-xfer*/` pair after a `.tenant-backup-target-*`
+# rollback snapshot was left unprotected — it holds the entire tenant's
+# financial rows and this repository is public.
+.tenant-*/
 *.ndjson
 *.gz
 
