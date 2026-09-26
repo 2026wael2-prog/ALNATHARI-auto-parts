@@ -24,6 +24,9 @@ describe('expensesService.calculateStats', () => {
       paidExpenses: 0,
       pendingExpenses: 0,
       categoriesCount: 0,
+      // تفصيل العملات الذي تُرجعه الدالة لدعم معيار تعدد العملات
+      totalExpensesYER: 0,
+      totalExpensesSAR: 0,
     });
   });
 

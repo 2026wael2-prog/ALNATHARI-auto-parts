@@ -22,8 +22,10 @@ describe('invalidateFinancialQueries', () => {
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['party_statement_v3'],
     });
+    // مطابقة بادئة عن قصد: كل استعلامات الديون مُفتاحة ['debts', scope, companyId, …]
+    // (useDebtQueries.ts) فالبادئة تُبطِل جميعها معاً.
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: ['debts', 'company-123'],
+      queryKey: ['debts'],
     });
     expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['journals', 'company-123'],
