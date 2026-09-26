@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Session, AuthChangeEvent } from '@supabase/supabase-js';
 import type { AuthUser } from './types';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase, PASSWORD_RECOVERY_INTENT } from '../../lib/supabaseClient';
 import { authApi } from './api';
 import { queryClient } from '../../lib/queryClient';
 import { persister } from '../../lib/persister';
@@ -290,17 +290,18 @@ export const useAuthStore = create<AuthState>()(
                     logger.warn('Auth', `Profile fetch after ${event} failed`);
                   }
 
-                  // ⚡ رابط استعادة كلمة المرور يُنشئ جلسة ويُطلق PASSWORD_RECOVERY
-                  // دون أي تنقّل: كان المستخدم يهبط على لوحة التحكم ولا يرى نموذج
-                  // كلمة المرور الجديدة أبداً — أي أن الاستعادة كانت معطّلة فعلياً.
-                  // نوجّهه صراحةً إلى المسار المخصّص بعد إثبات الجلسة. المسار محروق
-                  // هنا لا عبر useNavigate لأن المخزن خارج شجرة الموجّه.
-                  if (event === 'PASSWORD_RECOVERY' && typeof window !== 'undefined') {
+                  // ⚡ رابط استعادة كلمة المرور يُنشئ جلسة لكنه لا يُنقّل المستخدم،
+                  // فيهبط على لوحة التحكم ولا يرى نموذج كلمة المرور الجديدة أبداً.
+                  // نعتمد أولاً على الالتقاط المُبكّر في supabaseClient لأن حدث
+                  // PASSWORD_RECOVERY قد يُطلَق قبل اشتراك المخزن فيُفقد تماماً،
+                  // ونُبقي معالجة الحدث كمسار ثانٍ.
+                  if (
+                    (event === 'PASSWORD_RECOVERY' || PASSWORD_RECOVERY_INTENT) &&
+                    typeof window !== 'undefined' &&
+                    !window.location.hash.startsWith('#/update-password')
+                  ) {
                     window.location.hash = '#/update-password';
-                    logger.info(
-                      'Auth',
-                      'Password recovery session — redirected to /update-password'
-                    );
+                    logger.info('Auth', 'Password recovery — routed to /update-password');
                   }
                 }
               } catch (err) {

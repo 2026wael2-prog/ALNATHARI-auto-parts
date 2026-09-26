@@ -11,6 +11,19 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 // Feature flags
 export const AI_FEATURES_ENABLED = import.meta.env.VITE_ENABLE_AI_FEATURES === 'true';
 
+// ── Password-recovery intent ───────────────────────────────────────────────────
+// A recovery link arrives as "#access_token=…&type=recovery". supabase-js parses
+// that hash during client initialisation and dispatches PASSWORD_RECOVERY — but
+// initialisation can complete before the auth store calls onAuthStateChange, so
+// subscribing to the event alone is not reliable: the event is simply missed and
+// the user lands on the dashboard instead of the change-password screen.
+//
+// This module body runs before createClient() below, so the hash is still intact.
+// The store reads this flag once the session is established and routes from it.
+export const PASSWORD_RECOVERY_INTENT: boolean =
+  typeof window !== 'undefined' &&
+  /(^|[#&?])type=recovery(&|$)/.test(window.location.hash || window.location.href);
+
 // Validate URL format (should end with .supabase.co)
 const isValidSupabaseUrl = (url: string): boolean => {
   if (!url) return false;
