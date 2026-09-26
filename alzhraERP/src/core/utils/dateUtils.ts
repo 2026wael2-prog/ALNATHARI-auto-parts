@@ -46,7 +46,9 @@ export const getDateRangeForPreset = (
     return { from: todayStr, to: todayStr };
   }
   if (preset === 'this_week') {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+    // ⚡ 7 أيام شاملة اليوم = اليوم − 6. كان − 7 فيمتد النطاق 8 أيام تقويمية
+    // بينما الوسم يقول «آخر 7 أيام». (المعرّف قديم؛ الدلالة الآن صحيحة.)
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
     return { from: formatLocalDate(d), to: todayStr };
   }
   if (preset === 'this_month') {

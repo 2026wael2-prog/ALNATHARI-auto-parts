@@ -36,7 +36,7 @@ const RecentActivity = lazy(() => import('./components/RecentActivity'));
 
 const PERIOD_OPTIONS: Array<{ key: DashboardPeriod; label: string }> = [
   { key: 'today', label: 'اليوم' },
-  { key: 'this_week', label: 'هذا الأسبوع' },
+  { key: 'last_7_days', label: 'آخر 7 أيام' },
   { key: 'this_month', label: 'هذا الشهر' },
   { key: 'this_year', label: 'هذا العام' },
   { key: 'all_time', label: 'جميع الأوقات' },

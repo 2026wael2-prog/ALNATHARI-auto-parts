@@ -233,7 +233,10 @@ export const dashboardApi = {
     const todayStr = formatLocalDate();
     const effectiveDateTo = dateTo || todayStr;
     const effectiveDateFrom = dateFrom !== undefined ? dateFrom : null;
-    const currentYearStart = `${todayStr.slice(0, 4)}-01-01`;
+    // ⚡ بداية زمنية للتعبير عن «بلا حد سفلي» في الدوال التي لا تُعرّف
+    // DEFAULT لمعاملاتها (report_trial_balance و *_detailed إلزامية المعاملات
+    // فلا تستطيع أصلاً قبول NULL). لا بيانات أعمال قبل هذا التاريخ.
+    const ALL_TIME_START = '1900-01-01';
     const branchParam = branchId ?? undefined;
 
     // Ensure we always have a valid AbortSignal to prevent 'addEventListener is not a function' error
@@ -260,7 +263,9 @@ export const dashboardApi = {
         'report_profit_loss',
         {
           p_company_id: companyId,
-          p_from: effectiveDateFrom || currentYearStart,
+          // report_profit_loss تُعرّف p_from DEFAULT NULL، فحذف المعامل عند
+          // «جميع الأوقات» هو التعبير الصحيح — لا استبداله ببداية السنة.
+          ...(effectiveDateFrom ? { p_from: effectiveDateFrom } : {}),
           p_to: effectiveDateTo,
           ...(branchParam !== undefined ? { p_branch_id: branchParam } : {}),
         },
@@ -396,7 +401,9 @@ export const dashboardApi = {
           'report_trial_balance',
           {
             p_company_id: companyId,
-            p_from: effectiveDateFrom ?? currentYearStart,
+            // report_trial_balance معاملها p_from إلزامي (لا DEFAULT)، فتُمرَّر
+            // بداية زمنية صريحة للتعبير عن «بلا حد سفلي».
+            p_from: effectiveDateFrom ?? ALL_TIME_START,
             p_to: effectiveDateTo,
             ...(branchParam !== undefined ? { p_branch_id: branchParam } : {}),
           },

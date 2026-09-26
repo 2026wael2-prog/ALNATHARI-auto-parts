@@ -20,12 +20,13 @@ describe('getPeriodDates (local-calendar safety)', () => {
     expect(dateTo).toBe('2026-09-03');
   });
 
-  it('uses the local calendar day for "this_week" start', () => {
-    // 2026-09-03 هو خميس؛ بداية الأسبوع (السبت) = 2026-08-29
-    vi.setSystemTime(new Date(2026, 8, 3, 1, 15));
+  it('uses a rolling 7-day window (inclusive of today) for "last_7_days"', () => {
+    // ⚡ نافذة متدرّجة لا أسبوع تقويمي: 7 أيام شاملة اليوم = اليوم − 6.
+    // المنشأة تعمل كل يوم بلا أيام راحة، فحدود الأسبوع التقويمي لا معنى لها.
+    vi.setSystemTime(new Date(2026, 8, 3, 1, 15)); // 3 سبتمبر 2026
 
-    const { dateFrom, dateTo } = getPeriodDates('this_week');
-    expect(dateFrom).toBe('2026-08-29');
+    const { dateFrom, dateTo } = getPeriodDates('last_7_days');
+    expect(dateFrom).toBe('2026-08-28'); // 28 أغسطس .. 3 سبتمبر = 7 أيام
     expect(dateTo).toBe('2026-09-03');
   });
 

@@ -46,11 +46,11 @@ export interface InvoiceItemWithDetails {
 // Re-export common types from database
 export type { Database };
 
-export type DashboardPeriod = 'today' | 'this_week' | 'this_month' | 'this_year' | 'all_time';
+export type DashboardPeriod = 'today' | 'last_7_days' | 'this_month' | 'this_year' | 'all_time';
 
 export const PERIOD_LABELS: Record<DashboardPeriod, string> = {
   today: 'اليوم',
-  this_week: 'هذا الأسبوع',
+  last_7_days: 'آخر 7 أيام',
   this_month: 'هذا الشهر',
   this_year: 'هذا العام',
   all_time: 'جميع الأوقات',
@@ -69,12 +69,14 @@ export function getPeriodDates(period: DashboardPeriod): {
   if (period === 'today') {
     return { dateFrom: dateTo, dateTo };
   }
-  if (period === 'this_week') {
-    const startOfWeek = new Date(now);
-    const day = now.getDay(); // 0 is Sunday, 6 is Saturday
-    const diff = (day + 1) % 7; // distance from Saturday
-    startOfWeek.setDate(now.getDate() - diff);
-    return { dateFrom: formatLocalDate(startOfWeek), dateTo };
+  if (period === 'last_7_days') {
+    // ⚡ نافذة متدرّجة لا أسبوع تقويمي: المنشأة تعمل كل يوم بلا أيام راحة، فحدود
+    // الأسبوع التقويمي لا ترتكز على شيء في العمل الفعلي. وهي أيضاً ما تستخدمه
+    // شرائط الفلترة ووحدة السندات، فتوحّدت الأنظمة الثلاثة أخيراً.
+    // 7 أيام **شاملة اليوم** = اليوم − 6. وكانت الأسبوعية التقويمية تبدأ السبت.
+    const start = new Date(now);
+    start.setDate(now.getDate() - 6);
+    return { dateFrom: formatLocalDate(start), dateTo };
   }
   if (period === 'this_month') {
     const year = now.getFullYear();
