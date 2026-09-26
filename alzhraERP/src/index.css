@@ -988,10 +988,32 @@ a:focus-visible {
     overflow: visible !important;
   }
 
-  /* Hide scrollbars, shadows, and decorative elements */
-  .custom-scrollbar::-webkit-scrollbar,
-  .shadow-*, .backdrop-blur-*, .animate-* {
+  /* Hide scrollbars and neutralise decorative effects for print.
+     ملاحظة إصلاح: كانت مكتوبة سابقاً على الصورة
+       .custom-scrollbar::-webkit-scrollbar,
+       .shadow-*, .backdrop-blur-*, .animate-* { display: none !important; }
+     وهي CSS غير صالحة (‎.shadow-*‎ ليس محدِّداً)، وقاعدة CSS تسقط بالكامل إذا
+     احتوت قائمتها محدِّداً واحداً غير صالح — فحتى قاعدة شريط التمرير لم تكن
+     تُطبَّق إطلاقاً، وكان esbuild يحذّر منها عند التصغير. الصيغة الصحيحة لمطابقة
+     أصناف Tailwind المولَّدة هي محدِّدات السمات.
+     كما أن المطلوب تعطيل التأثيرات لا حجب العنصر: display:none على
+     [class*="shadow-"] كان سيحذف محتوى حقيقياً لا زخرفة. */
+  .custom-scrollbar::-webkit-scrollbar {
     display: none !important;
+  }
+
+  [class*="shadow-"] {
+    box-shadow: none !important;
+  }
+
+  [class*="backdrop-blur-"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  [class*="animate-"] {
+    animation: none !important;
+    transition: none !important;
   }
 
   /* Table improvements */
