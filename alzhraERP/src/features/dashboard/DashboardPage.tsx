@@ -83,7 +83,9 @@ const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
   const companyId = user?.company_id ?? '';
-  const [period, setPeriod] = useState<DashboardPeriod>('this_month');
+  // الافتراضي «اليوم»: المنشأة تعمل كل يوم بلا إجازات، ولوحة التحكم تُفتح
+  // عادةً لمراجعة يوم العمل الجاري لا الشهر بأكمله.
+  const [period, setPeriod] = useState<DashboardPeriod>('today');
 
   const {
     stats,

@@ -22,7 +22,7 @@ const ARABIC_MONTHS = [
   'ديسمبر',
 ];
 
-export const useDashboardMetrics = (period: DashboardPeriod = 'this_month') => {
+export const useDashboardMetrics = (period: DashboardPeriod = 'today') => {
   const dashboardData = useDashboardData(period);
   const { stats, salesData } = dashboardData;
   const { user } = useAuthStore();

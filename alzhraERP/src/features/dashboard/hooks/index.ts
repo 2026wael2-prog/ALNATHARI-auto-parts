@@ -194,9 +194,7 @@ interface UseDashboardDataResult extends DashboardDataPayload {
   data: DashboardDataPayload | null;
 }
 
-export const useDashboardData = (
-  period: DashboardPeriod = 'this_month'
-): UseDashboardDataResult => {
+export const useDashboardData = (period: DashboardPeriod = 'today'): UseDashboardDataResult => {
   const { user } = useAuthStore();
   const companyId = user?.company_id;
   const { branchId } = useBranchFilter();
