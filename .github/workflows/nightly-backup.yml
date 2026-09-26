@@ -1,0 +1,123 @@
+name: Nightly tenant backup
+
+# ---------------------------------------------------------------------------
+# WHY THIS EXISTS
+# ---------------------------------------------------------------------------
+# Until 2026-09-26 the project had NO backups at all:
+#     supabase /database/backups -> { "backups": [], "pitr_enabled": false }
+# while `log_cron_backup_event()` wrote "Scheduled backup triggered" into
+# audit_logs every night at 02:00. The system claimed a backup existed and none
+# did. That function is now unscheduled (see cron job cleanup) and this workflow
+# is the real thing.
+#
+# HOW IT WORKS
+# ---------------------------------------------------------------------------
+# Exports the tenant with the same tool used for the migration
+# (alzhraERP/scripts/tenant-transfer.mjs), so the dump is byte-faithful: it
+# passes PostgreSQL's JSON text straight through without a JavaScript
+# JSON.parse round-trip, which silently rewrites numeric literals.
+#
+# The archive is AES-256 encrypted BEFORE upload, because artifacts of a public
+# repository are downloadable by anyone. Encryption is what makes this safe
+# without depending on the repository's visibility.
+#
+# REQUIRED REPOSITORY SECRETS
+# ---------------------------------------------------------------------------
+#   SUPABASE_ACCESS_TOKEN  Supabase Management API token for the LIVE project
+#   BACKUP_PASSPHRASE      strong passphrase used to encrypt the archive
+#                          (store it in a password manager -- without it the
+#                           backups are unrecoverable)
+#
+# Run it manually any time from the Actions tab (workflow_dispatch).
+# ---------------------------------------------------------------------------
+
+on:
+  schedule:
+    # 01:40 UTC = 04:40 Asia/Riyadh, after the 01:30 daily cron window.
+    - cron: '40 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Export, verify, encrypt
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      SOURCE_PROJECT_REF: orxlyiokccaodypindye
+      SOURCE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      # Jaafari tenant
+      COMPANY_ID: cd8123f3-3cd4-4310-8b7a-042546c2b09c
+      BACKUP_DIR: tenant-backup
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fail fast when secrets are missing
+        run: |
+          if [ -z "$SOURCE_ACCESS_TOKEN" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN secret is not set"; exit 1
+          fi
+          if [ -z "${{ secrets.BACKUP_PASSPHRASE }}" ]; then
+            echo "::error::BACKUP_PASSPHRASE secret is not set"; exit 1
+          fi
+
+      - name: Export tenant snapshot
+        working-directory: alzhraERP
+        run: |
+          node scripts/tenant-transfer.mjs export \
+            --company "$COMPANY_ID" \
+            --out "../$BACKUP_DIR"
+
+      - name: Verify the snapshot against the live database
+        working-directory: alzhraERP
+        run: |
+          node scripts/tenant-transfer.mjs verify \
+            --dir "../$BACKUP_DIR" \
+            --target-ref "$SOURCE_PROJECT_REF"
+
+      - name: Guard against an empty or truncated dump
+        run: |
+          set -euo pipefail
+          if [ ! -f "$BACKUP_DIR/manifest.json" ]; then
+            echo "::error::no manifest produced"; exit 1
+          fi
+          rows=$(node -e "
+            const m = require('./$BACKUP_DIR/manifest.json');
+            console.log(Object.values(m.tables).reduce((a,b)=>a+b,0));
+          ")
+          echo "rows exported: $rows"
+          if [ "$rows" -lt 20000 ]; then
+            echo "::error::only $rows rows exported -- expected >= 20000; refusing to treat this as a good backup"
+            exit 1
+          fi
+
+      - name: Encrypt the archive
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          tar -czf "$BACKUP_DIR.tar.gz" "$BACKUP_DIR"
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase "$BACKUP_PASSPHRASE" \
+              --output "$BACKUP_DIR.tar.gz.gpg" "$BACKUP_DIR.tar.gz"
+          # never leave the plaintext dump or its unencrypted tarball behind
+          rm -rf "$BACKUP_DIR" "$BACKUP_DIR.tar.gz"
+          ls -l "$BACKUP_DIR.tar.gz.gpg"
+
+      - name: Upload encrypted backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: tenant-backup-${{ github.run_number }}-${{ github.run_attempt }}
+          path: tenant-backup.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error

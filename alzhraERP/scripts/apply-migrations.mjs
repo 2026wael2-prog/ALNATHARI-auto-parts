@@ -17,7 +17,7 @@ import { join } from 'node:path';
 // Target project. Defaults to the production project; override with
 // SUPABASE_PROJECT_REF to build the same schema in another project
 // (e.g. a new/backup environment) from this repository's migration history.
-const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'zzthamxjxnxzzpswllid';
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'orxlyiokccaodypindye';
 const QUERY_ENDPOINT = `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`;
 
 let ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
