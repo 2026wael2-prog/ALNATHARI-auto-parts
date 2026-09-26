@@ -147,7 +147,6 @@ export const productService = {
         p_sort_key: 'updated_at',
         p_sort_dir: 'desc',
         ...(branchId ? { p_branch_id: branchId } : {}),
-        p_is_core: null,
       });
       if (error) {
         logger.warn('inventory', 'searchProducts RPC error, falling back to ILIKE:', error.message);

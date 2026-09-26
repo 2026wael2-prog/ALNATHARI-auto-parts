@@ -28,9 +28,9 @@ export const transferService = {
       .select(
         `
                 *,
-                from_warehouse:warehouses!from_warehouse_id(name_ar),
-                to_warehouse:warehouses!to_warehouse_id(name_ar),
-                items:stock_transfer_items!stock_transfer_items_transfer_id_fkey(*, product:products!product_id(name_ar, sku))
+                from_warehouse:warehouses!fk_stock_transfers_company_from_wh(name_ar),
+                to_warehouse:warehouses!fk_stock_transfers_company_to_wh(name_ar),
+                items:stock_transfer_items!fk_sti_company_transfer(*, product:products!fk_sti_company_product(name_ar, sku))
             `
       )
       .eq('company_id', companyId)

@@ -17,6 +17,7 @@ import type {
   SystemPlatformConfigs,
   TrialExtensionResult,
 } from '../types';
+import { optArg } from '@/core/utils/rpcArgs';
 
 // أنواع مستمدة من مخطط قاعدة البيانات المُولّد (تبقي هذا الملف خالياً من `any`)
 type SubscriptionPlanRow = Database['public']['Tables']['subscription_plans']['Row'];
@@ -148,8 +149,8 @@ export const adminService = {
     offset?: number | undefined;
   }): Promise<AdminCompany[]> {
     const { data, error } = await supabase.rpc('get_admin_companies_list', {
-      p_search: params?.search?.trim() || null,
-      p_status: params?.status || null,
+      ...optArg('p_search', params?.search?.trim()),
+      ...optArg('p_status', params?.status),
       p_limit: params?.limit ?? 50,
       p_offset: params?.offset ?? 0,
     });
@@ -165,8 +166,8 @@ export const adminService = {
     status?: string | undefined;
   }): Promise<number> {
     const { data, error } = await supabase.rpc('get_admin_companies_count', {
-      p_search: params?.search?.trim() || null,
-      p_status: params?.status || null,
+      ...optArg('p_search', params?.search?.trim()),
+      ...optArg('p_status', params?.status),
     });
     if (error) throw error;
     return data ?? 0;
@@ -212,7 +213,11 @@ export const adminService = {
   async assignCompanyPlan(companyId: string, planId: string | null): Promise<boolean> {
     const { data, error } = await supabase.rpc('admin_assign_company_plan', {
       p_company_id: companyId,
-      p_plan_id: planId,
+      // معامل الدالة في PostgreSQL يقبل NULL ولو لم يُعرَّف له DEFAULT، فالنوع المولَّد
+      // p_plan_id: string أضيق من العقد الحقيقي: القيمة NULL هي كيف يُلغى ربط الباقة.
+      // ويجب أن يبقى المعامل حاضراً (لا DEFAULT له) فلا يصح حذفه كما يفعل optArg مع
+      // المعاملات الاختيارية.
+      p_plan_id: planId as string,
     });
     if (error) throw error;
     return data;
@@ -332,7 +337,7 @@ export const adminService = {
     offset?: number | undefined;
   }): Promise<AdminUser[]> {
     const { data, error } = await supabase.rpc('get_admin_users_list', {
-      p_search: params?.search?.trim() || null,
+      ...optArg('p_search', params?.search?.trim()),
       p_limit: params?.limit ?? 50,
       p_offset: params?.offset ?? 0,
     });
@@ -345,7 +350,7 @@ export const adminService = {
    */
   async getUsersCount(search?: string): Promise<number> {
     const { data, error } = await supabase.rpc('get_admin_users_count', {
-      p_search: search?.trim() || null,
+      ...optArg('p_search', search?.trim()),
     });
     if (error) throw error;
     return data ?? 0;
@@ -439,7 +444,7 @@ export const adminService = {
     const numericId = typeof alertId === 'number' ? alertId : parseInt(alertId, 10);
     const { data, error } = await supabase.rpc('admin_resolve_security_alert', {
       p_alert_id: numericId,
-      p_notes: notes || null,
+      ...optArg('p_notes', notes),
     });
     if (error) throw error;
     return data;
@@ -457,7 +462,7 @@ export const adminService = {
     const { data, error } = await supabase.rpc('get_security_alerts_page', {
       p_limit: params?.limit ?? 50,
       p_offset: params?.offset ?? 0,
-      p_resolved: params?.resolved ?? null,
+      ...optArg('p_resolved', params?.resolved),
     });
     if (error) throw error;
     return ((data ?? []) as unknown as SecurityAlertRow[]).map(toHoneypotLog);
@@ -468,7 +473,7 @@ export const adminService = {
    */
   async getSecurityAlertsCount(resolved?: boolean): Promise<number> {
     const { data, error } = await supabase.rpc('get_security_alerts_count', {
-      p_resolved: resolved ?? null,
+      ...optArg('p_resolved', resolved),
     });
     if (error) throw error;
     return data ?? 0;
@@ -517,8 +522,8 @@ export const adminService = {
     let offset = 0;
     for (;;) {
       const { data, error } = await supabase.rpc('get_admin_companies_list', {
-        p_search: params?.search?.trim() || null,
-        p_status: params?.status || null,
+        ...optArg('p_search', params?.search?.trim()),
+        ...optArg('p_status', params?.status),
         p_limit: chunk,
         p_offset: offset,
       });
@@ -541,7 +546,7 @@ export const adminService = {
     let offset = 0;
     for (;;) {
       const { data, error } = await supabase.rpc('get_admin_users_list', {
-        p_search: search?.trim() || null,
+        ...optArg('p_search', search?.trim()),
         p_limit: chunk,
         p_offset: offset,
       });
@@ -567,7 +572,7 @@ export const adminService = {
       const { data, error } = await supabase.rpc('get_security_alerts_page', {
         p_limit: chunk,
         p_offset: offset,
-        p_resolved: resolved ?? null,
+        ...optArg('p_resolved', resolved),
       });
       if (error) throw error;
       const rows = (data ?? []) as unknown as SecurityAlertRow[];

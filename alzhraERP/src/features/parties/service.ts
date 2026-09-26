@@ -4,6 +4,7 @@ import { useAuthStore } from '../auth/store';
 import { parseError } from '../../core/utils/errorUtils';
 import type { Party, PartyStats, PartyFormData, PartyType, PartyCategory } from './types';
 import { logger } from '../../core/utils/logger';
+import { optArg } from '@/core/utils/rpcArgs';
 
 export interface StatementMovement {
   id: string;
@@ -135,10 +136,12 @@ export const partiesService = {
     const { data, error } = await supabase.rpc('get_party_statement', {
       p_company_id: companyId,
       p_party_id: partyId,
-      p_from_date: options?.startDate || null,
-      p_to_date: options?.endDate || null,
-      p_currency_code:
-        options?.currencyCode && options.currencyCode !== 'ALL' ? options.currencyCode : null,
+      ...optArg('p_from_date', options?.startDate),
+      ...optArg('p_to_date', options?.endDate),
+      ...optArg(
+        'p_currency_code',
+        options?.currencyCode && options.currencyCode !== 'ALL' ? options.currencyCode : null
+      ),
     });
     if (error) throw error;
 

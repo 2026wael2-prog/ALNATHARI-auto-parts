@@ -35,6 +35,7 @@ import type {
   DebtTaskQueueRow,
   PartyTimelineEntry,
 } from '../types';
+import { optArg } from '@/core/utils/rpcArgs';
 
 /** إعدادات قنوات الإرسال الفارغة (افتراضي قبل أي ضبط) — بلا أي مفاتيح. */
 export const EMPTY_CHANNEL_CONFIG: DebtChannelConfig = {
@@ -83,7 +84,7 @@ export const debtApi = {
       p_due_soon_days: params.dueSoonDays,
       p_critical_days: params.criticalDays,
       p_reminder_window_days: params.reminderWindowDays,
-      p_branch_id: branchId ?? null,
+      ...optArg('p_branch_id', branchId),
     });
     if (error) throw error;
     return data;
@@ -95,7 +96,7 @@ export const debtApi = {
   ): Promise<Record<string, unknown> | null> => {
     const { data, error } = await supabase.rpc('get_debt_analytics_summary', {
       p_company_id: companyId,
-      p_branch_id: branchId ?? null,
+      ...optArg('p_branch_id', branchId),
     });
     if (error) {
       // Graceful degradation (same pattern as getTodayTasks): on a database
@@ -113,7 +114,7 @@ export const debtApi = {
   getTodayTasks: async (companyId: string, branchId?: string | null): Promise<TodayTask[]> => {
     const { data, error } = await supabase.rpc('get_debt_today_tasks', {
       p_company_id: companyId,
-      p_branch_id: branchId ?? null,
+      ...optArg('p_branch_id', branchId),
     });
     if (error) {
       if (error.code === 'PGRST202' || /could not find the function/i.test(error.message ?? '')) {
@@ -424,7 +425,7 @@ export const debtMessageApi = {
     const { data, error } = await supabase.rpc('get_debt_followup_actions', {
       p_company_id: companyId,
       p_limit: limit,
-      ...(branchId !== undefined ? { p_branch_id: branchId } : {}),
+      ...optArg('p_branch_id', branchId),
     });
     if (error) {
       if (error.code === 'PGRST202' || /could not find the function/i.test(error.message ?? '')) {

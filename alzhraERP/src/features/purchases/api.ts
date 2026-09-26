@@ -4,6 +4,7 @@ import type { CreatePurchaseDTO, SupplierPaymentData } from './types';
 import type { Json } from '../../core/database.types';
 import { treasuryApi } from '../accounting/api/treasuryApi';
 import type { MatchedInvoiceItem, SearchInvoiceResultRow } from '@/core/types/invoiceSearch';
+import { optArg } from '@/core/utils/rpcArgs';
 
 type PurchaseItem = CreatePurchaseDTO['items'][number];
 interface PurchaseItemPayload {
@@ -155,12 +156,12 @@ export const purchasesApi = {
     const { data, error } = await supabase.rpc('search_invoices_advanced', {
       p_company_id: companyId,
       p_type: params.type ?? 'purchase',
-      p_query: params.query?.trim() ? params.query.trim() : null,
-      p_date_from: params.dateFrom || null,
-      p_date_to: params.dateTo || null,
-      p_status: params.status || null,
-      p_payment_method: params.paymentMethod || null,
-      p_branch_id: params.branchId || null,
+      ...optArg('p_query', params.query?.trim() || null),
+      ...optArg('p_date_from', params.dateFrom),
+      ...optArg('p_date_to', params.dateTo),
+      ...optArg('p_status', params.status),
+      ...optArg('p_payment_method', params.paymentMethod),
+      ...optArg('p_branch_id', params.branchId),
       p_limit: params.limit ?? 500,
       p_offset: params.offset ?? 0,
     });

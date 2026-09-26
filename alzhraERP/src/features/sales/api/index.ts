@@ -6,6 +6,7 @@ import { logger } from '@/core/utils/logger';
 import type { Invoice, Party } from '@/core/types/supabase-helpers';
 import { salesQuotationsApi } from './quotationsApi';
 import type { MatchedInvoiceItem, SearchInvoiceResultRow } from '@/core/types/invoiceSearch';
+import { optArg } from '@/core/utils/rpcArgs';
 
 // Re-export quotations API
 export { salesQuotationsApi };
@@ -103,12 +104,12 @@ export const salesApi = {
     const { data, error } = await supabase.rpc('search_invoices_advanced', {
       p_company_id: companyId,
       p_type: params.type ?? 'sale',
-      p_query: params.query && params.query.trim() ? params.query.trim() : null,
-      p_date_from: params.dateFrom || null,
-      p_date_to: params.dateTo || null,
-      p_status: params.status || null,
-      p_payment_method: params.paymentMethod || null,
-      p_branch_id: params.branchId || null,
+      ...optArg('p_query', params.query?.trim() || null),
+      ...optArg('p_date_from', params.dateFrom),
+      ...optArg('p_date_to', params.dateTo),
+      ...optArg('p_status', params.status),
+      ...optArg('p_payment_method', params.paymentMethod),
+      ...optArg('p_branch_id', params.branchId),
       p_limit: params.limit ?? 500,
       p_offset: params.offset ?? 0,
     });
@@ -141,7 +142,10 @@ export const salesApi = {
       `${companyId}_${Date.now()}_${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}`;
 
     const rpcParams = {
-      p_party_id: payload.partyId || null,
+      // كما في admin_assign_company_plan: المعامل بلا DEFAULT فيجب أن يبقى حاضراً،
+      // لكن NULL مشروع (بيع نقدي لعميل نقدي بلا طرف مسجَّل). النوع المولَّد لا يستطيع
+      // التعبير عن «إلزامي الحضور ويقبل NULL»، فيُقيَّد النوع صراحةً هنا فقط.
+      p_party_id: (payload.partyId || null) as string,
       p_invoice_date: payload.issueDate || formatLocalDate(),
       p_due_date: payload.dueDate || formatLocalDate(),
       p_items: payload.items.map(i => ({
@@ -156,12 +160,12 @@ export const salesApi = {
         ...(i.warehouseId ? { warehouse_id: i.warehouseId } : {}),
       })),
       p_payment_type: payload.paymentMethod || 'cash',
-      p_notes: payload.notes || null,
+      ...optArg('p_notes', payload.notes),
       p_currency_code: payload.currency || 'SAR',
       p_exchange_rate: payload.exchangeRate || 1,
       p_idempotency_key: idempotencyKey,
-      p_branch_id: payload.branchId || null,
-      p_payment_account_id: payload.treasuryAccountId || null,
+      ...optArg('p_branch_id', payload.branchId),
+      ...optArg('p_payment_account_id', payload.treasuryAccountId),
       p_paid_amount: Number(payload.paidAmount) || 0,
     };
 
@@ -325,7 +329,7 @@ export const salesApi = {
     const { data, error } = await supabase.rpc('generate_invoice_number', {
       p_company_id: companyId,
       p_type: type,
-      p_branch_id: branchId || null,
+      ...optArg('p_branch_id', branchId),
     });
     if (error) {
       logger.warn('Sales', 'generate_invoice_number unavailable — falling back to sequence', error);

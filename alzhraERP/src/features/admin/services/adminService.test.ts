@@ -199,10 +199,12 @@ describe('adminService Unit Tests', () => {
       } as any);
 
       const logs = await adminService.getSecurityAlerts();
+      // `p_resolved` غير مُمرَّر عن قصد حين لا يُحدَّد فلتر: الدالة في PostgreSQL
+      // تُعرّف p_resolved boolean DEFAULT NULL، وتمرير لا شيء يطابق تمرير NULL تماماً.
+      // (كان الاختبار يتوقع p_resolved: null صراحةً قبل تجديد الأنواع.)
       expect(supabase.rpc).toHaveBeenCalledWith('get_security_alerts_page', {
         p_limit: 50,
         p_offset: 0,
-        p_resolved: null,
       });
       expect(logs).toHaveLength(1);
       expect(logs[0].alert_type).toBe('honeypot_access');

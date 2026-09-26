@@ -226,7 +226,6 @@ export const productsApi = {
         p_offset: 0,
         p_sort_key: 'name_ar',
         p_sort_dir: 'asc',
-        p_is_core: null,
       });
       if (!error && Array.isArray(data)) {
         return {

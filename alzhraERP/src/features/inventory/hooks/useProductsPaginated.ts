@@ -24,6 +24,7 @@ import { productService } from '../services/productService';
 import type { Product } from '../types';
 import { useBranchFilter } from '../../branches/hooks/useBranchFilter';
 import { logger } from '../../../core/utils/logger';
+import { optArg } from '@/core/utils/rpcArgs';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -220,7 +221,7 @@ export const useProductsPaginated = (options: UseProductsPaginatedOptions = {}) 
           p_sort_key: sortKey,
           p_sort_dir: sortDir,
           ...(branchId ? { p_branch_id: branchId } : {}),
-          p_is_core: isCore ?? null,
+          ...optArg('p_is_core', isCore),
         });
         if (error) {
           logger.warn('useProductsPaginated', 'RPC search error, using fallback:', error.message);
@@ -303,7 +304,7 @@ export const useProductsPaginated = (options: UseProductsPaginatedOptions = {}) 
             p_sort_key: sortKey,
             p_sort_dir: sortDir,
             ...(branchId ? { p_branch_id: branchId } : {}),
-            p_is_core: isCore ?? null,
+            ...optArg('p_is_core', isCore),
           });
           if (error) {
             return await fetchProductsFallback(

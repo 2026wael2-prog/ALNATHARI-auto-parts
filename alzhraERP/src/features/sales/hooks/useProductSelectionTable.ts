@@ -91,7 +91,6 @@ export function useProductSelectionTable({
           p_sort_key: sqlSortKey,
           p_sort_dir: sqlSortDir,
           ...(effectiveBranchId ? { p_branch_id: effectiveBranchId } : {}),
-          p_is_core: null,
         });
 
         if (error) {
