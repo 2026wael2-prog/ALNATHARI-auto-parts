@@ -111,13 +111,17 @@ export const useReturnsReport = () => {
     queryKey: ['returns_reference_invoice_numbers', referenceIds],
     enabled: referenceIds.length > 0,
     staleTime: 5 * 60_000,
-    queryFn: async (): Promise<Map<string, string>> => {
+    // ⚠️ يجب أن تكون القيمة قابلة للتسلسل: ذاكرة React Query تُحفَظ في IndexedDB
+    // عبر JSON (see lib/persister.ts)، و JSON يحوّل Map إلى {}. إرجاع Map هنا
+    // كان يُسقط التقرير عند أول إعادة تحميل بعد حفظ الذاكرة:
+    // "TypeError: o?.get is not a function".
+    queryFn: async (): Promise<Record<string, string>> => {
       const { data, error } = await supabase
         .from('invoices')
         .select('id, invoice_number')
         .in('id', referenceIds);
       if (error) throw error;
-      return new Map((data ?? []).map(r => [r.id, r.invoice_number ?? '']));
+      return Object.fromEntries((data ?? []).map(r => [r.id, r.invoice_number ?? '']));
     },
   });
 
@@ -128,7 +132,7 @@ export const useReturnsReport = () => {
         ...r,
         // كان الحقل لا يُملأ إطلاقاً فتظهر «داخلي» لكل صف رغم أن الربط موجود
         reference_invoice: r.reference_invoice_id
-          ? { invoice_number: referenceNumbers?.get(r.reference_invoice_id) ?? null }
+          ? { invoice_number: referenceNumbers?.[r.reference_invoice_id] ?? null }
           : null,
       })),
     [salesReturns, referenceNumbers]
