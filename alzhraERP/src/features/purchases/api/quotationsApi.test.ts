@@ -2,9 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { purchaseQuotationsApi } from './quotationsApi';
 import type { CreatePurchaseQuotationDTO } from '../types/quotation';
 
-// Atomicity regression guard: quotation header + items MUST go out in ONE
-// PostgREST request (nested related-resource insert), otherwise a failure
-// between the two writes leaves an orphaned quotation with no items.
 const { mockFrom } = vi.hoisted(() => ({ mockFrom: vi.fn() }));
 const { mockGenerateNumber } = vi.hoisted(() => ({ mockGenerateNumber: vi.fn() }));
 
@@ -18,22 +15,30 @@ interface RecordedCall {
   args: unknown[];
 }
 
-const createInsertRecorder = (final: { data: unknown; error: { message: string } | null }) => {
+const createInsertRecorder = (final: { data: unknown; error: unknown }) => {
   const calls: RecordedCall[] = [];
-  const build = (): unknown =>
-    new Proxy(
-      {},
-      {
-        get: (_target, prop): unknown => {
-          if (typeof prop !== 'string' || prop === 'then') return undefined;
-          return (...args: unknown[]) => {
-            calls.push({ method: prop, args });
-            const isTerminal = prop === 'single' || prop === 'maybeSingle';
-            return isTerminal ? Promise.resolve(final) : build();
-          };
-        },
-      }
-    );
+  const build = (): unknown => {
+    const target = () => {
+      return undefined;
+    };
+    (target as Record<string, unknown>).then = (resolve: (v: unknown) => unknown) =>
+      Promise.resolve(final).then(resolve);
+    return new Proxy(target, {
+      get: (_target, prop): unknown => {
+        if (prop === 'then') {
+          return (resolve: (v: unknown) => unknown) => Promise.resolve(final).then(resolve);
+        }
+        if (typeof prop !== 'string') return undefined;
+        return (...args: unknown[]) => {
+          calls.push({ method: prop, args });
+          if (prop === 'single' || prop === 'maybeSingle') {
+            return Promise.resolve(final);
+          }
+          return build();
+        };
+      },
+    });
+  };
   return { calls, build };
 };
 
@@ -55,30 +60,35 @@ describe('purchaseQuotationsApi.createQuotation — atomic write & safe numberin
     mockGenerateNumber.mockResolvedValue('QP-0042');
   });
 
-  it('inserts header AND items in a single nested request (atomicity guard)', async () => {
+  it('inserts header into quotations and items into quotation_items', async () => {
     const insertedRow = { id: 'q-1', quotation_number: 'QP-0042', rfq_group_id: 'rfq-1' };
-    const { calls, build } = createInsertRecorder({ data: insertedRow, error: null });
-    mockFrom.mockImplementation(() => build());
+    const quotationsRecorder = createInsertRecorder({ data: insertedRow, error: null });
+    const itemsRecorder = createInsertRecorder({ data: null, error: null });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'quotations') return quotationsRecorder.build();
+      if (table === 'quotation_items') return itemsRecorder.build();
+      return undefined;
+    });
 
     const result = await purchaseQuotationsApi.createQuotation('comp-1', 'user-1', baseDto());
 
-    const fromTable = mockFrom.mock.calls[0]?.[0];
-    expect(fromTable).toBe('quotations');
+    expect(mockFrom.mock.calls[0]?.[0]).toBe('quotations');
+    expect(mockFrom.mock.calls[1]?.[0]).toBe('quotation_items');
 
-    // Exactly ONE write entry point: insert() called once carrying the items array
-    const insertCall = calls.find(c => c.method === 'insert');
-    expect(insertCall).toBeDefined();
-    expect(calls.filter(c => c.method === 'insert')).toHaveLength(1);
+    const headerCall = quotationsRecorder.calls.find(c => c.method === 'insert');
+    expect(headerCall).toBeDefined();
+    const headerPayload = headerCall?.args[0] as Record<string, unknown>;
+    expect(headerPayload.quotation_number).toBe('QP-0042');
+    expect(headerPayload.type).toBe('purchase');
+    expect(headerPayload.company_id).toBe('comp-1');
 
-    const payload = insertCall?.args[0] as Record<string, unknown>;
-    expect(payload.quotation_number).toBe('QP-0042');
-    expect(payload.type).toBe('purchase');
-    expect(payload.company_id).toBe('comp-1');
-    expect(payload.created_by).toBe('user-1');
-
-    const nestedItems = payload.quotation_items as Array<Record<string, unknown>>;
-    expect(nestedItems).toHaveLength(2);
-    expect(nestedItems[0]).toMatchObject({
+    const itemsCall = itemsRecorder.calls.find(c => c.method === 'insert');
+    expect(itemsCall).toBeDefined();
+    const itemRows = itemsCall?.args[0] as Array<Record<string, unknown>>;
+    expect(itemRows).toHaveLength(2);
+    expect(itemRows[0]).toMatchObject({
+      quotation_id: 'q-1',
       product_id: 'prod-1',
       quantity: 2,
       unit_price: 100,
@@ -86,22 +96,49 @@ describe('purchaseQuotationsApi.createQuotation — atomic write & safe numberin
       sort_order: 0,
       company_id: 'comp-1',
     });
-    // Discount line total = 50 * (1 - 10%) rounded to 2 decimals
-    expect(nestedItems[1]).toMatchObject({ total: 45, discount_percent: 10, sort_order: 1 });
+    expect(itemRows[1]).toMatchObject({
+      quotation_id: 'q-1',
+      product_id: null,
+      total: 45,
+      discount_percent: 10,
+      sort_order: 1,
+    });
 
     expect(result).toEqual(insertedRow);
   });
 
-  it('propagates the database error instead of leaving an orphaned quotation', async () => {
+  it('propagates the database error when header insert fails', async () => {
     const { build } = createInsertRecorder({
       data: null,
-      error: { message: 'duplicate key value violates unique constraint' },
+      error: new Error('duplicate key value violates unique constraint'),
     });
     mockFrom.mockImplementation(() => build());
 
     await expect(
       purchaseQuotationsApi.createQuotation('comp-1', 'user-1', baseDto())
     ).rejects.toThrow(/duplicate key/);
+  });
+
+  it('rolls back header when items insert fails', async () => {
+    const insertedRow = { id: 'q-1', quotation_number: 'QP-0042', rfq_group_id: 'rfq-1' };
+    const quotationsRecorder = createInsertRecorder({ data: insertedRow, error: null });
+    const itemsRecorder = createInsertRecorder({
+      data: null,
+      error: new Error('item insert error'),
+    });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'quotations') return quotationsRecorder.build();
+      if (table === 'quotation_items') return itemsRecorder.build();
+      return undefined;
+    });
+
+    await expect(
+      purchaseQuotationsApi.createQuotation('comp-1', 'user-1', baseDto())
+    ).rejects.toThrow(/item insert error/);
+
+    const deleteCall = quotationsRecorder.calls.find(c => c.method === 'delete');
+    expect(deleteCall).toBeDefined();
   });
 
   it('refuses to save a quotation with zero items (client-side fail-fast)', async () => {
@@ -112,11 +149,15 @@ describe('purchaseQuotationsApi.createQuotation — atomic write & safe numberin
   });
 
   it('delegates numbering to the shared race-resistant generator', async () => {
-    const { build } = createInsertRecorder({
-      data: { id: 'q-2', quotation_number: 'QP-0042', rfq_group_id: 'rfq-2' },
-      error: null,
+    const insertedRow = { id: 'q-2', quotation_number: 'QP-0042', rfq_group_id: 'rfq-2' };
+    const quotationsRecorder = createInsertRecorder({ data: insertedRow, error: null });
+    const itemsRecorder = createInsertRecorder({ data: null, error: null });
+
+    mockFrom.mockImplementation((table: string) => {
+      if (table === 'quotations') return quotationsRecorder.build();
+      if (table === 'quotation_items') return itemsRecorder.build();
+      return undefined;
     });
-    mockFrom.mockImplementation(() => build());
 
     await purchaseQuotationsApi.createQuotation('comp-1', 'user-1', baseDto());
 

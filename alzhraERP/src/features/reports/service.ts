@@ -415,13 +415,13 @@ export const reportsService = {
 
     return accounts.map((a: any): CurrencyAccount => {
       const accData = accountDataMap.get(a.id) || { foreignBalance: 0, bookValueBase: 0 };
-      const foreignBalance = Math.abs(accData.foreignBalance);
+      const foreignBalance = accData.foreignBalance;
       const rate = rateMap.get(a.currency_code);
 
       // Current market value in base currency = foreignBalance * current rate_to_base
       // Unrealized gain = current market value - book value
       const currentMarketValue = rate ? foreignBalance * rate : accData.bookValueBase;
-      const unrealizedGain = rate ? currentMarketValue - Math.abs(accData.bookValueBase) : 0;
+      const unrealizedGain = rate ? currentMarketValue - accData.bookValueBase : 0;
 
       return {
         id: a.id,

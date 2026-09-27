@@ -6,6 +6,7 @@ import {
   type StatementTransactionDetails,
 } from '../../service';
 import { formatCurrency } from '../../../../core/utils';
+import { useAuthStore } from '../../../auth/store';
 
 interface Props {
   movement: StatementMovement;
@@ -20,12 +21,14 @@ export const StatementTransactionDetailRow: React.FC<Props> = ({
   onOpenInvoiceModal,
   onOpenBondModal,
 }) => {
+  const { user } = useAuthStore();
+  const companyId = user?.company_id ?? '';
   const [details, setDetails] = useState<StatementTransactionDetails | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!movement.reference_id || !movement.reference_type) {
+    if (!movement.reference_id || !movement.reference_type || !companyId) {
       return;
     }
 
@@ -34,7 +37,7 @@ export const StatementTransactionDetailRow: React.FC<Props> = ({
     setError(null);
 
     partiesService
-      .getTransactionDetails(movement.reference_type, movement.reference_id)
+      .getTransactionDetails(companyId, movement.reference_type, movement.reference_id)
       .then(res => {
         if (isMounted) {
           setDetails(res);

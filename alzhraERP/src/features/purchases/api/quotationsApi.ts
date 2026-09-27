@@ -30,22 +30,6 @@ const calculateQuotationItems = (
   };
 };
 
-const buildQuotationItemRows = (
-  companyId: string,
-  items: QuotationItemDraft[]
-): Array<Omit<Database['public']['Tables']['quotation_items']['Insert'], 'quotation_id'>> =>
-  // quotation_id مستبعد عمداً: PostgREST يستنبطه من سياق الإدراج المتداخل تحت الأب
-  items.map(item => ({
-    company_id: companyId,
-    product_id: item.productId !== '' ? item.productId : null,
-    description: item.description,
-    quantity: item.quantity,
-    unit_price: item.unitPrice,
-    discount_percent: item.discountPercent ?? 0,
-    total: item.total,
-    sort_order: item.sortOrder,
-  }));
-
 export const purchaseQuotationsApi = {
   getQuotations: async (companyId: string) =>
     supabase
@@ -87,9 +71,7 @@ export const purchaseQuotationsApi = {
     const quotationNumber = await generateQuotationNumber(companyId, 'purchase');
     const rfqGroupId = dto.rfqGroupId ?? crypto.randomUUID();
 
-    // تحويل موثّق: PostgREST يقبل مصفوفة quotation_items المتداخلة كموارد
-    // مترابطة ويُدرجها ذرّياً، بينما لا يمثلها نوع Insert المولَّد للرأس وحده.
-    const payload = {
+    const headerPayload: Database['public']['Tables']['quotations']['Insert'] = {
       company_id: companyId,
       quotation_number: quotationNumber,
       type: 'purchase',
@@ -108,15 +90,38 @@ export const purchaseQuotationsApi = {
       payment_terms: dto.paymentTerms ?? null,
       rfq_group_id: rfqGroupId,
       created_by: userId,
-      quotation_items: buildQuotationItemRows(companyId, items),
-    } as unknown as Database['public']['Tables']['quotations']['Insert'];
+    };
 
-    const { data: quotation, error } = await supabase
+    const { data: quotation, error: qError } = await supabase
       .from('quotations')
-      .insert(payload)
+      .insert(headerPayload)
       .select('id, quotation_number, rfq_group_id')
       .single();
-    if (error !== null) throw error;
+
+    if (qError !== null) throw qError;
+
+    const itemRows: Array<Database['public']['Tables']['quotation_items']['Insert']> = items.map(
+      item => ({
+        quotation_id: quotation.id,
+        company_id: companyId,
+        product_id: item.productId !== '' ? item.productId : null,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        discount_percent: item.discountPercent ?? 0,
+        total: item.total,
+        sort_order: item.sortOrder,
+      })
+    );
+
+    const { error: itemsError } = await supabase.from('quotation_items').insert(itemRows);
+
+    if (itemsError !== null) {
+      // Rollback newly created quotation header to prevent orphaned drafts
+      await supabase.from('quotations').delete().eq('id', quotation.id);
+      throw itemsError;
+    }
+
     return quotation;
   },
 

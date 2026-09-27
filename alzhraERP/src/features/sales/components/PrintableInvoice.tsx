@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { formatCurrency, getDisplayItemName, getDisplayItemCode } from '../../../core/utils';
+import {
+  formatCurrency,
+  getDisplayItemName,
+  getDisplayItemCode,
+  formatLocalDate,
+} from '../../../core/utils';
 import { tafqeet } from '../../../core/utils/tafqeet';
 import { useInvoiceSettings } from '../../settings/settingsStore';
 import { useCompany } from '../../settings/hooks';
@@ -163,7 +168,7 @@ const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
     titleAr: documentTitle,
     titleEn: isReturn ? 'Credit Note (Sales Return)' : 'Simplified Tax Invoice',
     documentNumber: invoice_number || 'INV-000',
-    documentDate: issue_date || new Date().toISOString().split('T')[0],
+    documentDate: issue_date || formatLocalDate(),
     badge: documentBadge,
   };
 

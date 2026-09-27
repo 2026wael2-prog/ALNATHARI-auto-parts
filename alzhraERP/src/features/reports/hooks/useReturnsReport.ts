@@ -31,6 +31,22 @@ export interface FilterState {
   endDate?: string;
 }
 
+// eslint-disable-next-line complexity, @typescript-eslint/explicit-function-return-type
+function mapReturnRowToExcelItem(r: ReturnReportRow) {
+  return {
+    invoiceNumber: r.invoice_number ?? '',
+    issueDate: r.issue_date ?? '',
+    customerName: r.party?.name ?? '',
+    referenceInvoice: r.reference_invoice?.invoice_number ?? '',
+    returnReason: r.return_reason ?? '',
+    items: r.invoice_items?.length ?? 0,
+    totalAmount: Number(r.total_amount ?? 0),
+    currencyCode: r.currency_code ?? 'SAR',
+    status: r.status ?? 'draft',
+    notes: r.notes ?? '',
+  };
+}
+
 export const useReturnsReport = () => {
   const [filters, setFilters] = useState<FilterState>({
     dateRange: 'month',
@@ -280,18 +296,7 @@ export const useReturnsReport = () => {
 
     const excelData = {
       companyName: 'Al-Jaafari Smart',
-      returns: returns.map((r: ReturnReportRow) => ({
-        invoiceNumber: r.invoice_number ?? '',
-        issueDate: r.issue_date ?? '',
-        customerName: r.party?.name ?? '',
-        // كان يسقط إلى معرّف UUID خام عند غياب الرقم، فيُطبع في الملف.
-        referenceInvoice: r.reference_invoice?.invoice_number ?? '',
-        returnReason: r.return_reason ?? '',
-        items: r.invoice_items?.length || 0,
-        totalAmount: Number(r.total_amount) || 0,
-        status: r.status ?? 'draft',
-        notes: r.notes ?? '',
-      })),
+      returns: returns.map(mapReturnRowToExcelItem),
       summary: {
         totalReturns: stats.totalAmount,
         totalAmount: stats.totalAmount,

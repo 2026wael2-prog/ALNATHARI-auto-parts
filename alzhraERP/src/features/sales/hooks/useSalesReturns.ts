@@ -14,6 +14,8 @@ import { toReturnPayloadItems } from '../../returns/utils/returnHelpers';
 import type { Json } from '../../../core/database.types';
 import { normalizeSearch } from '../../../core/utils';
 import { formatLocalDate } from '../../../core/utils/dateUtils';
+import { logger } from '../../../core/utils/logger';
+import { parseError } from '../../../core/utils/errorUtils';
 
 export interface SalesReturn {
   id: string;
@@ -233,32 +235,70 @@ export const useCreateSalesReturn = () => {
         throw new Error('Missing authentication context');
       }
 
-      const { data: result, error } = await supabase.rpc('process_sales_return', {
-        p_invoice_id: data.invoiceId,
-        p_party_id: (data.partyId && data.partyId.trim() !== ''
-          ? data.partyId
-          : null) as unknown as string,
-        p_payment_method: data.paymentMethod || 'cash',
-        p_items: toReturnPayloadItems(data.items ?? []) as unknown as Json,
-        p_return_reason: data.returnReason || '',
-        p_status: data.status || 'posted',
-        p_notes: data.notes || '',
-        p_issue_date: data.issueDate || formatLocalDate(),
-        p_currency_code: data.currency || 'SAR',
-        p_exchange_rate: data.exchangeRate || 1,
-        p_company_id: user.company_id,
-        p_user_id: user.id,
-      });
+      const partyId =
+        typeof data.partyId === 'string' && data.partyId.trim().length > 0
+          ? data.partyId.trim()
+          : null;
+      const payloadItems = toReturnPayloadItems(data.items ?? []) as unknown as Json;
+      const currency = data.currency ?? 'SAR';
+      const exchangeRate = typeof data.exchangeRate === 'number' ? data.exchangeRate : 1;
+      const issueDate = data.issueDate ?? formatLocalDate();
 
-      if (error) throw error;
-      return result as { invoice_number: string };
+      try {
+        const { data: result, error } = await supabase.rpc('process_sales_return', {
+          p_invoice_id: data.invoiceId,
+          p_party_id: partyId as unknown as string,
+          p_payment_method: data.paymentMethod ?? 'cash',
+          p_items: payloadItems,
+          p_return_reason: data.returnReason ?? '',
+          p_status: data.status ?? 'posted',
+          p_notes: data.notes ?? '',
+          p_issue_date: issueDate,
+          p_currency_code: currency,
+          p_exchange_rate: exchangeRate,
+          p_company_id: user.company_id,
+          p_user_id: user.id,
+        });
+
+        if (error) throw error;
+        return result as { invoice_number: string };
+      } catch (primaryError: unknown) {
+        logger.warn(
+          'useSalesReturns',
+          'process_sales_return failed, attempting fallback to commit_sale_return:',
+          primaryError
+        );
+
+        const fallbackParams = {
+          p_company_id: user.company_id,
+          p_user_id: user.id,
+          p_party_id: partyId as unknown as string,
+          p_items: payloadItems,
+          p_currency: currency,
+          p_exchange_rate: exchangeRate,
+          ...(data.notes !== undefined ? { p_notes: data.notes } : {}),
+          ...(data.invoiceId ? { p_reference_invoice_id: data.invoiceId } : {}),
+          ...(data.returnReason !== undefined ? { p_return_reason: data.returnReason } : {}),
+        };
+
+        const { data: fallbackResult, error: fallbackError } = await supabase.rpc(
+          'commit_sale_return',
+          fallbackParams
+        );
+
+        if (fallbackError) {
+          throw parseError(fallbackError);
+        }
+
+        return fallbackResult as { invoice_number: string };
+      }
     },
     onSuccess: invoice => {
-      showToast(`تم إنشاء مرتجع المبيعات #${invoice?.invoice_number || 'الجديد'} بنجاح`, 'success');
+      showToast(`تم إنشاء مرتجع المبيعات #${invoice.invoice_number} بنجاح`, 'success');
       invalidateByPreset(queryClient, 'saleReturn');
     },
     onError: (error: Error) => {
-      showToast(error.message || 'فشل في إنشاء مرتجع المبيعات', 'error');
+      showToast(parseError(error).message, 'error');
     },
   });
 };

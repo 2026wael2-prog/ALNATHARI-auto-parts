@@ -35,7 +35,11 @@ export const PaymentMethodsChart: React.FC<PaymentMethodsChartProps> = ({
 
   React.useEffect(() => {
     const checkDimensions = () => {
-      if (containerRef.current && containerRef.current.offsetWidth > 0) {
+      if (
+        containerRef.current &&
+        containerRef.current.offsetWidth > 0 &&
+        containerRef.current.offsetHeight > 0
+      ) {
         setIsMounted(true);
         return true;
       }
@@ -129,7 +133,7 @@ export const PaymentMethodsChart: React.FC<PaymentMethodsChartProps> = ({
       {/* Donut Chart Container */}
       <div ref={containerRef} className="relative my-2 h-56 w-full" dir="ltr">
         {isMounted && total > 0 ? (
-          <ResponsiveContainer width="99%" height="100%" minWidth={1} minHeight={1}>
+          <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={150}>
             <PieChart>
               <defs>
                 {GRADIENTS.map((g, i) => (

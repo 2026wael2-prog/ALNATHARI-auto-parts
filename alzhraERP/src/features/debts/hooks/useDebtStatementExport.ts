@@ -36,9 +36,14 @@ export const useDebtStatementExport = (): DebtStatementExport => {
         setExportingPartyId(row.party_id);
         showToast('جاري إنشاء وتنسيق كشف الحساب الاحترافي (Excel)...', 'info');
 
-        const movements = await partiesService.getStatement(row.party_id, 'customer', {
-          currencyCode: row.currency_code,
-        });
+        const movements = await partiesService.getStatement(
+          row.party_id,
+          'customer',
+          {
+            currencyCode: row.currency_code,
+          },
+          company?.id
+        );
 
         await exportStatementToExcel(
           buildCompanyDoc(company ?? null),

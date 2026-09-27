@@ -1,6 +1,5 @@
 import { partiesApi } from './api';
 import { supabase } from '../../lib/supabaseClient';
-import { useAuthStore } from '../auth/store';
 import { parseError } from '../../core/utils/errorUtils';
 import type { Party, PartyStats, PartyFormData, PartyType, PartyCategory } from './types';
 import { logger } from '../../core/utils/logger';
@@ -112,12 +111,12 @@ export const partiesService = {
   getStatement: async (
     partyId: string,
     _type: PartyType,
-    options?: { startDate?: string; endDate?: string; currencyCode?: string }
+    options?: { startDate?: string; endDate?: string; currencyCode?: string; companyId?: string },
+    explicitCompanyId?: string
   ): Promise<StatementMovement[]> => {
-    // 1. Get companyId from active unified session
-    let companyId = useAuthStore.getState().user?.company_id;
+    let companyId = explicitCompanyId ?? options?.companyId;
 
-    // Fallback if store is not populated
+    // Fallback if not passed explicitly
     if (!companyId) {
       const { data: authData } = await supabase.auth.getUser();
       const userId = authData?.user?.id;
@@ -192,22 +191,10 @@ export const partiesService = {
   },
 
   getTransactionDetails: async (
+    companyId: string,
     referenceType: string,
     referenceId: string
   ): Promise<StatementTransactionDetails | null> => {
-    let companyId = useAuthStore.getState().user?.company_id;
-    if (!companyId) {
-      const { data: authData } = await supabase.auth.getUser();
-      const userId = authData?.user?.id;
-      if (userId) {
-        const { data: roles } = await supabase
-          .from('user_company_roles')
-          .select('company_id')
-          .eq('user_id', userId)
-          .limit(1);
-        companyId = roles?.[0]?.company_id;
-      }
-    }
     if (!companyId) return null;
 
     const { data, error } = await (supabase.rpc as any)('get_statement_transaction_details', {

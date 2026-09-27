@@ -140,47 +140,58 @@ export const salesQuotationsApi = {
     // Race-resistant numbering (max+1 scan incl. soft-deleted; DB unique index is the backstop)
     const quotationNumber = await generateQuotationNumber(companyId, 'sales');
 
-    // Documented cast: PostgREST accepts the nested quotation_items array as a
-    // related-resource insert executed atomically server-side.
-    const payload = {
+    const headerPayload: Database['public']['Tables']['quotations']['Insert'] = {
       company_id: companyId,
-      branch_id: dto.branchId || null,
+      branch_id: dto.branchId ?? null,
       quotation_number: quotationNumber,
       type: 'sales',
       status: 'draft',
       party_id: dto.partyId,
       issue_date: dto.issueDate,
-      valid_until: dto.validUntil || null,
+      valid_until: dto.validUntil ?? null,
       subtotal,
       discount_amount: discountAmount,
       tax_amount: 0,
       total_amount: totalAmount,
       currency_code: dto.currencyCode ?? 'SAR',
       exchange_rate: dto.exchangeRate ?? 1,
-      notes: dto.notes || null,
-      terms_and_conditions: dto.termsAndConditions || null,
-      delivery_terms: dto.deliveryTerms || null,
-      payment_terms: dto.paymentTerms || null,
+      notes: dto.notes ?? null,
+      terms_and_conditions: dto.termsAndConditions ?? null,
+      delivery_terms: dto.deliveryTerms ?? null,
+      payment_terms: dto.paymentTerms ?? null,
       created_by: userId,
-      quotation_items: items.map(item => ({
-        company_id: companyId,
-        product_id: item.productId || null,
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unitPrice,
-        discount_percent: item.discountPercent || 0,
-        total: item.total,
-        sort_order: item.sortOrder,
-      })),
-    } as unknown as Database['public']['Tables']['quotations']['Insert'];
+    };
 
     const { data: quotation, error: qError } = await supabase
       .from('quotations')
-      .insert(payload)
+      .insert(headerPayload)
       .select('id, quotation_number')
       .single();
 
     if (qError) throw qError;
+
+    const itemRows: Array<Database['public']['Tables']['quotation_items']['Insert']> = items.map(
+      item => ({
+        quotation_id: quotation.id,
+        company_id: companyId,
+        product_id: item.productId !== '' ? item.productId : null,
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unitPrice,
+        discount_percent: item.discountPercent ?? 0,
+        total: item.total,
+        sort_order: item.sortOrder,
+      })
+    );
+
+    const { error: itemsError } = await supabase.from('quotation_items').insert(itemRows);
+
+    if (itemsError !== null) {
+      // Rollback newly created quotation header to prevent orphaned drafts
+      await supabase.from('quotations').delete().eq('id', quotation.id);
+      throw itemsError;
+    }
+
     return quotation;
   },
 

@@ -46,7 +46,11 @@ const CategoriesChart: React.FC<CategoriesChartProps> = ({ data }) => {
 
   React.useEffect(() => {
     const checkDimensions = () => {
-      if (containerRef.current && containerRef.current.offsetWidth > 0) {
+      if (
+        containerRef.current &&
+        containerRef.current.offsetWidth > 0 &&
+        containerRef.current.offsetHeight > 0
+      ) {
         setIsMounted(true);
         return true;
       }
@@ -75,7 +79,7 @@ const CategoriesChart: React.FC<CategoriesChartProps> = ({ data }) => {
     >
       <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-white/5 to-transparent dark:from-slate-800/20 max-md:rounded-xl" />
       {isMounted ? (
-        <ResponsiveContainer width="99%" height="100%" minWidth={1} minHeight={1}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={100} minHeight={200}>
           <PieChart>
             <defs>
               {COLORS.map((color, index) => (

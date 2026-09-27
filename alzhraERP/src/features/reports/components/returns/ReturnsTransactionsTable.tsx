@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatCurrency, toBaseCurrency } from '../../../../core/utils';
 import type { ReportView, ReturnsType } from '../../hooks/useReturnsReport';
 import type { ReturnReportRow } from '../../hooks/returnsNormalizers';
 
@@ -10,42 +10,73 @@ interface Props {
   type: ReturnsType;
 }
 
+const getStatusColor = (status: string): string => {
+  switch (status) {
+    case 'posted':
+      return 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
+    case 'draft':
+      return 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
+    case 'paid':
+      return 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
+    case 'cancelled':
+      return 'bg-rose-500/10 text-rose-600 border border-rose-500/20';
+    default:
+      return 'bg-slate-500/10 text-slate-600 border border-slate-500/20';
+  }
+};
+
+const getReasonText = (reason: string): string => {
+  switch (reason) {
+    case 'defective':
+      return 'منتج تالف';
+    case 'not_as_described':
+      return 'غير مطابق';
+    case 'wrong_item':
+      return 'صنف خاطئ';
+    case 'quality_issue':
+      return 'مشكلة جودة';
+    case 'changed_mind':
+      return 'تغيير رأي';
+    case 'expired':
+      return 'منتهي الصلاحية';
+    case 'other':
+      return 'أخرى';
+    default:
+      return reason !== '' ? reason : '-';
+  }
+};
+
+const ReturnAmountCell: React.FC<{ item: ReturnReportRow }> = ({ item }) => {
+  const code = item.currency_code;
+  const isForeign = typeof code === 'string' && code !== '' && code !== 'SAR';
+  return (
+    <>
+      <span className="font-mono text-xs font-bold text-slate-800 dark:text-white">
+        {formatCurrency(Number(item.total_amount ?? 0), code ?? 'SAR')}
+      </span>
+      {isForeign ? (
+        <span className="block font-mono text-[10px] text-slate-400">
+          ≈{' '}
+          {formatCurrency(
+            toBaseCurrency({
+              amount: Number(item.total_amount ?? 0),
+              currency_code: code,
+              exchange_rate: Number(item.exchange_rate ?? 1),
+            }),
+            'SAR'
+          )}
+        </span>
+      ) : null}
+    </>
+  );
+};
+
 const ReturnsTransactionsTable: React.FC<Props> = ({
   reportView,
   filteredSalesReturns,
   filteredPurchaseReturns,
   type,
 }) => {
-  // Get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'posted':
-        return 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20';
-      case 'draft':
-        return 'bg-amber-500/10 text-amber-600 border border-amber-500/20';
-      case 'paid':
-        return 'bg-blue-500/10 text-blue-600 border border-blue-500/20';
-      case 'cancelled':
-        return 'bg-rose-500/10 text-rose-600 border border-rose-500/20';
-      default:
-        return 'bg-slate-500/10 text-slate-600 border border-slate-500/20';
-    }
-  };
-
-  // Get reason text in Arabic
-  const getReasonText = (reason: string) => {
-    const reasonMap: Record<string, string> = {
-      defective: 'منتج تالف',
-      not_as_described: 'غير مطابق',
-      wrong_item: 'صنف خاطئ',
-      quality_issue: 'مشكلة جودة',
-      changed_mind: 'تغيير رأي',
-      expired: 'منتهي الصلاحية',
-      other: 'أخرى',
-    };
-    return reasonMap[reason] || reason || '-';
-  };
-
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm">
       <div className="flex items-center justify-between border-b border-[var(--app-border)] bg-[var(--app-surface-hover)] p-3.5 sm:p-4">
@@ -147,9 +178,7 @@ const ReturnsTransactionsTable: React.FC<Props> = ({
                     {getReasonText(item.return_reason ?? '')}
                   </td>
                   <td className="px-3.5 py-2.5 text-left">
-                    <span className="font-mono text-xs font-bold text-slate-800 dark:text-white">
-                      {formatCurrency(Number(item.total_amount) || 0)}
-                    </span>
+                    <ReturnAmountCell item={item} />
                   </td>
                   <td className="px-3.5 py-2.5 text-center">
                     <span

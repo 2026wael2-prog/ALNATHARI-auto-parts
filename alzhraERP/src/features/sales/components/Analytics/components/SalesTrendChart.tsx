@@ -112,7 +112,11 @@ export const SalesTrendChart: React.FC<SalesTrendChartProps> = ({
 
   React.useEffect(() => {
     const checkDimensions = () => {
-      if (containerRef.current && containerRef.current.offsetWidth > 0) {
+      if (
+        containerRef.current &&
+        containerRef.current.offsetWidth > 0 &&
+        containerRef.current.offsetHeight > 0
+      ) {
         setIsMounted(true);
         return true;
       }
@@ -463,7 +467,7 @@ export const SalesTrendChart: React.FC<SalesTrendChartProps> = ({
       {/* Chart Canvas */}
       <div ref={containerRef} className="mt-3 h-72 w-full" dir="ltr">
         {isMounted ? (
-          <ResponsiveContainer width="99%" height={280} minWidth={1} minHeight={1}>
+          <ResponsiveContainer width="100%" height={280} minWidth={100} minHeight={200}>
             {renderChart()}
           </ResponsiveContainer>
         ) : (

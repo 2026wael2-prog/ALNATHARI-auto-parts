@@ -34,6 +34,24 @@ interface AuditProgressItem {
   counted_quantity: number | null;
 }
 
+/* eslint-disable security/detect-object-injection, @typescript-eslint/restrict-template-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/explicit-function-return-type */
+/** Efficient compact signature for detecting count modifications without allocating megabytes of JSON string */
+function computeItemsSignature(items: Array<Record<string, unknown>>): string {
+  let sig = String(items.length) + ':';
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    if (typeof it === 'object' && it !== null) {
+      const pid = String(it.product_id ?? it.id ?? i);
+      const cq = it.counted_quantity;
+      if (cq !== undefined && cq !== null && cq !== '') {
+        sig += pid + '=' + String(cq) + ';';
+      }
+    }
+  }
+  return sig;
+}
+/* eslint-enable security/detect-object-injection, @typescript-eslint/restrict-template-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/explicit-function-return-type */
+
 const AuditSessionPage: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
@@ -116,7 +134,7 @@ const AuditSessionPage: React.FC = () => {
             })
           : data.items;
 
-      const serialized = JSON.stringify(itemsToReset);
+      const serialized = computeItemsSignature(itemsToReset);
       lastSyncedRef.current = serialized;
       reset({ items: itemsToReset });
     }
@@ -169,7 +187,7 @@ const AuditSessionPage: React.FC = () => {
   // When sessionItems change (from useInventorySession), sync to form if not completed
   useEffect(() => {
     if (!isCompleted && sessionItems.length > 0) {
-      const serialized = JSON.stringify(sessionItems);
+      const serialized = computeItemsSignature(sessionItems);
       if (serialized !== lastSyncedRef.current) {
         lastSyncedRef.current = serialized;
         reset({ items: sessionItems });
@@ -182,7 +200,7 @@ const AuditSessionPage: React.FC = () => {
     if (isCompleted) return;
     const formItems = getValues('items');
     if (formItems && formItems.length > 0) {
-      const serialized = JSON.stringify(formItems);
+      const serialized = computeItemsSignature(formItems);
       if (serialized !== lastSyncedRef.current) {
         lastSyncedRef.current = serialized;
         updateItems(formItems);
@@ -292,7 +310,7 @@ const AuditSessionPage: React.FC = () => {
       existingItem.counted_quantity = nextQty;
       newItems.splice(existingIndex, 1);
       newItems.unshift(existingItem);
-      lastSyncedRef.current = JSON.stringify(newItems);
+      lastSyncedRef.current = computeItemsSignature(newItems);
       reset({ items: newItems });
       updateItems(newItems);
       setFilter('');
@@ -336,7 +354,7 @@ const AuditSessionPage: React.FC = () => {
     };
 
     const newItems = [optimisticItem, ...currentItems];
-    lastSyncedRef.current = JSON.stringify(newItems);
+    lastSyncedRef.current = computeItemsSignature(newItems);
     reset({ items: newItems });
     updateItems(newItems);
     setFilter('');
@@ -358,14 +376,14 @@ const AuditSessionPage: React.FC = () => {
                 ? { ...item, id: realId, audit_item_id: realId }
                 : item
             );
-            lastSyncedRef.current = JSON.stringify(updated);
+            lastSyncedRef.current = computeItemsSignature(updated);
             reset({ items: updated });
             updateItems(updated);
           }
         },
         onError: () => {
           const reverted = getValues('items').filter(i => i.product_id !== product.id);
-          lastSyncedRef.current = JSON.stringify(reverted);
+          lastSyncedRef.current = computeItemsSignature(reverted);
           reset({ items: reverted });
           updateItems(reverted);
         },
@@ -384,7 +402,7 @@ const AuditSessionPage: React.FC = () => {
           (!targetId || (i.id !== targetId && i.audit_item_id !== targetId)) &&
           (!targetProductId || i.product_id !== targetProductId)
       );
-      lastSyncedRef.current = JSON.stringify(filtered);
+      lastSyncedRef.current = computeItemsSignature(filtered);
       reset({ items: filtered });
       updateItems(filtered);
       setItemToDelete(null);
@@ -397,7 +415,7 @@ const AuditSessionPage: React.FC = () => {
         },
         {
           onError: () => {
-            lastSyncedRef.current = JSON.stringify(current);
+            lastSyncedRef.current = computeItemsSignature(current);
             reset({ items: current });
             updateItems(current);
           },

@@ -64,17 +64,22 @@ export const useStatement = (
   type: PartyType,
   options?: { startDate?: string; endDate?: string; currencyCode?: string }
 ) => {
+  const { user } = useAuthStore();
+  const companyId = user?.company_id;
   return useQuery({
     queryKey: [
       'party_statement_v4',
       partyId,
+      companyId,
       options?.startDate,
       options?.endDate,
       options?.currencyCode,
     ],
     queryFn: () =>
-      partyId ? partiesService.getStatement(partyId, type, options) : Promise.resolve([]),
-    enabled: !!partyId,
+      partyId && companyId
+        ? partiesService.getStatement(partyId, type, options, companyId)
+        : Promise.resolve([]),
+    enabled: !!partyId && !!companyId,
   });
 };
 

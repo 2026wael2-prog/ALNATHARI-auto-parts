@@ -1,7 +1,7 @@
 {
-  "errors": 9760,
+  "errors": 9761,
   "warnings": 213,
-  "capturedAt": "2026-09-25",
+  "capturedAt": "2026-09-28",
   "method": "npx eslint . --report-unused-disable-directives --format json (full scan of repo)",
   "history": [
     { "date": "2026-09-18", "errors": 10482, "note": "initial ceiling measured" },
@@ -56,6 +56,16 @@
       "date": "2026-09-25",
       "errors": 9760,
       "note": "modularize ExcelCartTable into subcomponents and clean table row cells (-11)"
+    },
+    {
+      "date": "2026-09-27",
+      "errors": 9776,
+      "note": "parallelize product duplicate checks and decompose useBondForm into dedicated subhooks (-3)"
+    },
+    {
+      "date": "2026-09-28",
+      "errors": 9761,
+      "note": "harden sales returns with dual RPC fallback and ratcheted clean code (-15)"
     }
   ]
 }

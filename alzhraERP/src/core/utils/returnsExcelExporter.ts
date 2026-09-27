@@ -24,6 +24,8 @@ interface ReturnExcelData {
     returnReason?: string;
     items: number;
     totalAmount: number;
+    /** عملة الصف — بلاها يختلط الريال اليمني بالسعودي في عمود واحد */
+    currencyCode?: string;
     status: string;
     notes?: string;
   }>;
@@ -105,6 +107,7 @@ const buildReturnsListFullRows = (
     'سبب الإرجاع',
     'عدد الأصناف',
     'المبلغ',
+    'العملة',
     'الحالة',
     'ملاحظات',
   ]);
@@ -121,6 +124,7 @@ const buildReturnsListFullRows = (
       getReturnReasonText(item.returnReason ?? ''),
       item.items || 0,
       item.totalAmount || 0,
+      item.currencyCode ?? 'SAR',
       getStatusText(item.status),
       item.notes ?? '-',
     ]);
