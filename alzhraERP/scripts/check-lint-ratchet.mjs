@@ -31,6 +31,34 @@ const writeBaseline = b => {
   fs.writeFileSync(BASELINE_PATH, JSON.stringify(b, null, 2) + '\n');
 };
 
+/** جذر المستودع — `git diff` يُخرج مسارات نسبةً إليه، بينما eslint يعمل من ROOT. */
+const GIT_ROOT = (() => {
+  try {
+    return execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    return ROOT;
+  }
+})();
+
+/**
+ * يوحّد شكل المسار إلى نسبةٍ من ROOT.
+ * بدون هذا التطبيع كان `git diff` يُخرج `alzhraERP/src/x.ts` بينما eslint يعمل
+ * من `alzhraERP`، فيفشل على كل مسار وتُبتلع الأخطاء فتنجح البوابة دون فحص شيء.
+ */
+const toRootRelative = f => {
+  const asIs = path.resolve(ROOT, f);
+  if (fs.existsSync(asIs)) return path.relative(ROOT, asIs).split(path.sep).join('/');
+  const fromGitRoot = path.resolve(GIT_ROOT, f);
+  if (fs.existsSync(fromGitRoot)) {
+    const r = path.relative(ROOT, fromGitRoot).split(path.sep).join('/');
+    if (!r.startsWith('..')) return r;
+  }
+  return null;
+};
+
 const runEslint = files => {
   const eslintBin = path.join(ROOT, 'node_modules', 'eslint', 'bin', 'eslint.js');
   const results = [];
@@ -64,13 +92,30 @@ const runEslint = files => {
           [eslintBin, f.split(path.sep).join('/'), '--format', 'json'],
           { cwd: ROOT, encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 }
         );
-        try {
-          results.push(...JSON.parse(single.stdout || '[]'));
-        } catch {
+        // eslint يُخرج `[]` للملف النظيف (exit 0/1)، أما exit >= 2 فهو فشل حقيقي
+        // (مسار غير موجود، خطأ إعداد) ولا يجوز ابتلاعه وإسقاط الملف من الفحص.
+        const failed = single.status === null || single.status >= 2;
+        let parsed = null;
+        if (!failed) {
+          try {
+            parsed = JSON.parse(single.stdout || '[]');
+          } catch {
+            parsed = null;
+          }
+        }
+        if (Array.isArray(parsed)) {
+          results.push(...parsed);
+        } else {
           results.push({
             filePath: path.resolve(ROOT, f),
             errorCount: 999,
-            messages: [{ message: 'eslint failed to run', severity: 2, ruleId: null }],
+            messages: [
+              {
+                message: `eslint produced no usable report for "${f}" (exit ${String(single.status)}); the file was NOT checked`,
+                severity: 2,
+                ruleId: null,
+              },
+            ],
           });
         }
       }
@@ -130,6 +175,20 @@ if (filesFlag) {
 }
 
 files = files.filter(f => /\.(ts|tsx)$/.test(f));
+
+// تطبيع المسارات قبل تمريرها إلى eslint (وإلا فحصت البوابة صفر ملفات بصمت).
+const skipped = [];
+files = files
+  .map(f => {
+    const rel = toRootRelative(f);
+    if (rel === null) skipped.push(f);
+    return rel;
+  })
+  .filter(f => f !== null);
+
+if (skipped.length > 0) {
+  console.log(`[lint-ratchet] skipped ${String(skipped.length)} missing file(s): ${skipped.join(', ')}`);
+}
 
 if (files.length === 0) {
   console.log('[lint-ratchet] No changed TS/TSX files.');
