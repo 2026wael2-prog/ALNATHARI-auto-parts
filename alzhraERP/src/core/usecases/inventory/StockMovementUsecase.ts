@@ -47,14 +47,19 @@ export class StockMovementUsecase {
   }
 
   /**
-   * Map internal movement types to DB-valid transaction_type values
+   * Map internal movement types to DB-valid transaction_type values.
+   *
+   * القيم يجب أن تطابق قيد CHECK على inventory_transactions
+   * (purchase, sales, purchase_return, sales_return, transfer_in, transfer_out,
+   *  adj_in, adj_out, adj, initial) وإلا رُفض الإدراج بـ23514.
+   * كانت 'OUT' تُرجع 'sale' وهو غير مسموح؛ الصحيح 'sales'.
    */
   private static mapTransactionType(type: string, quantity: number): string {
     switch (type) {
       case 'IN':
         return 'purchase';
       case 'OUT':
-        return 'sale';
+        return 'sales';
       case 'ADJUSTMENT':
         return quantity > 0 ? 'adj_in' : 'adj_out';
       case 'RETURN':

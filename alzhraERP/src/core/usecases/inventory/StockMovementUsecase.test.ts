@@ -88,7 +88,7 @@ describe('StockMovementUsecase', () => {
       expect.objectContaining({
         product_id: 'prod-123',
         quantity: -5,
-        transaction_type: 'sale',
+        transaction_type: 'sales',
       }),
     ]);
   });

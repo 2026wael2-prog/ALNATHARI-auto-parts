@@ -117,7 +117,11 @@ export const warehouseApi = {
         quantity: adjustment,
         total_cost: 0,
         unit_cost: 0,
-        transaction_type: 'adjustment',
+        // 'adj' وليس 'adjustment': الأول هو القيمة المسموحة في قيد CHECK، وهو الفرق
+        // المُوقَّع الذي يفهمه trg_update_product_stock (بينما adj_in/adj_out تأخذ
+        // القيمة المطلقة). قيمة 'adjustment' كانت تُفشل الإدراج بـ23514، ولو مُرّرت
+        // لما تغيّر المخزون أصلاً لأن المُشغّل لا يملك فرعاً لها.
+        transaction_type: 'adj',
         reference_type: 'manual_update',
       });
     }
