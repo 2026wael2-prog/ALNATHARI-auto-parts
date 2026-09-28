@@ -211,6 +211,10 @@ export const salesApi = {
       throw new Error('يجب اختيار العميل قبل إنشاء مرتجع المبيعات');
     }
 
+    // البنود تُرسَل بالمفاتيح التي يملكها هذا النوع فعلاً. لا حاجة لإرسال الوصف
+    // أو التكلفة: process_sales_return يستنبطهما من كتالوج المنتجات عند غيابهما
+    // (راجع migration 20260928000003)، فلا يعود بإمكان عميل أن يُصفّر عكس تكلفة
+    // البضاعة في القيد المحاسبي بإغفال حقل.
     const returnItems = payload.items.map(i => ({
       product_id: i.productId,
       quantity: i.quantity,
