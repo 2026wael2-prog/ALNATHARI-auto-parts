@@ -601,7 +601,7 @@
   "src/features/purchases/components/create/PurchaseMeta.tsx": 0,
   "src/features/purchases/components/create/usePurchaseTableKeyboard.ts": 0,
   "src/features/purchases/components/quotations/CreatePurchaseQuotationModal.tsx": 0,
-  "src/features/purchases/components/quotations/PurchaseQuotationsTab.tsx": 1,
+  "src/features/purchases/components/quotations/PurchaseQuotationsTab.tsx": 0,
   "src/features/purchases/components/quotations/QuotationComparisonView.tsx": 0,
   "src/features/purchases/hooks.ts": 31,
   "src/features/purchases/hooks/usePurchaseReturns.ts": 0,

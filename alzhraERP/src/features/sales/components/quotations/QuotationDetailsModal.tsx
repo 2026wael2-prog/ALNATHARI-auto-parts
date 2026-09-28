@@ -44,6 +44,7 @@ import {
 } from '../../utils/quotationShareHelper';
 import type { QuotationSharePayload } from '../../utils/quotationShareHelper';
 import PrintableQuotation from './PrintableQuotation';
+import type { QuotationRowAction } from './QuotationActionIcons';
 import {
   mapQuotationToPrintData,
   toQuotationExcelData,
@@ -57,7 +58,7 @@ interface QuotationDetailsModalProps {
   onRefresh: () => void;
   onConvertToInvoice?: (() => void) | undefined;
   /** إجراء يبدأ تلقائياً بعد تحميل العرض (من أيقونات قائمة العروض). */
-  initialAction?: 'share' | 'print' | undefined;
+  initialAction?: QuotationRowAction | undefined;
 }
 
 interface StatusAction {
@@ -577,7 +578,13 @@ const QuotationFooterBar = ({
 }: FooterBarProps): ReactElement => (
   <QuotationFooter
     busy={busy}
-    actions={statusActions(quotation?.status ?? '')}
+    /* عروض المشتريات تُشارك كعرض سعر فقط: أزرار المبيعات (إرسال للعميل/قبول/
+       رفض/تحويل لفاتورة) لا معنى لها ولا يجوز ظهورها لمستخدم المشتريات. */
+    actions={
+      quotation !== null && quotation.type === 'purchase'
+        ? []
+        : statusActions(quotation?.status ?? '')
+    }
     onClose={onClose}
     onWhatsApp={share.shareWhatsApp}
     onTelegram={share.shareTelegram}
@@ -615,7 +622,7 @@ const useQuotationShareFor = (quotation: QuotationDetailRow | null): ShareResult
 const useInitialAction = (
   quotation: QuotationDetailRow | null,
   share: ShareResult,
-  initialAction?: 'share' | 'print'
+  initialAction?: QuotationRowAction
 ): void => {
   const handled = useRef<boolean>(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -628,6 +635,10 @@ const useInitialAction = (
       timer.current = setTimeout(() => {
         window.print();
       }, 350);
+      return;
+    }
+    if (initialAction === 'excel') {
+      share.exportExcel();
       return;
     }
     share.shareWhatsApp();

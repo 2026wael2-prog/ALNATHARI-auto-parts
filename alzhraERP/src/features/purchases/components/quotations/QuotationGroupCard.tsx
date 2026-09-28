@@ -1,6 +1,8 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react';
 import { formatCurrency } from '../../../../core/utils';
+import QuotationActionIcons from '../../../sales/components/quotations/QuotationActionIcons';
+import type { QuotationRowAction } from '../../../sales/components/quotations/QuotationActionIcons';
 import { QuotationItemsTable } from './QuotationItemsTable';
 import { STATUS_CONFIG } from './statusConfig';
 import type { QuotationGroup, QuotationListRow } from './types';
@@ -8,9 +10,14 @@ import type { QuotationGroup, QuotationListRow } from './types';
 interface QuotationRowHeaderProps {
   quotation: QuotationListRow;
   isExpanded: boolean;
+  onQuotationAction?: ((quotationId: string, action: QuotationRowAction) => void) | undefined;
 }
 
-const QuotationRowHeader: React.FC<QuotationRowHeaderProps> = ({ quotation, isExpanded }) => {
+const QuotationRowHeader: React.FC<QuotationRowHeaderProps> = ({
+  quotation,
+  isExpanded,
+  onQuotationAction,
+}) => {
   const status = STATUS_CONFIG[quotation.status];
   return (
     <>
@@ -39,6 +46,13 @@ const QuotationRowHeader: React.FC<QuotationRowHeaderProps> = ({ quotation, isEx
           {formatCurrency(quotation.total_amount, quotation.currency_code)}
         </span>
         <span className="text-xs font-medium text-gray-400">{quotation.item_count} بنود</span>
+        {onQuotationAction !== undefined && (
+          <QuotationActionIcons
+            onAction={action => {
+              onQuotationAction(quotation.id, action);
+            }}
+          />
+        )}
       </div>
     </>
   );
@@ -48,12 +62,14 @@ interface QuotationRowProps {
   quotation: QuotationListRow;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  onQuotationAction?: ((quotationId: string, action: QuotationRowAction) => void) | undefined;
 }
 
 export const QuotationRow: React.FC<QuotationRowProps> = ({
   quotation,
   isExpanded,
   onToggleExpand,
+  onQuotationAction,
 }) => (
   <div className="transition-colors hover:bg-gray-50/50 dark:hover:bg-slate-800/30">
     <div
@@ -68,7 +84,11 @@ export const QuotationRow: React.FC<QuotationRowProps> = ({
       }}
       className="flex cursor-pointer items-center justify-between p-3"
     >
-      <QuotationRowHeader quotation={quotation} isExpanded={isExpanded} />
+      <QuotationRowHeader
+        quotation={quotation}
+        isExpanded={isExpanded}
+        onQuotationAction={onQuotationAction}
+      />
     </div>
 
     {isExpanded && (
@@ -126,6 +146,8 @@ interface QuotationGroupCardProps {
   expandedQuotationId: string | null;
   onToggleQuotation: (id: string) => void;
   onCompare: (groupId: string) => void;
+  /** إجراء صف العرض (إرسال واتساب/طباعة/إكسل) — تنفّذه الصفحة عبر نافذة التفاصيل. */
+  onQuotationAction?: ((quotationId: string, action: QuotationRowAction) => void) | undefined;
 }
 
 export const QuotationGroupCard: React.FC<QuotationGroupCardProps> = ({
@@ -134,6 +156,7 @@ export const QuotationGroupCard: React.FC<QuotationGroupCardProps> = ({
   expandedQuotationId,
   onToggleQuotation,
   onCompare,
+  onQuotationAction,
 }) => (
   <div className="overflow-hidden rounded-2xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
     <QuotationGroupHeader group={group} compareGroupId={compareGroupId} onCompare={onCompare} />
@@ -146,6 +169,7 @@ export const QuotationGroupCard: React.FC<QuotationGroupCardProps> = ({
           onToggleExpand={() => {
             onToggleQuotation(quotation.id);
           }}
+          onQuotationAction={onQuotationAction}
         />
       ))}
     </div>

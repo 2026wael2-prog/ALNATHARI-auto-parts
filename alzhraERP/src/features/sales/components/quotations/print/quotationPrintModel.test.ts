@@ -7,7 +7,7 @@ import {
   toQuotationExcelData,
   toSharePayload,
 } from './quotationPrintModel';
-import type { QuotationDetailRow } from '../../../../api/quotationsApi';
+import type { QuotationDetailRow } from '../../../api/quotationsApi';
 
 const makeQuotation = (overrides: Partial<QuotationDetailRow> = {}): QuotationDetailRow =>
   ({
@@ -104,6 +104,31 @@ describe('quotationPrintModel', () => {
     expect(quotationStatusLabel('rejected').label).toBe('مرفوض');
     expect(quotationStatusLabel('anything-else').label).toBe('مسودة');
     expect(statusToneClasses('success').text).toContain('emerald');
+  });
+
+  it('يسمّي الطرف «المورد» في عروض المشتريات و«العميل» في المبيعات', () => {
+    const sales = mapQuotationToPrintData(makeQuotation());
+    expect(sales.header.partyNoun).toBe('العميل');
+    expect(sales.header.partyFallbackName).toBe('عميل نقدي');
+
+    const purchase = mapQuotationToPrintData(makeQuotation({ type: 'purchase' }));
+    expect(purchase.header.partyNoun).toBe('المورد');
+    expect(purchase.header.partyFallbackName).toBe('مورد غير محدد');
+
+    // الاسم ينتقل إلى حمولتي المشاركة والإكسل حتى لا يصل المورد ملف يدّعي أنه العميل.
+    const share = toSharePayload(purchase, { companyName: 'الجعفري', headerText: '' });
+    expect(share.partyNoun).toBe('المورد');
+    const excel = toQuotationExcelData(purchase, {
+      companyName: 'الجعفري',
+      companyNameEn: 'Aljaafari',
+      companySpecialization: 'قطع غيار',
+      companyAddress: 'شحن',
+      companyPhone: '777',
+      taxNumber: '300',
+      issuedBy: 'المدير',
+      accentColor: '1F4E78',
+    });
+    expect(excel.partyNoun).toBe('المورد');
   });
 
   it('يبني حمولة المشاركة من نفس بيانات الطباعة', () => {

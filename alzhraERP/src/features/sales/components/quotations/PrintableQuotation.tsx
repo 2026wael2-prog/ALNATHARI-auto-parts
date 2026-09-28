@@ -144,10 +144,10 @@ const MetaCards = ({
       <div className="space-y-1">
         <div className="flex items-center gap-1.5 font-bold text-slate-700">
           <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
-          <span>بيانات العميل:</span>
+          <span>بيانات {header.partyNoun}:</span>
         </div>
         <p className="pr-3 text-sm font-bold text-slate-900">
-          {header.customerName !== '' ? header.customerName : 'عميل نقدي'}
+          {header.customerName !== '' ? header.customerName : header.partyFallbackName}
         </p>
         {header.customerPhone !== '' && (
           <p className="pr-3 text-[11px] text-slate-600" dir="ltr">
@@ -255,7 +255,7 @@ const TotalRow = ({ label, value }: { label: string; value: string }): ReactElem
 const TotalsBlock = ({ data }: { data: QuotationPrintData }): ReactElement => {
   const currency = data.header.currencyCode;
   return (
-    <div className="avoid-break ml-auto mb-4 w-full max-w-[320px]">
+    <div className="avoid-break mb-4 ml-auto w-full max-w-[320px]">
       <TotalRow label="المجموع" value={formatCurrency(data.subtotal, currency)} />
       {data.discountAmount > 0 && (
         <TotalRow label="الخصم" value={`- ${formatCurrency(data.discountAmount, currency)}`} />

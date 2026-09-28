@@ -8,6 +8,8 @@ import CreatePurchaseQuotationModal from './create/CreatePurchaseQuotationModal'
 import { QuotationGroupCard } from './QuotationGroupCard';
 import { DetailedQuotationsTable } from './DetailedQuotationsTable';
 import { PurchaseQuotationsHeader } from './PurchaseQuotationsHeader';
+import QuotationDetailsModal from '../../../sales/components/quotations/QuotationDetailsModal';
+import type { QuotationRowAction } from '../../../sales/components/quotations/QuotationActionIcons';
 import {
   groupQuotations,
   matchesSearch,
@@ -28,6 +30,18 @@ export const PurchaseQuotationsTab: React.FC<Props> = ({ onConvertToPurchase }) 
   const [compareGroupId, setCompareGroupId] = useState<string | null>(null);
   const [expandedQuotationId, setExpandedQuotationId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grouped' | 'table'>('table');
+  // إجراء صف العرض (إرسال واتساب/طباعة/إكسل) — يُفتح له قالب العرض المشترك.
+  const [quotationAction, setQuotationAction] = useState<{
+    quotationId: string;
+    action: QuotationRowAction;
+  } | null>(null);
+
+  const handleQuotationAction = useCallback(
+    (quotationId: string, action: QuotationRowAction): void => {
+      setQuotationAction({ quotationId, action });
+    },
+    []
+  );
 
   const fetchQuotations = useCallback(async (): Promise<void> => {
     if (user?.company_id === undefined) return;
@@ -113,7 +127,10 @@ export const PurchaseQuotationsTab: React.FC<Props> = ({ onConvertToPurchase }) 
           </p>
         </div>
       ) : viewMode === 'table' ? (
-        <DetailedQuotationsTable quotations={filteredFlatQuotations} />
+        <DetailedQuotationsTable
+          quotations={filteredFlatQuotations}
+          onQuotationAction={handleQuotationAction}
+        />
       ) : (
         <div className="space-y-3">
           {filtered.map(group => (
@@ -128,9 +145,23 @@ export const PurchaseQuotationsTab: React.FC<Props> = ({ onConvertToPurchase }) 
               onCompare={groupId => {
                 setCompareGroupId(compareGroupId === groupId ? null : groupId);
               }}
+              onQuotationAction={handleQuotationAction}
             />
           ))}
         </div>
+      )}
+
+      {quotationAction !== null && (
+        <QuotationDetailsModal
+          quotationId={quotationAction.quotationId}
+          initialAction={quotationAction.action}
+          onClose={() => {
+            setQuotationAction(null);
+          }}
+          onRefresh={() => {
+            void fetchQuotations();
+          }}
+        />
       )}
 
       {showCreateModal && (

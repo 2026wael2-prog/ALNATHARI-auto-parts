@@ -46,6 +46,8 @@ export interface QuotationExcelData {
   validUntil?: string | undefined;
   customerName: string;
   customerPhone?: string | undefined;
+  /** 'العميل' (افتراضياً) أو 'المورد' لعروض المشتريات — يغيّر تسميات الشبكة. */
+  partyNoun?: string | undefined;
   issuedBy: string;
   currency?: string | undefined;
   discountAmount?: number | undefined;
@@ -120,12 +122,33 @@ const buildTopRows = (data: QuotationExcelData): unknown[][] => [
   [],
 ];
 
-const buildMetaRows = (data: QuotationExcelData, currency: string): unknown[][] => [
-  ['العميل', data.customerName, '', '', 'تاريخ الإصدار', data.issueDate, '', ''],
-  ['صالح حتى', text(data.validUntil) !== '' ? text(data.validUntil) : '—', '', '', 'العملة', currency, '', ''],
-  ['صادر بواسطة', data.issuedBy, '', '', 'هاتف العميل', text(data.customerPhone) !== '' ? text(data.customerPhone) : '—', '', ''],
-  [],
-];
+const buildMetaRows = (data: QuotationExcelData, currency: string): unknown[][] => {
+  const noun = text(data.partyNoun) !== '' ? text(data.partyNoun) : 'العميل';
+  return [
+    [noun, data.customerName, '', '', 'تاريخ الإصدار', data.issueDate, '', ''],
+    [
+      'صالح حتى',
+      text(data.validUntil) !== '' ? text(data.validUntil) : '—',
+      '',
+      '',
+      'العملة',
+      currency,
+      '',
+      '',
+    ],
+    [
+      'صادر بواسطة',
+      data.issuedBy,
+      '',
+      '',
+      `هاتف ${noun}`,
+      text(data.customerPhone) !== '' ? text(data.customerPhone) : '—',
+      '',
+      '',
+    ],
+    [],
+  ];
+};
 
 const buildTableHeaderRow = (currency: string): unknown[] => [
   '#',
@@ -173,10 +196,7 @@ interface FooterBlock {
   thanksRow: number;
 }
 
-const buildFooterBlock = (
-  data: QuotationExcelData,
-  grandTotalRow: number
-): FooterBlock => {
+const buildFooterBlock = (data: QuotationExcelData, grandTotalRow: number): FooterBlock => {
   const rows: unknown[][] = [[]];
   const addLine = (label: string, value: string): void => {
     if (value === '') return;
@@ -189,7 +209,9 @@ const buildFooterBlock = (
 
   const validity = text(data.validUntil);
   rows.push([
-    validity !== '' ? `شكراً لتعاملكم معنا — هذا العرض ساري حتى ${validity}` : 'شكراً لتعاملكم معنا',
+    validity !== ''
+      ? `شكراً لتعاملكم معنا — هذا العرض ساري حتى ${validity}`
+      : 'شكراً لتعاملكم معنا',
     '',
     '',
     '',
@@ -250,11 +272,7 @@ const rowMerges = (row: number, from: number, to: number): ExcelMergeRange => ({
   e: { r: row, c: to },
 });
 
-const META_ROWS: number[] = [
-  LAYOUT.metaFirstRow,
-  LAYOUT.metaFirstRow + 1,
-  LAYOUT.metaFirstRow + 2,
-];
+const META_ROWS: number[] = [LAYOUT.metaFirstRow, LAYOUT.metaFirstRow + 1, LAYOUT.metaFirstRow + 2];
 
 const buildMerges = (layout: QuotationSheetLayout): ExcelMergeRange[] => {
   const merges: ExcelMergeRange[] = [

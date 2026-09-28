@@ -82,8 +82,11 @@ export const shareSpreadsheet = async ({
     return;
   }
 
-  // Fallback: download the workbook via the real exporter, then open WhatsApp.
-  await onDownloadFallback();
+  // Fallback: open WhatsApp FIRST (still inside the click's user-gesture task),
+  // then download the workbook. Calling window.open() after `await` lands outside
+  // the transient user activation, so desktop browsers silently block the tab and
+  // the user gets the file with no WhatsApp window — verified in Chromium.
   const text = encodeURIComponent(fallbackText);
   window.open(`https://wa.me/?text=${text}`, '_blank', 'noopener,noreferrer');
+  await onDownloadFallback();
 };

@@ -9,8 +9,6 @@ import {
   Send,
   ArrowRightLeft,
   Loader2,
-  Printer,
-  Share2,
 } from 'lucide-react';
 import { salesQuotationsApi } from '@/features/sales/api/quotationsApi';
 import { useAuthStore } from '@/features/auth/store';
@@ -19,6 +17,8 @@ import type { QuotationStatus } from '@/features/sales/types/quotation';
 import { useBranchFilter } from '@/features/branches/hooks/useBranchFilter';
 import CreateQuotationModal from '@/features/sales/components/quotations/CreateQuotationModal';
 import QuotationDetailsModal from '@/features/sales/components/quotations/QuotationDetailsModal';
+import QuotationActionIcons from '@/features/sales/components/quotations/QuotationActionIcons';
+import type { QuotationRowAction } from '@/features/sales/components/quotations/QuotationActionIcons';
 
 const STATUS_CONFIG: Record<
   QuotationStatus,
@@ -87,10 +87,10 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
-  // إجراء يبدأ تلقائياً بعد فتح النافذة: إرسال ملف الإكسل أو الطباعة مباشرة من الصف.
-  const [pendingAction, setPendingAction] = useState<'share' | 'print' | null>(null);
+  // إجراء يبدأ تلقائياً بعد فتح النافذة: الإرسال أو الطباعة أو ملف الإكسل مباشرة من الصف.
+  const [pendingAction, setPendingAction] = useState<QuotationRowAction | null>(null);
 
-  const openDetails = (id: string, action: 'share' | 'print' | null): void => {
+  const openDetails = (id: string, action: QuotationRowAction | null): void => {
     setSelectedQuotationId(id);
     setPendingAction(action);
   };
@@ -288,36 +288,15 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
                       <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
                         {q.quotation_items?.length || 0}
                       </td>
-                      {/* أيقونات الصف: الإرسال والطباعة متاحان من القائمة مباشرة بدل
-                          حصرهما داخل نافذة التفاصيل. stopPropagation يمنع فتح
-                          النافذة مرتين (الصف نفسه قابل للنقر). */}
+                      {/* أيقونات الصف: الإرسال والطباعة وملف الإكسل متاحة من القائمة
+                          مباشرة بدل حصرها داخل نافذة التفاصيل. المكوّن يمنع فتح
+                          النافذة مرتين (stopPropagation) لأن الصف نفسه قابل للنقر. */}
                       <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            type="button"
-                            title="طباعة عرض السعر"
-                            aria-label="طباعة عرض السعر"
-                            onClick={event => {
-                              event.stopPropagation();
-                              openDetails(q.id, 'print');
-                            }}
-                            className="rounded-lg border border-gray-200 p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:border-slate-700 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white"
-                          >
-                            <Printer size={14} />
-                          </button>
-                          <button
-                            type="button"
-                            title="إرسال عبر واتساب (ملف إكسل)"
-                            aria-label="إرسال عبر واتساب"
-                            onClick={event => {
-                              event.stopPropagation();
-                              openDetails(q.id, 'share');
-                            }}
-                            className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 transition-colors hover:bg-emerald-50 dark:border-emerald-800/30 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
-                          >
-                            <Share2 size={14} />
-                          </button>
-                        </div>
+                        <QuotationActionIcons
+                          onAction={action => {
+                            openDetails(q.id, action);
+                          }}
+                        />
                       </td>
                     </tr>
                   );

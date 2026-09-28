@@ -2,11 +2,15 @@
 import React, { useMemo } from 'react';
 import { formatCurrency } from '../../../../core/utils';
 import { STATUS_CONFIG } from './statusConfig';
+import QuotationActionIcons from '../../../sales/components/quotations/QuotationActionIcons';
+import type { QuotationRowAction } from '../../../sales/components/quotations/QuotationActionIcons';
 import type { QuotationListRow } from './types';
 
 interface FlatQuotationItem {
   id: string;
   uniqueKey: string;
+  /** معرّف العرض الذي ينتمي إليه البند — الإجراءات تُطبَّق على العرض لا على البند. */
+  quotationId: string;
   quotationNumber: string;
   supplierName: string;
   description: string;
@@ -23,9 +27,17 @@ interface FlatQuotationItem {
 interface DetailedQuotationsTableRowProps {
   item: FlatQuotationItem;
   index: number;
+  /** أول بند في العرض: تُعرض أيقونات الإجراءات هنا فقط بدل تكرارها في كل سطر. */
+  isFirstItem: boolean;
+  onQuotationAction?: ((quotationId: string, action: QuotationRowAction) => void) | undefined;
 }
 
-const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({ item, index }) => {
+const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({
+  item,
+  index,
+  isFirstItem,
+  onQuotationAction,
+}) => {
   const status = STATUS_CONFIG[item.status];
   return (
     <tr className="transition-colors hover:bg-gray-50/60 dark:hover:bg-slate-800/40">
@@ -81,6 +93,15 @@ const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({
       <td className="px-3 py-3 text-center font-mono text-xs text-gray-400">
         {item.createdAt !== '' ? item.createdAt.split('T')[0] : '—'}
       </td>
+      <td className="px-3 py-3">
+        {isFirstItem && onQuotationAction !== undefined && (
+          <QuotationActionIcons
+            onAction={action => {
+              onQuotationAction(item.quotationId, action);
+            }}
+          />
+        )}
+      </td>
     </tr>
   );
 };
@@ -102,21 +123,28 @@ const DetailedQuotationsTableHeader: React.FC = () => (
       <th className="min-w-[120px] px-3 py-3 text-center text-xs font-bold">إجمالي السعر</th>
       <th className="min-w-[90px] px-3 py-3 text-center text-xs font-bold">الحالة</th>
       <th className="min-w-[90px] px-3 py-3 text-center text-xs font-bold">التاريخ</th>
+      <th className="min-w-[120px] px-3 py-3 text-center text-xs font-bold">إجراءات</th>
     </tr>
   </thead>
 );
 
 interface DetailedQuotationsTableProps {
   quotations: QuotationListRow[];
+  /** إجراء صف العرض (إرسال واتساب/طباعة/إكسل) — تنفّذه الصفحة عبر نافذة التفاصيل. */
+  onQuotationAction?: ((quotationId: string, action: QuotationRowAction) => void) | undefined;
 }
 
-export const DetailedQuotationsTable: React.FC<DetailedQuotationsTableProps> = ({ quotations }) => {
+export const DetailedQuotationsTable: React.FC<DetailedQuotationsTableProps> = ({
+  quotations,
+  onQuotationAction,
+}) => {
   const flatItems = useMemo(
     () =>
       quotations.flatMap(quotation =>
         quotation.items.map((item, idx) => ({
           ...item,
           uniqueKey: `${quotation.id}-${item.id !== '' ? item.id : String(idx)}`,
+          quotationId: quotation.id,
           quotationNumber: quotation.quotation_number,
           supplierName: quotation.supplier_name,
           status: quotation.status,
@@ -144,7 +172,13 @@ export const DetailedQuotationsTable: React.FC<DetailedQuotationsTableProps> = (
           <DetailedQuotationsTableHeader />
           <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {flatItems.map((item, index) => (
-              <DetailedQuotationsTableRow key={item.uniqueKey} item={item} index={index} />
+              <DetailedQuotationsTableRow
+                key={item.uniqueKey}
+                item={item}
+                index={index}
+                isFirstItem={index === 0 || flatItems[index - 1]?.quotationId !== item.quotationId}
+                onQuotationAction={onQuotationAction}
+              />
             ))}
           </tbody>
         </table>

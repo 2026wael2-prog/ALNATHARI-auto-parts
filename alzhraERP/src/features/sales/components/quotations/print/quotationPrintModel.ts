@@ -9,7 +9,10 @@
 // (قاعدة no-unnecessary-type-conversion ترفض ذلك).
 
 import type { QuotationDetailItem, QuotationDetailRow } from '../../../api/quotationsApi';
-import type { QuotationShareItem, QuotationSharePayload } from '../../../utils/quotationShareHelper';
+import type {
+  QuotationShareItem,
+  QuotationSharePayload,
+} from '../../../utils/quotationShareHelper';
 import type { QuotationExcelData } from '@/core/utils/quotationExcelExporter';
 
 export interface QuotationPrintItem {
@@ -33,6 +36,10 @@ export interface QuotationPrintHeader {
   customerName: string;
   customerPhone: string;
   customerEmail: string;
+  /** 'العميل' لعروض المبيعات و'المورد' لعروض المشتريات — تُبنى منها تسميات الطباعة والإكسل. */
+  partyNoun: string;
+  /** الاسم البديل عند غياب الطرف (عميل نقدي / مورد غير محدد). */
+  partyFallbackName: string;
   currencyCode: string;
 }
 
@@ -110,6 +117,9 @@ const mapItem = (item: QuotationDetailItem): QuotationPrintItem => {
 const mapHeader = (quotation: QuotationDetailRow): QuotationPrintHeader => {
   const status = quotationStatusLabel(quotation.status);
   const currency = text(quotation.currency_code);
+  // عروض المشتريات تُطبع/تُصدَّر للمورد، فتسمية الطرف يجب أن تكون «المورد»
+  // وإلا وصل المورد ملف يقول إنه العميل.
+  const isPurchase = quotation.type === 'purchase';
   return {
     number: text(quotation.quotation_number),
     issueDate: text(quotation.issue_date),
@@ -119,6 +129,8 @@ const mapHeader = (quotation: QuotationDetailRow): QuotationPrintHeader => {
     customerName: text(quotation.party?.name),
     customerPhone: text(quotation.party?.phone),
     customerEmail: text(quotation.party?.email),
+    partyNoun: isPurchase ? 'المورد' : 'العميل',
+    partyFallbackName: isPurchase ? 'مورد غير محدد' : 'عميل نقدي',
     currencyCode: hasText(currency) ? currency : 'SAR',
   };
 };
@@ -173,6 +185,7 @@ export const toSharePayload = (
   validUntil: data.header.validUntil,
   customerName: data.header.customerName,
   customerPhone: data.header.customerPhone,
+  partyNoun: data.header.partyNoun,
   currencyCode: data.header.currencyCode,
   items: data.items.map(toShareItem),
   subtotal: data.subtotal,
@@ -216,6 +229,7 @@ export const toQuotationExcelData = (
   validUntil: data.header.validUntil,
   customerName: data.header.customerName,
   customerPhone: data.header.customerPhone,
+  partyNoun: data.header.partyNoun,
   issuedBy: context.issuedBy,
   currency: data.header.currencyCode,
   discountAmount: data.discountAmount,

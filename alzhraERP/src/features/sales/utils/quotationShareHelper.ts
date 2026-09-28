@@ -28,6 +28,8 @@ export interface QuotationSharePayload {
   validUntil?: string | null;
   customerName?: string | null;
   customerPhone?: string | null;
+  /** 'العميل' (افتراضياً) أو 'المورد' في عروض المشتريات. */
+  partyNoun?: string | null;
   currencyCode?: string | null;
   items: QuotationShareItem[];
   subtotal?: number | string | null;
@@ -49,6 +51,12 @@ const money = (value: number | string | null | undefined, currency: string): str
 
 const nonEmpty = (value: string | null | undefined): string => (value ?? '').trim();
 
+/** اسم الطرف كما يظهر في الرسالة: عميل للمبيعات ومورد للمشتريات. */
+const partyNounOf = (payload: QuotationSharePayload): string => {
+  const noun = nonEmpty(payload.partyNoun);
+  return noun !== '' ? noun : 'العميل';
+};
+
 /** الأيام المتبقية على الصلاحية، أو null إن لم يُحدَّد تاريخ صالح. */
 const daysRemaining = (validUntil: string | null | undefined): number | null => {
   const raw = nonEmpty(validUntil);
@@ -68,11 +76,7 @@ const validityLine = (validUntil: string | null | undefined): string | null => {
     : `⏳ *صالح حتى:* ${raw} (متبقي ${String(left)} يوم)`;
 };
 
-const itemLines = (
-  item: QuotationShareItem,
-  index: number,
-  currency: string
-): string[] => {
+const itemLines = (item: QuotationShareItem, index: number, currency: string): string[] => {
   const name = nonEmpty(item.name);
   const partNumber = nonEmpty(item.partNumber);
   const code = partNumber !== '' ? partNumber : nonEmpty(item.sku);
@@ -80,7 +84,9 @@ const itemLines = (
 
   const lines = [`${String(index + 1)}. *${name !== '' ? name : 'صنف بدون اسم'}*`];
   if (code !== '') lines.push(`   ▫️ رقم القطعة: \`${code}\``);
-  lines.push(`   ▫️ الكمية: *${String(Number(item.quantity))}* × ${money(item.unitPrice, currency)}`);
+  lines.push(
+    `   ▫️ الكمية: *${String(Number(item.quantity))}* × ${money(item.unitPrice, currency)}`
+  );
   if (discount > 0) lines.push(`   ▫️ الخصم: ${String(discount)}%`);
   lines.push(`   ▫️ الإجمالي: *${money(item.total, currency)}*`, '');
   return lines;
@@ -93,10 +99,12 @@ const buildHeaderLines = (payload: QuotationSharePayload): string[] => {
 
   lines.push(`🧾 *عرض سعر* \`${payload.quotationNumber}\``);
   lines.push(`🏢 *${payload.companyName}*`);
-  lines.push(`📅 *التاريخ:* ${nonEmpty(payload.issueDate) !== '' ? nonEmpty(payload.issueDate) : formatLocalDate()}`);
+  lines.push(
+    `📅 *التاريخ:* ${nonEmpty(payload.issueDate) !== '' ? nonEmpty(payload.issueDate) : formatLocalDate()}`
+  );
 
   const customer = nonEmpty(payload.customerName);
-  if (customer !== '') lines.push(`👤 *العميل:* ${customer}`);
+  if (customer !== '') lines.push(`👤 *${partyNounOf(payload)}:* ${customer}`);
 
   const validity = validityLine(payload.validUntil);
   if (validity !== null) lines.push(validity);
@@ -166,7 +174,7 @@ export const buildQuotationCaption = (payload: QuotationSharePayload): string =>
 
   lines.push(`🧾 *عرض سعر* \`${payload.quotationNumber}\``);
   const customer = nonEmpty(payload.customerName);
-  if (customer !== '') lines.push(`👤 *العميل:* ${customer}`);
+  if (customer !== '') lines.push(`👤 *${partyNounOf(payload)}:* ${customer}`);
   lines.push(`💰 *الإجمالي:* ${money(payload.totalAmount, currency)}`);
 
   const validity = validityLine(payload.validUntil);
