@@ -4,7 +4,11 @@
 // — Uses the shared excelExporterBase lazy-loader + file-name sanitizer.
 // ============================================
 
-import { loadXLSX, sanitizeFileName } from '../../../core/utils/excelExporterBase';
+import {
+  enableWorkbookRtl,
+  loadXLSX,
+  sanitizeFileName,
+} from '../../../core/utils/excelExporterBase';
 import type { XlsxCell, XlsxSheet } from '../../../core/utils/excelExporterBase';
 import { formatLocalDate } from '../../../core/utils/dateUtils';
 
@@ -328,11 +332,10 @@ export const generateStatementExcelWorkbook = async (
     }
   }
 
-  // Enable Right-to-Left (RTL) for Arabic
+  // Enable Right-to-Left (RTL) for Arabic — على مستوى الملف لأن الكاتب يتجاهل `!views`/`!view`.
   if (!ws['!props']) ws['!props'] = {};
-  ws['!views'] = [{ rightToLeft: true }];
-
   XLSX.utils.book_append_sheet(wb, ws, 'كشف الحساب المالي');
+  enableWorkbookRtl(wb);
   return wb;
 };
 

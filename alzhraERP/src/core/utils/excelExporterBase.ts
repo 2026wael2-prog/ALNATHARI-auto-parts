@@ -42,7 +42,17 @@ export interface XlsxSheet {
 export interface XlsxWorkbook {
   SheetNames: string[];
   Sheets: Record<string, XlsxSheet>;
+  /**
+   * إعدادات على مستوى الملف. اتجاه RTL الفعلي يُكتب من هنا
+   * (`Workbook.Views[0].RTL`) لا من `sheet['!view']`.
+   */
+  Workbook?: { Views?: Array<{ RTL?: boolean }> };
 }
+
+/** يفعّل اتجاه RTL فعلياً في الملف المكتوب (مستوى الـ workbook). */
+export const enableWorkbookRtl = (wb: XlsxWorkbook): void => {
+  wb.Workbook = { ...(wb.Workbook ?? {}), Views: [{ RTL: true }] };
+};
 
 export interface XlsxLike {
   utils: {
@@ -58,7 +68,10 @@ export interface XlsxLike {
     ) => Array<Record<string, unknown>>;
   };
   writeFile: (wb: XlsxWorkbook, filename: string) => void;
-  write: (wb: XlsxWorkbook, opts: { bookType: string; type: string }) => unknown;
+  write: (
+    wb: XlsxWorkbook,
+    opts: { bookType: string; type: string; compression?: boolean }
+  ) => unknown;
   read: (data: ArrayBuffer, opts?: Record<string, unknown>) => XlsxWorkbook;
 }
 
@@ -485,11 +498,12 @@ export const buildStyledSheet = (
   }
 
   sheet['!props'] ??= {};
+  // للقراءة فقط: كاتب xlsx-js-style يتجاهل `!view` ولا يكتب `rightToLeft`.
   sheet['!view'] = [{ RTL: true }];
   return sheet;
 };
 
-/** يلحق ورقة بملف عمل (workbook). */
+/** يلحق ورقة بملف عمل (workbook) مع تفعيل اتجاه RTL المكتوب فعلياً. */
 export const appendSheetToWorkbook = (
   XLSX: XlsxLike,
   wb: XlsxWorkbook,
@@ -497,6 +511,7 @@ export const appendSheetToWorkbook = (
   sheetName: string
 ): void => {
   XLSX.utils.book_append_sheet(wb, sheet, sheetName);
+  enableWorkbookRtl(wb);
 };
 
 export const saveWorkbookToFile = async (wb: XlsxWorkbook, fileName: string): Promise<void> => {

@@ -16,6 +16,8 @@ interface XlsxSheet {
 interface XlsxWorkbook {
   SheetNames: string[];
   Sheets: Record<string, XlsxSheet>;
+  /** اتجاه RTL يُكتب من هنا (مستوى الملف) لا من الورقة. */
+  Workbook?: { Views?: Array<{ RTL?: boolean }> };
 }
 
 interface XlsxLike {
@@ -116,6 +118,7 @@ export async function exportPartsToExcel(
   ];
 
   XLSX.utils.book_append_sheet(wb, ws, 'قطع الغيار');
+  wb.Workbook = { Views: [{ RTL: true }] };
   const filename = `قطع_${vehicle.make}_${vehicle.model ?? ''}_${String(Date.now())}.xlsx`.replace(
     /[\s/\\:]+/g,
     '_'

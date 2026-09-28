@@ -56,6 +56,8 @@ interface QuotationDetailsModalProps {
   onClose: () => void;
   onRefresh: () => void;
   onConvertToInvoice?: (() => void) | undefined;
+  /** إجراء يبدأ تلقائياً بعد تحميل العرض (من أيقونات قائمة العروض). */
+  initialAction?: 'share' | 'print' | undefined;
 }
 
 interface StatusAction {
@@ -178,7 +180,9 @@ interface ExcelContextInput {
 
 type CompanyLike = ReturnType<typeof useCompany>['data'];
 
-const companyIdentityFor = (company: CompanyLike): { companyName: string; companyNameEn: string } => ({
+const companyIdentityFor = (
+  company: CompanyLike
+): { companyName: string; companyNameEn: string } => ({
   companyName: company?.name_ar ?? 'الشركة',
   companyNameEn: company?.name_en ?? '',
 });
@@ -332,7 +336,9 @@ interface ActionOptions {
   reload: () => Promise<void>;
 }
 
-const useQuotationAction = (options: ActionOptions): { busy: boolean; run: (s: string) => void } => {
+const useQuotationAction = (
+  options: ActionOptions
+): { busy: boolean; run: (s: string) => void } => {
   const { quotation, onClose, onRefresh, onConvertToInvoice, reload } = options;
   const [busy, setBusy] = useState<boolean>(false);
 
@@ -601,11 +607,47 @@ const useQuotationShareFor = (quotation: QuotationDetailRow | null): ShareResult
   );
 };
 
+/**
+ * ينفّذ إجراءً مطلوباً من القائمة مرة واحدة بعد جهوزية العرض.
+ * يُحرس بـ ref لا بحالة: تحويله لحالة كان يسبب إعادة تشغيل التأثير فيُلغي
+ * مؤقّت الطباعة (`clearTimeout`) قبل انقضاء المهلة فلا تُستدعى `window.print()` أبداً.
+ */
+const useInitialAction = (
+  quotation: QuotationDetailRow | null,
+  share: ShareResult,
+  initialAction?: 'share' | 'print'
+): void => {
+  const handled = useRef<boolean>(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (handled.current || initialAction === undefined || quotation === null) return;
+    handled.current = true;
+    if (initialAction === 'print') {
+      // مهلة قصيرة حتى يكتمل رسم القالب قبل إظهار نافذة الطباعة.
+      timer.current = setTimeout(() => {
+        window.print();
+      }, 350);
+      return;
+    }
+    share.shareWhatsApp();
+  }, [initialAction, quotation, share]);
+
+  // إلغاء المؤقّت فقط عند إغلاق النافذة قبل انقضاء المهلة.
+  useEffect(
+    () => (): void => {
+      if (timer.current !== null) clearTimeout(timer.current);
+    },
+    []
+  );
+};
+
 const QuotationDetailsModal: FC<QuotationDetailsModalProps> = ({
   quotationId,
   onClose,
   onRefresh,
   onConvertToInvoice,
+  initialAction,
 }) => {
   const { quotation, loading, reload } = useQuotationDetails(quotationId);
   const share = useQuotationShareFor(quotation);
@@ -617,6 +659,7 @@ const QuotationDetailsModal: FC<QuotationDetailsModalProps> = ({
     ...(onConvertToInvoice !== undefined ? { onConvertToInvoice } : {}),
     reload,
   });
+  useInitialAction(quotation, share, initialAction);
 
   return (
     <Modal

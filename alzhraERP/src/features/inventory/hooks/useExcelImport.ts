@@ -273,6 +273,7 @@ export const useExcelImport = () => {
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    wb.Workbook = { Views: [{ RTL: true }] };
     XLSX.writeFile(wb, 'Inventory_Template.xlsx');
   };
 

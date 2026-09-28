@@ -9,6 +9,8 @@ import {
   Send,
   ArrowRightLeft,
   Loader2,
+  Printer,
+  Share2,
 } from 'lucide-react';
 import { salesQuotationsApi } from '@/features/sales/api/quotationsApi';
 import { useAuthStore } from '@/features/auth/store';
@@ -85,6 +87,13 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+  // إجراء يبدأ تلقائياً بعد فتح النافذة: إرسال ملف الإكسل أو الطباعة مباشرة من الصف.
+  const [pendingAction, setPendingAction] = useState<'share' | 'print' | null>(null);
+
+  const openDetails = (id: string, action: 'share' | 'print' | null): void => {
+    setSelectedQuotationId(id);
+    setPendingAction(action);
+  };
 
   const { branchId } = useBranchFilter();
 
@@ -185,6 +194,17 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
           <FileText size={40} className="mx-auto mb-3 text-gray-300 dark:text-slate-600" />
           <p className="font-medium text-gray-500 dark:text-gray-400">لا توجد عروض أسعار</p>
           <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">ابدأ بإنشاء عرض سعر جديد</p>
+          {/* زر صريح: النص وحده لا يكفي — المستخدم كان يقف أمام قائمة فارغة بلا إجراء. */}
+          <button
+            type="button"
+            onClick={() => {
+              setShowCreateModal(true);
+            }}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-600/20 transition-colors hover:bg-indigo-700"
+          >
+            <Plus size={16} />
+            عرض سعر جديد
+          </button>
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
@@ -213,6 +233,9 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
                   <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-400">
                     البنود
                   </th>
+                  <th className="px-4 py-3 text-center font-medium text-gray-500 dark:text-gray-400">
+                    إجراءات
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
@@ -224,7 +247,7 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
                     <tr
                       key={q.id}
                       onClick={() => {
-                        setSelectedQuotationId(q.id);
+                        openDetails(q.id, null);
                       }}
                       className="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50"
                     >
@@ -265,6 +288,37 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
                       <td className="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">
                         {q.quotation_items?.length || 0}
                       </td>
+                      {/* أيقونات الصف: الإرسال والطباعة متاحان من القائمة مباشرة بدل
+                          حصرهما داخل نافذة التفاصيل. stopPropagation يمنع فتح
+                          النافذة مرتين (الصف نفسه قابل للنقر). */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            type="button"
+                            title="طباعة عرض السعر"
+                            aria-label="طباعة عرض السعر"
+                            onClick={event => {
+                              event.stopPropagation();
+                              openDetails(q.id, 'print');
+                            }}
+                            className="rounded-lg border border-gray-200 p-1.5 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800 dark:border-slate-700 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white"
+                          >
+                            <Printer size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            title="إرسال عبر واتساب (ملف إكسل)"
+                            aria-label="إرسال عبر واتساب"
+                            onClick={event => {
+                              event.stopPropagation();
+                              openDetails(q.id, 'share');
+                            }}
+                            className="rounded-lg border border-emerald-200 p-1.5 text-emerald-600 transition-colors hover:bg-emerald-50 dark:border-emerald-800/30 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                          >
+                            <Share2 size={14} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -292,8 +346,10 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
           quotationId={selectedQuotationId}
           onClose={() => {
             setSelectedQuotationId(null);
+            setPendingAction(null);
           }}
           onRefresh={fetchQuotations}
+          {...(pendingAction !== null ? { initialAction: pendingAction } : {})}
           {...(onConvertToInvoice ? { onConvertToInvoice } : {})}
         />
       )}

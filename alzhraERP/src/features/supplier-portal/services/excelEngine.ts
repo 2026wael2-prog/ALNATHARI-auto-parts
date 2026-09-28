@@ -246,6 +246,8 @@ export const exportQuotationToExcel = async (
   ];
 
   XLSX.utils.book_append_sheet(wb, ws, 'عرض السعر');
+  // RTL على مستوى الملف — الكاتب يتجاهل `!view` على الورقة.
+  wb.Workbook = { Views: [{ RTL: true }] };
 
   const filename = `${options.quotationNumber || 'Quotation'}_${formatLocalDate()}.xlsx`;
   XLSX.writeFile(wb, filename);
@@ -350,6 +352,7 @@ export const exportProductCatalogToExcel = async (
   ];
 
   XLSX.utils.book_append_sheet(wb, ws, 'كتالوج المنتجات');
+  wb.Workbook = { Views: [{ RTL: true }] };
   XLSX.writeFile(wb, `Product_Catalog_${formatLocalDate()}.xlsx`);
 };
 

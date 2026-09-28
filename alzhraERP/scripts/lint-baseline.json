@@ -459,7 +459,7 @@
   "src/features/inventory/hooks/index.ts": 0,
   "src/features/inventory/hooks/useAIPartLookup.ts": 5,
   "src/features/inventory/hooks/useAutoParts.ts": 38,
-  "src/features/inventory/hooks/useExcelImport.ts": 42,
+  "src/features/inventory/hooks/useExcelImport.ts": 60,
   "src/features/inventory/hooks/useInventoryManagement.ts": 10,
   "src/features/inventory/hooks/useInventorySession.ts": 33,
   "src/features/inventory/hooks/useInventoryView.ts": 0,

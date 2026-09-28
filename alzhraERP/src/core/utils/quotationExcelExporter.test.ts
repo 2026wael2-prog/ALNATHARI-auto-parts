@@ -6,6 +6,7 @@ import {
 } from './quotationExcelExporter';
 import type { QuotationExcelData } from './quotationExcelExporter';
 import type { XlsxSheet } from './excelExporterBase';
+import { loadXLSX } from './excelExporterBase';
 
 const SHEET = 'عرض سعر';
 const NAVY = '1F4E78';
@@ -64,16 +65,22 @@ interface StyledCell {
   };
 }
 
+/** يقرأ خلية بمرجعها النصي (المرجع ديناميكي وفق مواصفات xlsx). */
 const cellAt = (sheet: XlsxSheet, ref: string): StyledCell => {
-  const cell = (sheet as Record<string, unknown>)[ref];
-  return (cell ?? {}) as StyledCell;
+  // eslint-disable-next-line security/detect-object-injection
+  const cell: unknown = (sheet as Record<string, unknown>)[ref];
+  return typeof cell === 'object' && cell !== null ? cell : {};
 };
+
+/** تنسيق الخلية ككائن مسطّح — يقلّل سلاسل `?.` المتكرّرة في كل تأكيد. */
+const styleOf = (sheet: XlsxSheet, ref: string): NonNullable<StyledCell['s']> =>
+  cellAt(sheet, ref).s ?? {};
 
 const sheetOf = async (data: QuotationExcelData = SAMPLE): Promise<XlsxSheet> => {
   const wb = await generateQuotationWorkbook(data);
-  const sheet = wb.Sheets[SHEET];
-  if (sheet === undefined) throw new Error('sheet missing');
-  return sheet;
+  const entry = Object.entries(wb.Sheets).find(([name]) => name === SHEET);
+  if (entry === undefined) throw new Error('sheet missing');
+  return entry[1];
 };
 
 describe('quotationExcelExporter — شبكة احترافية', () => {
@@ -84,27 +91,40 @@ describe('quotationExcelExporter — شبكة احترافية', () => {
     expect(quotationPalette(NAVY).headerFill).toBe(NAVY);
   });
 
-  it('يرسم ترويسة فخمة: شريط اسم المنشأة بلون التمييز وخط أبيض عريض وارتفاع كبير', async () => {
+  it('يرسم ترويسة فخمة: شريط اسم المنشأة بلون التمييز وخط أبيض عريض', async () => {
     const ws = await sheetOf();
-    const company = cellAt(ws, 'A1');
-    expect(company.v).toBe(SAMPLE.companyName);
-    expect(company.s?.fill?.fgColor?.rgb).toBe(NAVY);
-    expect(company.s?.font?.color?.rgb).toBe('FFFFFF');
-    expect(company.s?.font?.bold).toBe(true);
-    expect(company.s?.font?.sz).toBe(18);
+    const style = styleOf(ws, 'A1');
+    expect(cellAt(ws, 'A1').v).toBe(SAMPLE.companyName);
+    expect(style.fill?.fgColor?.rgb).toBe(NAVY);
+    expect(style.font?.color?.rgb).toBe('FFFFFF');
+    expect(style.font?.bold).toBe(true);
+    expect(style.font?.sz).toBe(18);
+  });
 
+  it('يرفع ارتفاع صف الترويسة ويدمج الأشرطة على عرض الورقة (8 أعمدة)', async () => {
+    const ws = await sheetOf();
     const rows = ws['!rows'] as Array<{ hpt?: number }> | undefined;
     expect(rows?.[0]?.hpt).toBe(34);
 
-    // دمج الأشرطة على عرض الورقة كاملاً (8 أعمدة)
     const merges = ws['!merges'] ?? [];
     expect(merges).toContainEqual({ s: { r: 0, c: 0 }, e: { r: 0, c: 7 } });
     expect(merges).toContainEqual({ s: { r: 4, c: 0 }, e: { r: 4, c: 7 } });
   });
 
-  it('يجعل الورقة من اليمين لليسار مع شبكة أعمدة واسعة', async () => {
+  it('يجعل الورقة من اليمين لليسار فعلياً في الملف المكتوب', async () => {
+    const wb = await generateQuotationWorkbook(SAMPLE);
+    // العقد الحقيقي لـ xlsx-js-style: الاتجاه يُقرأ من مستوى الملف لا من `!view`.
+    expect(wb.Workbook?.Views?.[0]?.RTL).toBe(true);
+
+    // تحقّق تسلسلي: كتابة بلا ضغط تُبقي XML مقروءاً فيمكن الجزم بما سيصل لإكسل.
+    const XLSX = await loadXLSX();
+    const binary = XLSX.write(wb, { bookType: 'xlsx', type: 'binary', compression: false });
+    expect(typeof binary).toBe('string');
+    expect(binary as string).toContain('rightToLeft="1"');
+  });
+
+  it('يبني شبكة أعمدة واسعة', async () => {
     const ws = await sheetOf();
-    expect(ws['!view']).toEqual([{ RTL: true }]);
     const cols = ws['!cols'] as Array<{ wch?: number }> | undefined;
     expect(cols).toHaveLength(8);
     expect(cols?.[2]?.wch).toBeGreaterThanOrEqual(40);
