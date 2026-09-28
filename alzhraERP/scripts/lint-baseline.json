@@ -67,7 +67,7 @@
   "src/core/utils/querySyncUtils.test.ts": 12,
   "src/core/utils/querySyncUtils.ts": 5,
   "src/core/utils/quotationExcelExporter.ts": 0,
-  "src/core/utils/returnsExcelExporter.ts": 1,
+  "src/core/utils/returnsExcelExporter.ts": 0,
   "src/core/utils/routePrefetcher.ts": 4,
   "src/core/utils/safeOptional.ts": 2,
   "src/core/utils/search.ts": 35,

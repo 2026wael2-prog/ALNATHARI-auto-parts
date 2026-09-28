@@ -17,12 +17,41 @@
  * intent explicit and keeps `exactOptionalPropertyTypes` meaningful instead of
  * weakening it for the whole project.
  *
+ * Empty strings are absent too
+ * ----------------------------
+ * An empty string is NOT the same as an omitted argument: PostgREST forwards it
+ * verbatim and PostgreSQL rejects it for any non-text parameter.
+ *
+ *   p_from_date: ''  ->  22007 invalid input syntax for type date: ""
+ *
+ * That produced a live HTTP 400 on `get_party_statement` whenever a date filter
+ * was left blank, because an untouched `<input type="date">` yields `''` rather
+ * than `undefined`. The same hazard applies to every uuid (`p_branch_id`,
+ * `p_payment_account_id`), boolean (`p_is_core`, `p_resolved`) and numeric
+ * parameter; for text parameters an empty string silently filters to zero rows
+ * (e.g. `status = ''`) instead of meaning "no filter".
+ *
+ * Because every optional parameter reachable through this helper declares
+ * `DEFAULT NULL`, treating `''` as absent is exactly equivalent to letting the
+ * server apply its default. This was verified per-function against the live
+ * schema for all call sites (get_party_statement, search_invoices_advanced,
+ * search_inventory_paginated, get_security_alerts_*, get_debt_*,
+ * get_admin_*, generate_invoice_number, admin_resolve_security_alert).
+ *
+ * `false` and `0` are deliberately preserved — they are legitimate values, so
+ * this check is a string-emptiness test, never a truthiness test.
+ *
  * IMPORTANT: only use this for parameters whose default is NULL. For a
- * parameter with a non-null default (e.g. `search_parties.p_type DEFAULT 'all'`)
- * omitting the argument changes behaviour, and for a required parameter you
- * must guard the value instead — never silence it with this helper.
+ * parameter with a non-null default (e.g. `search_parties.p_type DEFAULT 'all'`,
+ * or `commit_payment.p_payment_method DEFAULT 'cash'`) omitting the argument
+ * changes behaviour, and for a required parameter you must guard the value
+ * instead — never silence it with this helper.
  */
-export function optArg<K extends string, V>(key: K, value: V | null | undefined): { [P in K]?: V } {
-  if (value === null || value === undefined) return {} as { [P in K]?: V };
-  return { [key]: value } as { [P in K]?: V };
+export function optArg<K extends string, V>(
+  key: K,
+  value: V | null | undefined
+): Partial<Record<K, V>> {
+  if (value === null || value === undefined) return {};
+  if (typeof value === 'string' && value.trim() === '') return {};
+  return { [key]: value } as Partial<Record<K, V>>;
 }

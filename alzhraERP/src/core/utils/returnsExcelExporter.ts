@@ -83,61 +83,68 @@ const getReturnReasonText = (reason: string): string => {
   return reason || '-';
 };
 
+/** ترويسة جدول المرتجعات — «العملة» إلزامية بعد إضافة عمود المبلغ الأصلي. */
+const buildReturnsTableHeader = (partyTitle: string): unknown[] => [
+  '#',
+  'رقم المرتجع',
+  'التاريخ',
+  partyTitle,
+  'فاتورة مرجعية',
+  'سبب الإرجاع',
+  'عدد الأصناف',
+  'المبلغ',
+  'العملة',
+  'الحالة',
+  'ملاحظات',
+];
+
+const buildReturnsListRow = (
+  item: ReturnExcelData['returns'][number],
+  index: number
+): unknown[] => [
+  index + 1,
+  item.invoiceNumber,
+  item.issueDate,
+  item.customerName !== '' ? item.customerName : (item.supplierName ?? '-'),
+  item.referenceInvoice ?? '-',
+  getReturnReasonText(item.returnReason ?? ''),
+  item.items || 0,
+  item.totalAmount || 0,
+  item.currencyCode ?? 'SAR',
+  getStatusText(item.status),
+  item.notes ?? '-',
+];
+
+/**
+ * أرقام الملخص محوَّلة إلى العملة الأساسية (ر.س) بينما صفوف الجدول بعملتها
+ * الأصلية، لذا يُوسَم الملخص بالعملة صراحةً لمنع قراءة الإجمالي كأنه بعملة الصف.
+ */
+const buildReturnsSummaryRows = (data: ReturnExcelData): unknown[][] => [
+  ['ملخص الإحصائيات'],
+  ['إجمالي عدد المرتجعات:', data.summary.count || 0],
+  ['إجمالي المبالغ المرتجعة (ر.س):', data.summary.totalAmount || 0],
+  ['متوسط قيمة المرتجع (ر.س):', data.summary.averageAmount || 0],
+];
+
 const buildReturnsListFullRows = (
   data: ReturnExcelData,
   title: string,
   partyTitle: string
 ): { rows: unknown[][]; summaryStartRow: number } => {
-  const rows: unknown[][] = [];
+  const rows: unknown[][] = [
+    [data.companyName],
+    [title],
+    [],
+    ['تاريخ التقرير:', formatLocalDate()],
+    [],
+    buildReturnsTableHeader(partyTitle),
+  ];
 
-  // Header section
-  rows.push([data.companyName]);
-  rows.push([title]);
-  rows.push([]);
-  rows.push(['تاريخ التقرير:', formatLocalDate()]);
-  rows.push([]);
-
-  // Table headers
-  rows.push([
-    '#',
-    'رقم المرتجع',
-    'التاريخ',
-    partyTitle,
-    'فاتورة مرجعية',
-    'سبب الإرجاع',
-    'عدد الأصناف',
-    'المبلغ',
-    'العملة',
-    'الحالة',
-    'ملاحظات',
-  ]);
-
-  // Data rows
-  data.returns.forEach((item, i) => {
-    const partyLabel = item.customerName !== '' ? item.customerName : (item.supplierName ?? '-');
-    rows.push([
-      i + 1,
-      item.invoiceNumber,
-      item.issueDate,
-      partyLabel,
-      item.referenceInvoice ?? '-',
-      getReturnReasonText(item.returnReason ?? ''),
-      item.items || 0,
-      item.totalAmount || 0,
-      item.currencyCode ?? 'SAR',
-      getStatusText(item.status),
-      item.notes ?? '-',
-    ]);
-  });
+  data.returns.forEach((item, i) => rows.push(buildReturnsListRow(item, i)));
 
   rows.push([]);
-
-  // Summary section
   const summaryStartRow = rows.length;
-  rows.push(['ملخص الإحصائيات']);
-  rows.push(['إجمالي عدد المرتجعات:', data.summary.count || 0]);
-  rows.push(['إجمالي المبالغ المرتجعة:', data.summary.totalAmount || 0]);
-  rows.push(['متوسط قيمة المرتجع:', data.summary.averageAmount || 0]);
+  rows.push(...buildReturnsSummaryRows(data));
 
   return { rows, summaryStartRow };
 };
@@ -152,13 +159,13 @@ export const exportReturnsToExcel = async (data: ReturnExcelData): Promise<void>
   const { rows, summaryStartRow } = buildReturnsListFullRows(data, title, partyTitle);
 
   const merges: ExcelMergeRange[] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }, // Company name
-    { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } }, // Title
-    { s: { r: summaryStartRow, c: 0 }, e: { r: summaryStartRow, c: 9 } }, // Summary title
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Company name
+    { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Title
+    { s: { r: summaryStartRow, c: 0 }, e: { r: summaryStartRow, c: 10 } }, // Summary title
   ];
 
   const ws = buildStyledSheet(XLSX, rows, {
-    colWidths: [6, 18, 15, 30, 18, 20, 12, 18, 15, 35],
+    colWidths: [6, 18, 15, 30, 18, 20, 12, 18, 10, 15, 35],
     merges,
     styling: {
       companyRow: 0,
@@ -171,7 +178,7 @@ export const exportReturnsToExcel = async (data: ReturnExcelData): Promise<void>
       summaryKeys: { fromRow: summaryStartRow, col: 0 },
       integerColumns: [0, 6],
       integerFromRow: summaryStartRow + 1,
-      columnCount: 10,
+      columnCount: 11,
     },
   });
 
