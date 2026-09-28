@@ -93,21 +93,23 @@ export function ExcelTableHeader<T>({
           >
             <div
               className={cn(
-                'flex items-center gap-1',
+                'flex min-w-0 items-center gap-1',
                 col.align === 'center' || !col.align ? 'justify-center text-center' : '',
                 col.align === 'right' ? 'justify-end text-right' : '',
                 col.align === 'left' ? 'justify-start text-left' : '',
                 isRTL ? 'flex-row-reverse' : ''
               )}
             >
-              <span>{col.header}</span>
+              <span className="truncate" title={col.header}>
+                {col.header}
+              </span>
               {col.sortKey && (
                 <div className="flex flex-col">
                   <ChevronUp
                     size={8}
                     className={cn(
                       'text-gray-400',
-                      sortConfig?.key === col.sortKey && sortConfig?.direction === 'asc'
+                      sortConfig?.key === col.sortKey && sortConfig.direction === 'asc'
                         ? 'text-blue-600'
                         : 'opacity-30'
                     )}
@@ -116,7 +118,7 @@ export function ExcelTableHeader<T>({
                     size={8}
                     className={cn(
                       'text-gray-400',
-                      sortConfig?.key === col.sortKey && sortConfig?.direction === 'desc'
+                      sortConfig?.key === col.sortKey && sortConfig.direction === 'desc'
                         ? 'text-blue-600'
                         : 'opacity-30'
                     )}

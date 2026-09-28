@@ -41,6 +41,37 @@ interface ExcelTableBodyProps<T> {
   rowHeight?: number;
 }
 
+interface CellContentProps<T> {
+  column: Column<T>;
+  row: T;
+}
+
+/**
+ * خلية بصفٍّ واحد ثابت الارتفاع.
+ *
+ * سبب الوجود: كان محتوى الخلية يلتفّ على أسطر متعددة فيتغيّر ارتفاع الصف حسب طول
+ * اسم المنتج (والجدول عامودي التمرير يفترض ارتفاعاً ثابتاً للصف، فتنزاح الصفوف
+ * و«يهتز» الجدول). الآن يُقتطع النص الطويل بنقاط، ويظهر كاملاً في تلميح `title`.
+ * الدوال الحقيقية (زر/شارة) تُترك كما هي دون اقتطاع نصي.
+ */
+const CellContent = <T,>({ column, row }: CellContentProps<T>): React.ReactElement => {
+  const renderCell = (column as { cell?: (args: { row: { original: T } }) => React.ReactNode })
+    .cell;
+  const content =
+    renderCell !== undefined ? renderCell({ row: { original: row } }) : column.accessor(row);
+  const titleText =
+    typeof content === 'string' || typeof content === 'number' ? String(content) : undefined;
+
+  return (
+    <div
+      className="h-full min-h-[36px] w-full overflow-hidden text-ellipsis whitespace-nowrap p-2"
+      title={titleText}
+    >
+      {content}
+    </div>
+  );
+};
+
 export function ExcelTableBody<T>({
   isLoading,
   orderedData,
@@ -293,11 +324,7 @@ export function ExcelTableBody<T>({
                       )}
                     />
                   ) : (
-                    <div className="h-full min-h-[36px] w-full p-2">
-                      {(col as any).cell
-                        ? (col as any).cell({ row: { original: row } })
-                        : col.accessor(row)}
-                    </div>
+                    <CellContent column={col} row={row} />
                   )}
                 </td>
               );

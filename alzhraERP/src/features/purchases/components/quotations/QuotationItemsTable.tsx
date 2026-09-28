@@ -12,9 +12,19 @@ const QuotationItemRow: React.FC<QuotationItemRowProps> = ({ item, index, curren
   <tr className="transition-colors hover:bg-gray-50/70 dark:hover:bg-slate-700/30">
     <td className="px-3 py-2.5 font-mono text-gray-400">{index + 1}</td>
     <td className="px-3 py-2.5">
-      <div className="font-medium text-gray-800 dark:text-gray-200">{item.description}</div>
+      <div
+        className="truncate font-medium text-gray-800 dark:text-gray-200"
+        title={item.description}
+      >
+        {item.description}
+      </div>
       {item.part_number !== null && (
-        <span className="font-mono text-[10px] text-gray-400">رقم القطعة: {item.part_number}</span>
+        <span
+          className="block truncate font-mono text-[10px] text-gray-400"
+          title={item.part_number}
+        >
+          رقم القطعة: {item.part_number}
+        </span>
       )}
     </td>
     <td className="bg-violet-50/30 px-3 py-2.5 text-center dark:bg-violet-950/10">
@@ -54,7 +64,15 @@ export const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
   currencyCode,
 }) => (
   <div className="overflow-x-auto rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
-    <table className="w-full text-xs">
+    <table className="w-full table-fixed text-xs">
+      <colgroup>
+        <col style={{ width: 40 }} />
+        <col />
+        <col style={{ width: 95 }} />
+        <col style={{ width: 70 }} />
+        <col style={{ width: 110 }} />
+        <col style={{ width: 110 }} />
+      </colgroup>
       <thead>
         <tr className="border-b border-gray-100 bg-gray-50 text-gray-600 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300">
           <th className="w-8 px-3 py-2.5 text-right font-bold">#</th>

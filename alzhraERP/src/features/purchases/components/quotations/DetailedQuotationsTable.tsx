@@ -49,9 +49,17 @@ const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({
         {item.supplierName}
       </td>
       <td className="px-4 py-3">
-        <div className="text-xs font-medium text-gray-900 dark:text-white">{item.description}</div>
+        <div
+          className="truncate text-xs font-medium text-gray-900 dark:text-white"
+          title={item.description}
+        >
+          {item.description}
+        </div>
         {item.part_number !== null && (
-          <span className="font-mono text-[10px] text-gray-400">
+          <span
+            className="block truncate font-mono text-[10px] text-gray-400"
+            title={item.part_number}
+          >
             رقم القطعة: {item.part_number}
           </span>
         )}
@@ -168,7 +176,22 @@ export const DetailedQuotationsTable: React.FC<DetailedQuotationsTableProps> = (
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
       <div className="scroll-x-hint-surface overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full table-fixed text-sm">
+          {/* عروض صريحة لكل الأعمدة ما عدا عمود الصنف/البند الذي يأخذ المتبقي:
+              تضمن ألا يدفع اسم المنتج الطويل بقية الأعمدة ولا يغيّر توزيعها. */}
+          <colgroup>
+            <col style={{ width: 40 }} />
+            <col style={{ width: 110 }} />
+            <col style={{ width: 150 }} />
+            <col />
+            <col style={{ width: 95 }} />
+            <col style={{ width: 70 }} />
+            <col style={{ width: 110 }} />
+            <col style={{ width: 110 }} />
+            <col style={{ width: 90 }} />
+            <col style={{ width: 95 }} />
+            <col style={{ width: 110 }} />
+          </colgroup>
           <DetailedQuotationsTableHeader />
           <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
             {flatItems.map((item, index) => (

@@ -41,7 +41,7 @@ const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
 
       {/* Excel-like table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full table-fixed border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/60">
               <th className="w-8 border-l border-gray-200 px-2 py-2 text-center text-[11px] font-bold text-gray-500 dark:border-slate-700">
@@ -74,6 +74,9 @@ const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
           <tbody className="divide-y divide-gray-100 dark:divide-slate-700/60">
             {items.map((item, idx) => {
               const lineTotal =
+                // المسودات المحفوظة محلياً من نسخة أقدم قد تخلو من نسبة الخصم،
+                // فالحماية `?? 0` مقصودة رغم أن النوع يعتبرها غير قابلة للغياب.
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
                 item.quantity * item.unitPrice * (1 - (item.discountPercent ?? 0) / 100);
               return (
                 <tr
