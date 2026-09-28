@@ -153,6 +153,30 @@ export const buildQuotationMessageText = (payload: QuotationSharePayload): strin
   ].join('\n');
 
 /**
+ * تعليق مختصر يُرفق مع ملف الإكسل.
+ * يبقى قصيراً عمداً: تعليقات واتساب محدودة الطول، وسرد كل الأصناف داخل الرسالة
+ * قد يُقتطع — التفاصيل كاملة في الملف المرفق.
+ */
+export const buildQuotationCaption = (payload: QuotationSharePayload): string => {
+  const currency = currencyOf(payload);
+  const lines: string[] = [];
+
+  const header = nonEmpty(payload.headerText);
+  if (header !== '') lines.push(header);
+
+  lines.push(`🧾 *عرض سعر* \`${payload.quotationNumber}\``);
+  const customer = nonEmpty(payload.customerName);
+  if (customer !== '') lines.push(`👤 *العميل:* ${customer}`);
+  lines.push(`💰 *الإجمالي:* ${money(payload.totalAmount, currency)}`);
+
+  const validity = validityLine(payload.validUntil);
+  if (validity !== null) lines.push(validity);
+
+  lines.push('', '📎 تفاصيل العرض كاملة في الملف المرفق.');
+  return lines.join('\n');
+};
+
+/**
  * يفتح واتساب على رقم العميل مع النص مُعبّأً؛ وإن لم يكن الرقم صالحاً يفتح نافذة
  * اختيار المحادثة مع النص نفسه.
  */

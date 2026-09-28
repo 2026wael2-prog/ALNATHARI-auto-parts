@@ -4,6 +4,7 @@ import {
   mapQuotationToPrintData,
   quotationStatusLabel,
   statusToneClasses,
+  toQuotationExcelData,
   toSharePayload,
 } from './quotationPrintModel';
 import type { QuotationDetailRow } from '../../../../api/quotationsApi';
@@ -120,5 +121,35 @@ describe('quotationPrintModel', () => {
       unitPrice: 15000,
       total: 27000,
     });
+  });
+
+  it('يحوّل النموذج إلى حمولة إكسل بعملة العرض الكاملة', () => {
+    const data = mapQuotationToPrintData(makeQuotation());
+    const excel = toQuotationExcelData(data, {
+      companyName: 'الجعفري',
+      companyNameEn: 'Aljaafari',
+      companySpecialization: 'قطع غيار',
+      companyAddress: 'شحن',
+      companyPhone: '777',
+      taxNumber: '300',
+      issuedBy: 'المدير',
+      accentColor: '1F4E78',
+    });
+
+    expect(excel.currency).toBe('YER');
+    expect(excel.quotationNumber).toBe('QT-2026-0001');
+    expect(excel.companyPhone).toBe('777');
+    expect(excel.accentColor).toBe('1F4E78');
+    // البند يحمل رقم القطعة والماركة ونسبة الخصم لوضعهما في أعمدة الشبكة
+    expect(excel.items[0]).toMatchObject({
+      name: 'غطاء تانكي',
+      partNumber: 'PN-99',
+      brand: 'تويوتا',
+      quantity: 2,
+      unitPrice: 15000,
+      discountPercent: 10,
+      total: 27000,
+    });
+    expect(excel.totalAmount).toBe(30000);
   });
 });

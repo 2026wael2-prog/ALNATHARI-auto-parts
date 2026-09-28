@@ -10,6 +10,7 @@
 
 import type { QuotationDetailItem, QuotationDetailRow } from '../../../api/quotationsApi';
 import type { QuotationShareItem, QuotationSharePayload } from '../../../utils/quotationShareHelper';
+import type { QuotationExcelData } from '@/core/utils/quotationExcelExporter';
 
 export interface QuotationPrintItem {
   id: string;
@@ -182,4 +183,57 @@ export const toSharePayload = (
   deliveryTerms: data.deliveryTerms,
   notes: data.notes,
   termsAndConditions: data.termsAndConditions,
+});
+
+/** سياق ترويسة ملف الإكسل (بيانات المنشأة والمستخدم). */
+export interface QuotationExcelContext {
+  companyName: string;
+  companyNameEn: string;
+  companySpecialization: string;
+  companyAddress: string;
+  companyPhone: string;
+  taxNumber: string;
+  issuedBy: string;
+  accentColor: string;
+}
+
+/**
+ * يحوّل نموذج الطباعة إلى حمولة مُصدِّر الإكسل، فيبقى الملف المرفق مطابقاً للصفحة
+ * المطبوعة في العملة والأصناف والإجماليات.
+ */
+export const toQuotationExcelData = (
+  data: QuotationPrintData,
+  context: QuotationExcelContext
+): QuotationExcelData => ({
+  companyName: context.companyName,
+  companyNameEn: context.companyNameEn,
+  companySpecialization: context.companySpecialization,
+  companyAddress: context.companyAddress,
+  companyPhone: context.companyPhone,
+  taxNumber: context.taxNumber,
+  quotationNumber: data.header.number,
+  issueDate: data.header.issueDate,
+  validUntil: data.header.validUntil,
+  customerName: data.header.customerName,
+  customerPhone: data.header.customerPhone,
+  issuedBy: context.issuedBy,
+  currency: data.header.currencyCode,
+  discountAmount: data.discountAmount,
+  taxAmount: data.taxAmount,
+  paymentTerms: data.paymentTerms,
+  deliveryTerms: data.deliveryTerms,
+  items: data.items.map(item => ({
+    name: item.name,
+    sku: item.code,
+    partNumber: item.code,
+    brand: item.brand,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    discountPercent: item.discountPercent,
+    total: item.total,
+  })),
+  subtotal: data.subtotal,
+  totalAmount: data.totalAmount,
+  notes: data.notes,
+  accentColor: context.accentColor,
 });

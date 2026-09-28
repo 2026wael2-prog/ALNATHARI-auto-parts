@@ -94,6 +94,72 @@ export const sanitizeFileName = (value: string): string => {
 
 // ── خيارات التنسيق القياسي ────────────────────────────────────────────────────
 
+/**
+ * لوحة ألوان الورقة. القيم الافتراضية هي نفس الألوان المعتمدة سابقاً، فأي مُصدِّر
+ * لا يمرّر palette يبقى مخرجُه مطابقاً تماماً لما كان عليه.
+ */
+export interface ExcelPalette {
+  /** لون التمييز: اسم الشركة والقيم البارزة. */
+  accent: string;
+  /** خلفية شريط اسم المنشأة. */
+  titleFill: string;
+  /** خلفية شريط نوع المستند (عرض سعر / فاتورة). */
+  subtitleFill: string;
+  /** خلفية رأس جدول الأصناف. */
+  headerFill: string;
+  /** لون خط رأس جدول الأصناف. */
+  headerFont: string;
+  /** خلفية خلايا المفاتيح الوصفية. */
+  metaFill: string;
+  /** خلفية قيم الملخص. */
+  summaryFill: string;
+  /** خلفية الصفوف المتناوبة. */
+  alternateFill: string;
+  /** لون الحدود. */
+  border: string;
+}
+
+const DEFAULT_PALETTE: ExcelPalette = {
+  accent: '1F4E78',
+  titleFill: '1F4E78',
+  subtitleFill: 'DCE6F1',
+  headerFill: '1F4E78',
+  headerFont: 'FFFFFF',
+  metaFill: 'F2F2F2',
+  summaryFill: 'EBF1DE',
+  alternateFill: 'FAFAFA',
+  border: 'D3D3D3',
+};
+
+const pickColor = (value: string | undefined, fallback: string): string => value ?? fallback;
+
+/** يحوّل الألوان الممرَّرة إلى لوحة كاملة بلا فهرسة ديناميكية. */
+export const resolvePalette = (override: Partial<ExcelPalette> = {}): ExcelPalette => ({
+  accent: pickColor(override.accent, DEFAULT_PALETTE.accent),
+  titleFill: pickColor(override.titleFill, DEFAULT_PALETTE.titleFill),
+  subtitleFill: pickColor(override.subtitleFill, DEFAULT_PALETTE.subtitleFill),
+  headerFill: pickColor(override.headerFill, DEFAULT_PALETTE.headerFill),
+  headerFont: pickColor(override.headerFont, DEFAULT_PALETTE.headerFont),
+  metaFill: pickColor(override.metaFill, DEFAULT_PALETTE.metaFill),
+  summaryFill: pickColor(override.summaryFill, DEFAULT_PALETTE.summaryFill),
+  alternateFill: pickColor(override.alternateFill, DEFAULT_PALETTE.alternateFill),
+  border: pickColor(override.border, DEFAULT_PALETTE.border),
+});
+
+/**
+ * شريط أفقي بعرض الورقة — يُطبَّق آخر شيء فيتغلّب على أي قاعدة أخرى.
+ * يُستخدم لبناء ترويسة فخمة (شريط ملوّن لاسم المنشأة ونوع المستند).
+ */
+export interface ExcelBandRow {
+  row: number;
+  fill?: string;
+  fontColor?: string;
+  fontSize?: number;
+  bold?: boolean;
+  /** ارتفاع الصف بالنقاط (pt). */
+  height?: number;
+}
+
 export interface ExcelStylingOptions {
   /** صف اسم الشركة/العنوان الرئيسي (Arial 16 عريض أزرق 1F4E78) — عادة 0. */
   companyRow?: number;
@@ -129,7 +195,14 @@ export interface ExcelStylingOptions {
   numericColumns?: number[];
   /** عدد الأعمدة (يُستخدم عند غياب !ref). */
   columnCount?: number;
+  /** لوحة ألوان مخصّصة (افتراضياً الألوان المعتمدة). */
+  palette?: Partial<ExcelPalette>;
+  /** أشرطة أفقية بعرض الورقة تُطبَّق آخر شيء (ترويسة فخمة). */
+  bandRows?: ExcelBandRow[];
 }
+
+/** الخيارات بعد حلّ اللوحة — يُمرَّر داخلياً لتجنّب تجاوز حد المعاملات. */
+type ResolvedStylingOptions = ExcelStylingOptions & { palette: ExcelPalette };
 
 export interface BuildSheetOptions {
   colWidths: number[];
@@ -138,9 +211,19 @@ export interface BuildSheetOptions {
   styling?: ExcelStylingOptions;
 }
 
+/** طول النص المعروض لخلية — بلا تحويل كائنات إلى نص. */
+const cellTextLength = (value: unknown): number => {
+  if (typeof value === 'string') return value.trim().length;
+  if (typeof value === 'number') return String(value).length;
+  return 0;
+};
+
 /**
  * احتساب ديناميكي لعرض الأعمدة بناءً على أطول نص في كل عمود مع هامش أمان.
  * يتجاهل النصوص الطويلة جداً التي تنتمي لصفوف العناوين أو الملاحظات المدمجة.
+ *
+ * كُتبت بأسلوب دالّي (Array.from + at) بدل حلقة تكتب بالفهرس: الكتابة بمؤشّر
+ * متغيّر داخل مصفوفة تُطلق قاعدة security/detect-object-injection.
  */
 export const computeAutoFitWidths = (
   rows: unknown[][],
@@ -148,42 +231,28 @@ export const computeAutoFitWidths = (
   padding = 4
 ): number[] => {
   const maxCols = Math.max(...rows.map(r => (Array.isArray(r) ? r.length : 0)), 0);
-  const widths: number[] = new Array(maxCols).fill(10);
 
-  for (let c = 0; c < maxCols; c++) {
-    const minWidth = baseWidths?.[c] ?? 10;
-    let maxCellLen = 0;
-    for (const row of rows) {
-      if (!Array.isArray(row) || c >= row.length) continue;
-      const cell = row[c];
-      if (cell !== null && cell !== undefined) {
-        const text = String(cell).trim();
-        if (text.length > maxCellLen) {
-          maxCellLen = Math.min(60, text.length);
-        }
-      }
-    }
-    const needed = maxCellLen > 0 ? maxCellLen + padding : minWidth;
-    widths[c] = Math.max(minWidth, Math.min(60, needed));
-  }
-  return widths;
+  return Array.from({ length: maxCols }, (_unused, c) => {
+    const minWidth = baseWidths?.at(c) ?? 10;
+    const longest = rows.reduce((max, row) => {
+      const cell = Array.isArray(row) ? row.at(c) : undefined;
+      const len = Math.min(60, cellTextLength(cell));
+      return len > max ? len : max;
+    }, 0);
+    const needed = longest > 0 ? longest + padding : minWidth;
+    return Math.max(minWidth, Math.min(60, needed));
+  });
 };
 
-const DEFAULT_BORDER = {
-  top: { style: 'thin', color: { rgb: 'D3D3D3' } },
-  bottom: { style: 'thin', color: { rgb: 'D3D3D3' } },
-  left: { style: 'thin', color: { rgb: 'D3D3D3' } },
-  right: { style: 'thin', color: { rgb: 'D3D3D3' } },
-};
+const borderFor = (palette: ExcelPalette): Record<string, unknown> => ({
+  top: { style: 'thin', color: { rgb: palette.border } },
+  bottom: { style: 'thin', color: { rgb: palette.border } },
+  left: { style: 'thin', color: { rgb: palette.border } },
+  right: { style: 'thin', color: { rgb: palette.border } },
+});
 
 const ARIAL_11 = { name: 'Arial', sz: 11, color: { rgb: '000000' } };
-const HEADER_FONT = { name: 'Arial', sz: 16, bold: true, color: { rgb: '1F4E78' } };
 const SUB_HEADER_FONT = { name: 'Arial', sz: 12, bold: true };
-const TABLE_HEADER_FILL = { fgColor: { rgb: '1F4E78' } };
-const TABLE_HEADER_FONT = { name: 'Arial', sz: 12, bold: true, color: { rgb: 'FFFFFF' } };
-const META_FILL = { fgColor: { rgb: 'F2F2F2' } };
-const SUMMARY_VALUE_FILL = { fgColor: { rgb: 'EBF1DE' } };
-const ALTERNATE_FILL = { fgColor: { rgb: 'FAFAFA' } };
 
 const readCell = (sheet: XlsxSheet, ref: string): XlsxCell | undefined => {
   // cellRef متغيّر ديناميكي وفق مواصفات xlsx — الوصول المقصود هنا غير قابل للفهرسة الثابتة.
@@ -192,9 +261,9 @@ const readCell = (sheet: XlsxSheet, ref: string): XlsxCell | undefined => {
   return cell;
 };
 
-const applyDefaultCellStyle = (cell: XlsxCell): void => {
+const applyDefaultCellStyle = (cell: XlsxCell, palette: ExcelPalette): void => {
   cell.s = {
-    border: DEFAULT_BORDER,
+    border: borderFor(palette),
     alignment: { horizontal: 'center', vertical: 'center' },
     font: ARIAL_11,
   };
@@ -202,7 +271,7 @@ const applyDefaultCellStyle = (cell: XlsxCell): void => {
 
 const applyNumberFormat = (
   cell: XlsxCell,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number,
   col: number
 ): void => {
@@ -221,11 +290,11 @@ const applyNumberFormat = (
 
 const applyHeaderFonts = (
   style: Record<string, unknown>,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number
 ): void => {
   if (options.companyRow !== undefined && row === options.companyRow) {
-    style.font = HEADER_FONT;
+    style.font = { name: 'Arial', sz: 16, bold: true, color: { rgb: options.palette.accent } };
   }
   if (
     options.subHeaderRows !== undefined &&
@@ -241,7 +310,7 @@ const applyHeaderFonts = (
 
 const applyMetaStyles = (
   style: Record<string, unknown>,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number,
   col: number
 ): void => {
@@ -254,19 +323,19 @@ const applyMetaStyles = (
     options.extraMetaCells?.some(cell => cell.row === row && cell.col === col) === true;
   if ((inMetaRow && isMetaKeyCol) || isExtraMeta) {
     style.font = { name: 'Arial', sz: 11, bold: true };
-    style.fill = META_FILL;
+    style.fill = { fgColor: { rgb: options.palette.metaFill } };
   }
 };
 
 const applyTableAndSummary = (
   style: Record<string, unknown>,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number,
   col: number
 ): void => {
   if (options.tableHeaderRow !== undefined && row === options.tableHeaderRow) {
-    style.fill = TABLE_HEADER_FILL;
-    style.font = TABLE_HEADER_FONT;
+    style.fill = { fgColor: { rgb: options.palette.headerFill } };
+    style.font = { name: 'Arial', sz: 12, bold: true, color: { rgb: options.palette.headerFont } };
   }
   if (
     options.summaryRows !== undefined &&
@@ -277,24 +346,24 @@ const applyTableAndSummary = (
     const summaryValueCol = options.summaryValueCol ?? 4;
     if (col === summaryKeyCol) {
       style.font = { name: 'Arial', sz: 12, bold: true };
-      style.fill = META_FILL;
+      style.fill = { fgColor: { rgb: options.palette.metaFill } };
     }
     if (col === summaryValueCol) {
-      style.font = { name: 'Arial', sz: 12, bold: true, color: { rgb: '1F4E78' } };
-      style.fill = SUMMARY_VALUE_FILL;
+      style.font = { name: 'Arial', sz: 12, bold: true, color: { rgb: options.palette.accent } };
+      style.fill = { fgColor: { rgb: options.palette.summaryFill } };
     }
   }
 };
 
 const applySummaryBlock = (
   style: Record<string, unknown>,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number,
   col: number
 ): void => {
   if (options.summaryTitleRow !== undefined && row === options.summaryTitleRow) {
-    style.fill = SUMMARY_VALUE_FILL;
-    style.font = { name: 'Arial', sz: 12, bold: true, color: { rgb: '1F4E78' } };
+    style.fill = { fgColor: { rgb: options.palette.summaryFill } };
+    style.font = { name: 'Arial', sz: 12, bold: true, color: { rgb: options.palette.accent } };
   }
   if (
     options.summaryKeys !== undefined &&
@@ -302,13 +371,13 @@ const applySummaryBlock = (
     col === options.summaryKeys.col
   ) {
     style.font = { name: 'Arial', sz: 11, bold: true };
-    style.fill = META_FILL;
+    style.fill = { fgColor: { rgb: options.palette.metaFill } };
   }
 };
 
 const applyAlternateAndNotes = (
   style: Record<string, unknown>,
-  options: ExcelStylingOptions,
+  options: ResolvedStylingOptions,
   row: number,
   rangeEndRow: number
 ): void => {
@@ -318,11 +387,35 @@ const applyAlternateAndNotes = (
       (options.summaryRows === undefined ? rangeEndRow : options.summaryRows[0] - 1);
     const isAlternateParity = row % 2 === (options.alternate.parity === 'odd' ? 1 : 0);
     if (row < endRow && isAlternateParity) {
-      style.fill = ALTERNATE_FILL;
+      style.fill = { fgColor: { rgb: options.palette.alternateFill } };
     }
   }
   if (options.notesRow !== undefined && row === options.notesRow) {
     style.font = { name: 'Arial', sz: 11, bold: true };
+  }
+};
+
+/** أشرطة الترويسة: تُطبَّق بعد كل القواعد الأخرى فتتغلّب عليها. */
+const applyBands = (
+  style: Record<string, unknown>,
+  options: ResolvedStylingOptions,
+  row: number,
+  col: number
+): void => {
+  const band = options.bandRows?.find(entry => entry.row === row);
+  if (band === undefined) return;
+
+  if (band.fill !== undefined) {
+    style.fill = { fgColor: { rgb: band.fill } };
+  }
+  const size = band.fontSize ?? (style.font as { sz?: number } | undefined)?.sz ?? 11;
+  const color = band.fontColor ?? options.palette.accent;
+  // الخط الافتراضي يبقى عريضاً في الأشرطة، ويُطبَّق على كل أعمدة الشريط.
+  style.font = { name: 'Arial', sz: size, bold: band.bold ?? true, color: { rgb: color } };
+  if (col === 0) {
+    style.alignment = { horizontal: 'right', vertical: 'center' };
+  } else {
+    style.alignment = { horizontal: 'center', vertical: 'center' };
   }
 };
 
@@ -332,7 +425,11 @@ export const applyExcelStyling = (
   XLSX: XlsxLike,
   options: ExcelStylingOptions = {}
 ): void => {
-  const colCount = options.columnCount ?? 5;
+  const resolved: ResolvedStylingOptions = {
+    ...options,
+    palette: resolvePalette(options.palette),
+  };
+  const colCount = resolved.columnCount ?? 5;
   const lastColLetter = String.fromCharCode(64 + Math.min(26, colCount));
   const range = XLSX.utils.decode_range(sheet['!ref'] ?? `A1:${lastColLetter}1`);
 
@@ -342,15 +439,16 @@ export const applyExcelStyling = (
       const cell = readCell(sheet, ref);
       if (cell === undefined) continue;
 
-      applyDefaultCellStyle(cell);
-      applyNumberFormat(cell, options, R, C);
+      applyDefaultCellStyle(cell, resolved.palette);
+      applyNumberFormat(cell, resolved, R, C);
 
       const style = cell.s ?? {};
-      applyHeaderFonts(style, options, R);
-      applyMetaStyles(style, options, R, C);
-      applyTableAndSummary(style, options, R, C);
-      applySummaryBlock(style, options, R, C);
-      applyAlternateAndNotes(style, options, R, range.e.r);
+      applyHeaderFonts(style, resolved, R);
+      applyMetaStyles(style, resolved, R, C);
+      applyTableAndSummary(style, resolved, R, C);
+      applySummaryBlock(style, resolved, R, C);
+      applyAlternateAndNotes(style, resolved, R, range.e.r);
+      applyBands(style, resolved, R, C);
     }
   }
 };
@@ -366,12 +464,26 @@ export const buildStyledSheet = (
   const finalWidths =
     options.autoFitWidths === false
       ? options.colWidths
-      : options.colWidths.map((w, i) => Math.max(w, autoWidths[i] ?? w));
+      : options.colWidths.map((w, i) => Math.max(w, autoWidths.at(i) ?? w));
   sheet['!cols'] = finalWidths.map(width => ({ wch: width }));
   if (options.merges !== undefined && options.merges.length > 0) {
     sheet['!merges'] = options.merges;
   }
   applyExcelStyling(sheet, XLSX, options.styling);
+
+  // ارتفاعات صفوف الأشرطة (ترويسة فخمة) — تُكتب فقط للصفوف التي حدّدت ارتفاعاً.
+  const bands = options.styling?.bandRows ?? [];
+  const rowHeights: Array<Record<string, unknown>> = [];
+  let hasHeight = false;
+  for (const band of bands) {
+    if (band.height === undefined) continue;
+    rowHeights[band.row] = { hpt: band.height };
+    hasHeight = true;
+  }
+  if (hasHeight) {
+    sheet['!rows'] = rowHeights;
+  }
+
   sheet['!props'] ??= {};
   sheet['!view'] = [{ RTL: true }];
   return sheet;

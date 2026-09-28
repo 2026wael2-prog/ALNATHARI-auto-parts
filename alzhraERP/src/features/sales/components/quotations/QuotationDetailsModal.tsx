@@ -23,23 +23,33 @@ import type { WhatsappHeaderConfig } from '@/core/types/documentHeader';
 import { buildWhatsappHeader } from '@/core/utils/whatsappHeader';
 import { exportToPDF } from '@/core/utils/pdfExporter';
 import { logger } from '@/core/utils/logger';
-import { exportQuotationToExcel } from '@/core/utils/quotationExcelExporter';
+import {
+  exportQuotationToExcel,
+  generateQuotationExcelBlob,
+} from '@/core/utils/quotationExcelExporter';
+import type { QuotationExcelData } from '@/core/utils/quotationExcelExporter';
+import { shareSpreadsheet } from '@/core/utils/shareUtils';
 import { useAuthStore } from '@/features/auth/store';
 import { useFeedbackStore } from '@/features/feedback/store';
 import { useCompany } from '@/features/settings/hooks';
-import { useDocumentHeaderSettings } from '@/features/settings/settingsStore';
+import { useDocumentHeaderSettings, useInvoiceSettings } from '@/features/settings/settingsStore';
 import { salesQuotationsApi } from '../../api/quotationsApi';
 import type { QuotationDetailItem, QuotationDetailRow } from '../../api/quotationsApi';
 import { useSalesStore } from '../../store';
 import type { SalesCartItem } from '../../store';
 import {
+  buildQuotationCaption,
   copyQuotationText,
   openQuotationTelegram,
-  openQuotationWhatsApp,
 } from '../../utils/quotationShareHelper';
 import type { QuotationSharePayload } from '../../utils/quotationShareHelper';
 import PrintableQuotation from './PrintableQuotation';
-import { mapQuotationToPrintData, toSharePayload } from './print/quotationPrintModel';
+import {
+  mapQuotationToPrintData,
+  toQuotationExcelData,
+  toSharePayload,
+} from './print/quotationPrintModel';
+import type { QuotationExcelContext } from './print/quotationPrintModel';
 
 interface QuotationDetailsModalProps {
   quotationId: string;
@@ -159,29 +169,54 @@ const useQuotationDetails = (quotationId: string): QuotationState => {
   return { quotation, loading, reload };
 };
 
-const emitQuotationExcel = (
+/** سياق بيانات المنشأة لملف الإكسل (لون التمييز الافتراضي كحلي ملكي). */
+interface ExcelContextInput {
+  company: ReturnType<typeof useCompany>['data'];
+  specialization: string;
+  issuedBy: string;
+}
+
+type CompanyLike = ReturnType<typeof useCompany>['data'];
+
+const companyIdentityFor = (company: CompanyLike): { companyName: string; companyNameEn: string } => ({
+  companyName: company?.name_ar ?? 'الشركة',
+  companyNameEn: company?.name_en ?? '',
+});
+
+const companyContactFor = (
+  company: CompanyLike
+): { companyAddress: string; companyPhone: string; taxNumber: string } => ({
+  companyAddress: company?.address ?? '',
+  companyPhone: company?.phone ?? '',
+  taxNumber: company?.tax_number ?? '',
+});
+
+const excelContextFor = (input: ExcelContextInput): QuotationExcelContext => ({
+  ...companyIdentityFor(input.company),
+  ...companyContactFor(input.company),
+  companySpecialization: input.specialization,
+  issuedBy: input.issuedBy,
+  accentColor: '1F4E78',
+});
+
+const excelDataFor = (
   quotation: QuotationDetailRow,
-  companyName: string,
-  issuedBy: string
-): void => {
-  const data = mapQuotationToPrintData(quotation);
-  void exportQuotationToExcel({
-    companyName,
-    quotationNumber: data.header.number,
-    issueDate: data.header.issueDate,
-    validUntil: data.header.validUntil,
-    customerName: data.header.customerName,
-    issuedBy,
-    currency: data.header.currencyCode,
-    items: data.items.map(item => ({
-      name: item.name,
-      quantity: item.quantity,
-      unitPrice: item.unitPrice,
-      total: item.total,
-    })),
-    subtotal: data.subtotal,
-    totalAmount: data.totalAmount,
-    notes: data.notes,
+  context: QuotationExcelContext
+): QuotationExcelData => toQuotationExcelData(mapQuotationToPrintData(quotation), context);
+
+/**
+ * يشارك ملف الإكسل عبر ورقة المشاركة الأصلية (يختار المستخدم واتساب من النظام)،
+ * وعند تعذّرها يُنزّل الملف ثم يفتح واتساب بالتعليق نفسه.
+ */
+const sendExcelToWhatsApp = async (data: QuotationExcelData, caption: string): Promise<void> => {
+  const blob = await generateQuotationExcelBlob(data);
+  await shareSpreadsheet({
+    blob,
+    fileName: `عرض_سعر_${data.quotationNumber}.xlsx`,
+    shareTitle: `عرض سعر ${data.quotationNumber}`,
+    shareText: caption,
+    fallbackText: caption,
+    onDownloadFallback: () => exportQuotationToExcel(data),
   });
 };
 
@@ -193,6 +228,7 @@ interface ShareOptions {
   slogan: string;
   whatsapp: WhatsappHeaderConfig;
   issuedBy: string;
+  excelContext: QuotationExcelContext;
   notify: (message: string, type: 'success' | 'error') => void;
 }
 
@@ -218,14 +254,23 @@ interface ShareResult {
 }
 
 const useQuotationShare = (options: ShareOptions): ShareResult => {
-  const { quotation, companyName, issuedBy, notify } = options;
+  const { quotation, excelContext, notify } = options;
   const payload = useSharePayload(options);
 
+  const buildExcel = useCallback(
+    (): QuotationExcelData | null =>
+      quotation === null ? null : excelDataFor(quotation, excelContext),
+    [quotation, excelContext]
+  );
+
+  // زر «واتساب» يرسل ملف الإكسل المنسّق مع تعليق مختصر.
   const shareWhatsApp = useCallback((): void => {
-    if (payload === null) return;
-    openQuotationWhatsApp(payload);
-    notify('تم فتح واتساب مع نص العرض', 'success');
-  }, [payload, notify]);
+    const data = buildExcel();
+    if (data === null || payload === null) return;
+    void sendExcelToWhatsApp(data, buildQuotationCaption(payload)).then(() => {
+      notify('تم تجهيز ملف عرض السعر للإرسال', 'success');
+    });
+  }, [buildExcel, payload, notify]);
 
   const shareTelegram = useCallback((): void => {
     if (payload === null) return;
@@ -240,9 +285,12 @@ const useQuotationShare = (options: ShareOptions): ShareResult => {
   }, [payload, notify]);
 
   const exportExcel = useCallback((): void => {
-    if (quotation === null) return;
-    emitQuotationExcel(quotation, companyName, issuedBy);
-  }, [quotation, companyName, issuedBy]);
+    const data = buildExcel();
+    if (data === null) return;
+    void exportQuotationToExcel(data).then(() => {
+      notify('تم تنزيل ملف عرض السعر', 'success');
+    });
+  }, [buildExcel, notify]);
 
   return { shareWhatsApp, shareTelegram, copyText, exportExcel };
 };
@@ -483,6 +531,7 @@ const QuotationBody = ({
 interface ShareOptionInput {
   quotation: QuotationDetailRow | null;
   company: ReturnType<typeof useCompany>['data'];
+  specialization: string;
   issuedBy: string;
   headerConfig: ReturnType<typeof useDocumentHeaderSettings>;
   notify: (message: string, type: 'success' | 'error') => void;
@@ -497,6 +546,11 @@ const buildShareOptions = (input: ShareOptionInput): ShareOptions => ({
   slogan: input.headerConfig.details.sloganText ?? '',
   whatsapp: input.headerConfig.whatsapp,
   issuedBy: input.issuedBy,
+  excelContext: excelContextFor({
+    company: input.company,
+    specialization: input.specialization,
+    issuedBy: input.issuedBy,
+  }),
   notify: input.notify,
 });
 
@@ -532,12 +586,14 @@ const useQuotationShareFor = (quotation: QuotationDetailRow | null): ShareResult
   const { data: company } = useCompany();
   const { user } = useAuthStore();
   const headerConfig = useDocumentHeaderSettings();
+  const invoiceSettings = useInvoiceSettings();
   const { showToast } = useFeedbackStore();
 
   return useQuotationShare(
     buildShareOptions({
       quotation,
       company,
+      specialization: invoiceSettings.company_specialization,
       issuedBy: user?.full_name ?? user?.email ?? 'النظام',
       headerConfig,
       notify: showToast,
