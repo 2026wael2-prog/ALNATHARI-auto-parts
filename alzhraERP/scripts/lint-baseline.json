@@ -711,7 +711,7 @@
   "src/features/sales/components/list/InvoiceListView.tsx": 29,
   "src/features/sales/components/list/SalesStats.tsx": 4,
   "src/features/sales/components/quotations/CreateQuotationModal.tsx": 18,
-  "src/features/sales/components/quotations/QuotationDetailsModal.tsx": 96,
+  "src/features/sales/components/quotations/QuotationDetailsModal.tsx": 0,
   "src/features/sales/components/quotations/QuotationItemsTable.tsx": 2,
   "src/features/sales/components/quotations/QuotationTotals.tsx": 0,
   "src/features/sales/components/quotations/QuotationsTab.tsx": 53,
