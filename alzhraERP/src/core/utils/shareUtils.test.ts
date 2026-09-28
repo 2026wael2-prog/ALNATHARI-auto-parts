@@ -68,13 +68,35 @@ describe('shareSpreadsheet', () => {
     expect(openSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('propagates errors from the native share sheet', async () => {
+  it('falls back to download + WhatsApp when the native share sheet fails', async () => {
+    // سطح المكتب قد يفشل فيه share() (NotAllowedError لأنها تُنادى بعد await) —
+    // يجب أن ينزل إلى المسار المضمون بدل أن ينتهي الزر بلا أثر.
     const canShare = vi.fn().mockReturnValue(true);
-    const share = vi.fn().mockRejectedValue(new Error('share aborted'));
+    const share = vi.fn().mockRejectedValue(new Error('share failed'));
     (navigator as unknown as { canShare: unknown }).canShare = canShare;
     (navigator as unknown as { share: unknown }).share = share;
 
-    await expect(shareSpreadsheet(options)).rejects.toThrow('share aborted');
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    await expect(shareSpreadsheet(options)).resolves.toBeUndefined();
+
+    expect(options.onDownloadFallback).toHaveBeenCalledTimes(1);
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    expect((openSpy.mock.calls[0][0] as string).startsWith('https://wa.me/?text=')).toBe(true);
+  });
+
+  it('does not force the fallback when the user cancels the share sheet', async () => {
+    const canShare = vi.fn().mockReturnValue(true);
+    const share = vi.fn().mockRejectedValue(new DOMException('cancelled', 'AbortError'));
+    (navigator as unknown as { canShare: unknown }).canShare = canShare;
+    (navigator as unknown as { share: unknown }).share = share;
+
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+
+    await expect(shareSpreadsheet(options)).resolves.toBeUndefined();
+
+    expect(options.onDownloadFallback).not.toHaveBeenCalled();
+    expect(openSpy).not.toHaveBeenCalled();
   });
 });
 

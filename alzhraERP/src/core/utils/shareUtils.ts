@@ -74,12 +74,16 @@ export const shareSpreadsheet = async ({
   const file = new File([blob], fileName, { type: XLSX_MIME });
 
   if (typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
-    await navigator.share({
-      files: [file],
-      title: shareTitle,
-      text: shareText,
-    });
-    return;
+    try {
+      await navigator.share({ files: [file], title: shareTitle, text: shareText });
+      return;
+    } catch (error) {
+      // إلغاء المستخدم للمشاركة ليس فشلاً — لا نفرض مساراً بديلاً عليه.
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      // أي فشل آخر (NotAllowedError شائع لأن share() تُنادى بعد await، فيفقد
+      // المتصفح تفعيل إيماءة النقر) يجب أن ينزل إلى المسار المضمون بدل أن ينتهي
+      // الزر بلا أي أثر على الشاشة.
+    }
   }
 
   // Fallback: open WhatsApp FIRST (still inside the click's user-gesture task),

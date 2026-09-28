@@ -184,6 +184,20 @@ export const buildQuotationCaption = (payload: QuotationSharePayload): string =>
   return lines.join('\n');
 };
 
+/** أقصى طول لنص يُمرَّر داخل رابط مشاركة (wa.me/t.me) قبل أن يُرفض أو يُقتطع. */
+const MAX_SHARE_TEXT_LENGTH = 1600;
+
+/**
+ * نص المشاركة المناسب لحجم العرض: عرض ببنود كثيرة يُنتج رابطاً أطول من قدرة
+ * واتساب/تيليجرام على استقباله فيتعذّر فتح المحادثة. في هذه الحالة نُرسل التعليق
+ * المختصر (والملف المرفق يحمل التفاصيل كاملة).
+ */
+const shareTextFor = (payload: QuotationSharePayload): string => {
+  const full = buildQuotationMessageText(payload);
+  if (full.length <= MAX_SHARE_TEXT_LENGTH) return full;
+  return buildQuotationCaption(payload);
+};
+
 /**
  * يفتح واتساب على رقم العميل مع النص مُعبّأً؛ وإن لم يكن الرقم صالحاً يفتح نافذة
  * اختيار المحادثة مع النص نفسه.
@@ -192,7 +206,7 @@ export const openQuotationWhatsApp = (
   payload: QuotationSharePayload,
   customPhone?: string
 ): void => {
-  const text = buildQuotationMessageText(payload);
+  const text = shareTextFor(payload);
   const fromArgument = nonEmpty(customPhone);
   const target = fromArgument !== '' ? fromArgument : nonEmpty(payload.customerPhone);
   const link = hasValidWhatsAppPhone(target)
@@ -203,7 +217,7 @@ export const openQuotationWhatsApp = (
 
 /** يفتح تيليجرام مع النص نفسه. */
 export const openQuotationTelegram = (payload: QuotationSharePayload): void => {
-  const text = buildQuotationMessageText(payload);
+  const text = shareTextFor(payload);
   const link = `https://t.me/share/url?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(text)}`;
   window.open(link, '_blank', 'noopener,noreferrer');
 };

@@ -23,6 +23,7 @@ import type { WhatsappHeaderConfig } from '@/core/types/documentHeader';
 import { buildWhatsappHeader } from '@/core/utils/whatsappHeader';
 import { exportToPDF } from '@/core/utils/pdfExporter';
 import { logger } from '@/core/utils/logger';
+import { parseError } from '@/core/utils/errorUtils';
 import {
   exportQuotationToExcel,
   generateQuotationExcelBlob,
@@ -41,6 +42,7 @@ import {
   buildQuotationCaption,
   copyQuotationText,
   openQuotationTelegram,
+  openQuotationWhatsApp,
 } from '../../utils/quotationShareHelper';
 import type { QuotationSharePayload } from '../../utils/quotationShareHelper';
 import PrintableQuotation from './PrintableQuotation';
@@ -225,6 +227,65 @@ const sendExcelToWhatsApp = async (data: QuotationExcelData, caption: string): P
   });
 };
 
+/**
+ * هل يدعم هذا المتصفح مشاركة ملفات فعلية (`navigator.share` مع `files`)؟
+ * سطح المكتب غالباً لا يدعمها؛ والاعتماد عليها يعني زراً لا يفعل شيئاً على الشاشة.
+ * الفحص متزامن عمداً حتى يُتّخذ القرار داخل إيماءة النقر نفسها.
+ */
+const supportsNativeFileShare = (): boolean => {
+  if (typeof navigator === 'undefined' || typeof navigator.canShare !== 'function') return false;
+  try {
+    const probe = new File(['probe'], 'probe.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    return navigator.canShare({ files: [probe] });
+  } catch {
+    return false;
+  }
+};
+
+/** يسجّل فشل المشاركة ويعرض سببه للمستخدم بدل الفشل الصامت. */
+const reportShareError = (
+  error: unknown,
+  notify: (message: string, type: 'success' | 'error') => void
+): void => {
+  logger.error('QuotationDetailsModal', 'WhatsApp share failed', error);
+  notify(parseError(error).message, 'error');
+};
+
+/**
+ * تنفيذ إرسال واتساب بطريقتين حسب قدرة المتصفح:
+ * - بلا مشاركة ملفات أصلية (سطح المكتب): نفتح المحادثة فوراً ومزامنةً داخل إيماءة
+ *   النقر ثم ننزّل الملف ليُرفق — لأن أي `window.open` بعد `await` تحجبه المتصفحات.
+ * - مع مشاركة الملفات الأصلية (الجوال): نُظهر ورقة المشاركة ليُرفق الملف مباشرة.
+ */
+const runWhatsAppShare = (
+  data: QuotationExcelData,
+  payload: QuotationSharePayload,
+  notify: (message: string, type: 'success' | 'error') => void
+): void => {
+  if (!supportsNativeFileShare()) {
+    openQuotationWhatsApp(payload);
+    void exportQuotationToExcel(data).then(
+      () => {
+        notify('تم فتح واتساب وتنزيل ملف العرض لإرفاقه', 'success');
+      },
+      (error: unknown) => {
+        reportShareError(error, notify);
+      }
+    );
+    return;
+  }
+  void sendExcelToWhatsApp(data, buildQuotationCaption(payload)).then(
+    () => {
+      notify('تم تجهيز ملف عرض السعر للإرسال', 'success');
+    },
+    (error: unknown) => {
+      reportShareError(error, notify);
+    }
+  );
+};
+
 interface ShareOptions {
   quotation: QuotationDetailRow | null;
   companyName: string;
@@ -268,19 +329,23 @@ const useQuotationShare = (options: ShareOptions): ShareResult => {
     [quotation, excelContext]
   );
 
-  // زر «واتساب» يرسل ملف الإكسل المنسّق مع تعليق مختصر.
+  // زر «واتساب»: يفتح المحادثة فوراً ثم يجهّز ملف الإكسل (التفاصيل في runWhatsAppShare).
   const shareWhatsApp = useCallback((): void => {
     const data = buildExcel();
-    if (data === null || payload === null) return;
-    void sendExcelToWhatsApp(data, buildQuotationCaption(payload)).then(() => {
-      notify('تم تجهيز ملف عرض السعر للإرسال', 'success');
-    });
+    if (data === null || payload === null) {
+      notify('لم تُحمَّل بيانات العرض بعد، أعد المحاولة بعد لحظة', 'error');
+      return;
+    }
+    runWhatsAppShare(data, payload, notify);
   }, [buildExcel, payload, notify]);
 
   const shareTelegram = useCallback((): void => {
-    if (payload === null) return;
+    if (payload === null) {
+      notify('لم تُحمَّل بيانات العرض بعد، أعد المحاولة بعد لحظة', 'error');
+      return;
+    }
     openQuotationTelegram(payload);
-  }, [payload]);
+  }, [payload, notify]);
 
   const copyText = useCallback((): void => {
     if (payload === null) return;
