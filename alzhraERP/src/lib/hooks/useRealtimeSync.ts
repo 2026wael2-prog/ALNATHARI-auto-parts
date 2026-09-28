@@ -116,7 +116,6 @@ const TABLE_PRESET_MAP = new Map<string, InvalidationPreset>([
   ['accounts', 'account'],
   ['products', 'inventory'],
   ['product_stock', 'inventory'],
-  ['inv_stock_movements', 'inventory'],
   ['inventory_transactions', 'inventory'],
   ['stock_transfers', 'inventory'],
   ['stock_transfer_items', 'inventory'],

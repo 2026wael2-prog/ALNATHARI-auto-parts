@@ -1,0 +1,21 @@
+-- ============================================================
+-- drop the 8 tables orphaned by removing the api_v1_* module
+-- ============================================================
+-- Dropping that module's functions left these tables with no consumer: they were
+-- the storage layer of the same retired API (a parallel fin_* / inv_* bookkeeping
+-- schema). Verified immediately before dropping, per table:
+--
+--   * 0 rows in every one of them
+--   * 0 foreign keys from any surviving table into them
+--   * 0 functions anywhere in public referencing them
+--   * 0 views referencing them
+--
+-- They remained readable by `authenticated` (each had an RLS policy), so this also
+-- removes unused surface from the API. The related prc_* tables are deliberately
+-- KEPT: they back the live supplier-portal feature (get_supplier_portal_context,
+-- submit_vendor_quotation_revision, convert_quotation_to_po_transactional) and
+-- merge_duplicate_parties, which the app calls.
+--
+-- Recoverable from 20260819000001_baseline_schema.sql if ever needed.
+
+DROP TABLE IF EXISTS public.api_keys_cache, public.fin_account_balances, public.fin_accounts, public.fin_journal_entries, public.inv_stock_audits, public.inv_stock_ledger, public.inv_stock_movements, public.inv_warehouses;
