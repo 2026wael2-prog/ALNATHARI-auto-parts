@@ -63,7 +63,7 @@ export const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
   items,
   currencyCode,
 }) => (
-  <div className="overflow-x-auto rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
+  <div className="custom-scrollbar overflow-x-auto rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
     <table className="w-full table-fixed text-xs">
       <colgroup>
         <col style={{ width: 40 }} />

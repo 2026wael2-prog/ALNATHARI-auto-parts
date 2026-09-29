@@ -160,20 +160,33 @@
    تطبيق عام — يُغيّر ألوان خلفية التطبيق حسب الثيم المختار
    ============================================================ */
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — شريط تمرير واضح وقابل للإمساك بالماوس.
+   كان 6px بلون باهت ومسار شفاف، فكان الشريط الأفقي أسفل الجداول يكاد لا يُرى
+   ولا يمكن التقاطه بالمؤشر. الحد الأدنى العملي للإمساك ~10px. */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  /* مسار مرئي خفيف: بدونه يذوب الشريط في خلفية الجدول */
+  background: color-mix(in srgb, var(--app-text-secondary) 14%, transparent);
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #94a3b8;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #475569;
 }
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #64748b;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* خلفيات الصفحات */
@@ -277,22 +290,58 @@
 /* Custom scrollbar */
 @media (min-width: 768px) {
   .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
+    width: 12px;
+    /* كان العرض فقط محدَّداً (8px) دون الارتفاع، فبقي الشريط الأفقي أسفل الجداول
+       عند 6px العام ولا يُلتقط بالمؤشر. */
+    height: 12px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: color-mix(in srgb, var(--app-text-secondary) 16%, transparent);
+    border-radius: 999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--app-text-secondary) 30%, transparent);
+    background: color-mix(in srgb, var(--app-text-secondary) 75%, transparent);
     border-radius: 999px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: color-mix(in srgb, var(--app-text-secondary) 50%, transparent);
+    background: var(--app-text-secondary);
     border-radius: 999px;
   }
+}
+
+/* ملاحظة: لا نضع `scrollbar-width`/`scrollbar-color` — ففي Chrome 121+ وجودهما
+   يُلغي أنماط `::-webkit-scrollbar` بالكامل ويعيد الشريط للوضع الافتراضي
+   (وقد يظهر طافياً غير قابل للإمساك). الافتراضي في Firefox أصلاً شريط كامل. */
+
+/* ============================================================
+   منفذ عرض جداول القوائم الطويلة:
+   جدول بعشرات الصفوف يبلغ آلاف البكسلات ارتفاعاً، فيقع شريط التمرير
+   الأفقي (السفلي) خارج مجال النظر ولا يمكن الإمساك به بالمؤشر.
+   تقييد الارتفاع يُبقي الشريطين في نطاق الشاشة، مع تثبيت رأس الجدول
+   أثناء التمرير الرأسي (نمط Excel المتبع في ExcelTable).
+   ============================================================ */
+.table-scroll-viewport {
+  /* احتياطي للمتصفحات التي لا تدعم dvh */
+  max-height: min(72vh, 46rem);
+  /* ارتفاع الشاشة ناقص مساحة الترويسة والفلاتر — ليبقى الشريط السفلي مرئياً */
+  max-height: min(calc(100dvh - 22rem), 46rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.table-scroll-viewport > table > thead {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+/* خلفية معتمة لرأس الجدول الثابت: الرؤوس الأصلية شبه شفافة (bg-gray-50/50)
+   فتظهر الصفوف من خلفها عند التمرير. */
+.table-scroll-viewport > table > thead > tr {
+  background-color: color-mix(in srgb, var(--app-text) 4%, var(--app-surface));
 }
 
 /* ============================================================
@@ -342,15 +391,16 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 8px;
+    height: 8px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background: color-mix(in srgb, var(--app-text-secondary) 14%, transparent);
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--app-text-secondary) 20%, transparent);
+    background: color-mix(in srgb, var(--app-text-secondary) 55%, transparent);
     border-radius: 999px;
   }
 }

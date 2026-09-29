@@ -208,7 +208,7 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
-          <div className="overflow-x-auto">
+          <div className="custom-scrollbar scroll-x-hint-surface table-scroll-viewport">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50/50 dark:border-slate-800 dark:bg-slate-800/50">

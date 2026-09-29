@@ -175,7 +175,7 @@ export const DetailedQuotationsTable: React.FC<DetailedQuotationsTableProps> = (
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
-      <div className="scroll-x-hint-surface overflow-x-auto">
+      <div className="custom-scrollbar scroll-x-hint-surface table-scroll-viewport">
         <table className="w-full table-fixed text-sm">
           {/* عروض صريحة لكل الأعمدة ما عدا عمود الصنف/البند الذي يأخذ المتبقي:
               تضمن ألا يدفع اسم المنتج الطويل بقية الأعمدة ولا يغيّر توزيعها. */}

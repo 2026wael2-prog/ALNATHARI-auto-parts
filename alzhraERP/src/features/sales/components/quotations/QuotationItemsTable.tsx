@@ -40,7 +40,7 @@ const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
       </div>
 
       {/* Excel-like table */}
-      <div className="overflow-x-auto">
+      <div className="custom-scrollbar overflow-x-auto">
         <table className="w-full table-fixed border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/60">
