@@ -359,6 +359,7 @@ const SmartImportView: React.FC<Props> = ({ mode, onConfirm }) => {
             <ExcelTable
               columns={columns}
               data={extractedItems}
+              resizeStorageKey="smart_import_extracted_items"
               title={`الأصناف المستخرجة — ${extractedItems.length} صنف`}
               subtitle={`المورد: ${detectedSupplier || 'غير محدد'} • العملة: ${detectedCurrency}`}
               colorTheme="blue"

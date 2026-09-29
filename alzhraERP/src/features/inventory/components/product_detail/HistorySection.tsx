@@ -88,9 +88,9 @@ const HistorySection: React.FC<Props> = ({ productId }) => {
                           {mov.document_number}
                         </div>
                         <div className="text-[10px] font-bold uppercase text-slate-400">
-                          {mov.reference_type === 'transfer'
+                          {mov.reference_type === 'stock_transfer'
                             ? 'تحويل مخزني'
-                            : mov.reference_type === 'audit'
+                            : mov.reference_type === 'stock_audit'
                               ? 'جرد سنوي'
                               : mov.transaction_type === 'in'
                                 ? 'توريد / شراء'

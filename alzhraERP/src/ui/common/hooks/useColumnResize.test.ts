@@ -4,8 +4,11 @@
  * دمج التحديثات بإطار رسم واحد (rAF batching) وتنظيف المستمعات.
  */
 import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+// act من react مباشرة: إعادة تصديرها من RTL مهجورة في React 19
+import { renderHook } from '@testing-library/react';
+import { act } from 'react';
 import { useColumnResize } from './useColumnResize';
+import { logger } from '../../../core/utils/logger';
 
 // ── محاكاة rAF يدوية للتحكم بأطر الرسم ──────────────────────────────
 let rafQueue: FrameRequestCallback[] = [];
@@ -36,6 +39,14 @@ const fireMouseMove = (pageX: number): void => {
   const ev = new MouseEvent('mousemove', { bubbles: true });
   Object.defineProperty(ev, 'pageX', { value: pageX });
   document.dispatchEvent(ev);
+};
+
+/** قراءة حمولة العروض المحفوظة بأمان (بلا any وبلا تأكيدات غير ضرورية) */
+const readStoredWidths = (key: string): Record<string, number> => {
+  const raw = localStorage.getItem(key);
+  const parsed: unknown = raw === null ? null : JSON.parse(raw);
+  if (parsed === null || typeof parsed !== 'object') return {};
+  return parsed as Record<string, number>;
 };
 
 beforeEach(() => {
@@ -101,7 +112,7 @@ describe('useColumnResize', () => {
     dragTo(160); // +60 → 260
 
     expect(result.current.colWidths.name).toBe(260);
-    const saved = JSON.parse(localStorage.getItem('persist-cols') ?? '{}');
+    const saved = readStoredWidths('persist-cols');
     expect(saved.name).toBe(260);
 
     unmount();
@@ -283,5 +294,88 @@ describe('useColumnResize', () => {
     expect(result.current.colWidths.name).toBe(200);
     expect(document.body.style.userSelect).toBe('');
     expect(document.body.style.cursor).toBe('');
+  });
+
+  it('لا يكتب في التخزين عند مجرد الفتح إن لم يعدّل المستخدم شيئاً (حماية تخصيصه السابق)', () => {
+    localStorage.setItem('cols-guard', JSON.stringify({ name: 260 }));
+    const { result } = renderHook(() =>
+      useColumnResize({ storageKey: 'cols-guard', defaultWidths: { name: 200, sku: 100 } })
+    );
+
+    // استُعيد تخصيص المستخدم السابق ولم يُستبدل بالافتراضي
+    expect(result.current.colWidths).toEqual({ name: 260, sku: 100 });
+    expect(readStoredWidths('cols-guard')).toEqual({ name: 260 });
+
+    // تعديل عمود آخر يحفظ الحقل الجديد + التخصيص المحفوظ بلا فقدان
+    const { handle } = makeTarget(200);
+    startResize(result, handle, 100, 'sku');
+    dragTo(150);
+    expect(readStoredWidths('cols-guard')).toEqual({ name: 260, sku: 250 });
+  });
+
+  it('يحفظ الحقول المخصّصة فقط ولا يكتب الافتراضيات في التخزين', () => {
+    const { result } = renderHook(() =>
+      useColumnResize({ storageKey: 'cols-custom-only', defaultWidths: { name: 200, sku: 100 } })
+    );
+    expect(localStorage.getItem('cols-custom-only')).toBeNull();
+
+    const { handle } = makeTarget(200);
+    startResize(result, handle, 100, 'name');
+    dragTo(160);
+    expect(readStoredWidths('cols-custom-only')).toEqual({ name: 260 });
+  });
+
+  it('يعيد المزامنة عند تغيّر مفتاح التخزين ولا يكتب عروض الجدول السابق فوق الجديد', () => {
+    localStorage.setItem('cols-a', JSON.stringify({ name: 300 }));
+    localStorage.setItem('cols-b', JSON.stringify({ name: 180 }));
+    const { result, rerender } = renderHook(
+      ({ storageKey }: { storageKey: string }) =>
+        useColumnResize({ storageKey, defaultWidths: { name: 200, sku: 100 } }),
+      { initialProps: { storageKey: 'cols-a' } }
+    );
+    expect(result.current.colWidths.name).toBe(300);
+
+    rerender({ storageKey: 'cols-b' });
+
+    // عروض الجدول الجديد لا عروض الجدول السابق، ولا كتابة فوق أي منهما
+    expect(result.current.colWidths.name).toBe(180);
+    expect(readStoredWidths('cols-b')).toEqual({ name: 180 });
+    expect(readStoredWidths('cols-a')).toEqual({ name: 300 });
+  });
+
+  it('يطبّق migrateRaw على الحمولة المحفوظة قبل استخدامها', () => {
+    localStorage.setItem('cols-legacy', JSON.stringify({ 0: 320, 1: 90 }));
+    const { result } = renderHook(() =>
+      useColumnResize({
+        storageKey: 'cols-legacy',
+        defaultWidths: { name: 200, sku: 100 },
+        minWidth: 100,
+        migrateRaw: raw =>
+          typeof raw['0'] === 'number' ? { name: raw['0'], sku: raw['1'] ?? 0 } : raw,
+      })
+    );
+
+    expect(result.current.colWidths.name).toBe(320);
+    // 90 أصغر من الحد الأدنى فيُهمل ويعود العمود لافتراضيه
+    expect(result.current.colWidths.sku).toBe(100);
+  });
+
+  it('يُظهر فشل الكتابة في السجل بدل ابتلاعه بصمت', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const setItem = vi.spyOn(window.localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+
+    const { result } = renderHook(() =>
+      useColumnResize({ storageKey: 'cols-full', defaultWidths: { name: 200 } })
+    );
+    const { handle } = makeTarget(200);
+    startResize(result, handle, 100, 'name');
+    dragTo(140);
+
+    expect(setItem).toHaveBeenCalled();
+    expect(warn).toHaveBeenCalled();
+    setItem.mockRestore();
+    warn.mockRestore();
   });
 });

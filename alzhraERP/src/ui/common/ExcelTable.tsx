@@ -5,6 +5,13 @@ import { useTableKeyboardNavigation } from './useTableKeyboardNavigation';
 import { useTableDragDrop } from './hooks/useTableDragDrop';
 import { useTableSelection } from './hooks/useTableSelection';
 import { useColumnResize } from './hooks/useColumnResize';
+import {
+  buildDefaultColumnWidths,
+  getColumnIds,
+  migrateLegacyIndexWidths,
+  toIndexedWidths,
+  type ColumnWidths,
+} from './excelTableColumnWidths';
 import { ExcelTableHeader } from './ExcelTableHeader';
 import { ExcelTableBody } from './ExcelTableBody';
 import { ExcelTablePagination } from './ExcelTablePagination';
@@ -136,21 +143,14 @@ function ExcelTable<T>({
   // ── Column Resize (موحّدة + محفوظة + ناعمة) ──────────────────────
   const tableResizeStorageKey =
     resizeStorageKey ?? (title ? `excel-table-cols:${title.trim()}` : undefined);
-  const defaultColWidths = useMemo(() => {
-    const out: Record<string, number> = {};
-    columns.forEach((col, idx) => {
-      if (col.width) {
-        const twMatch = /^w-(\d+)$/.exec(col.width);
-        if (twMatch) {
-          out[String(idx)] = parseInt(twMatch[1], 10) * 4;
-        } else {
-          const parsed = parseInt(col.width, 10);
-          if (!Number.isNaN(parsed)) out[String(idx)] = parsed;
-        }
-      }
-    });
-    return out;
-  }, [columns]);
+  // هوية كل عمود (لا ترتيبه) — فيبقى عرض المستخدم على العمود نفسه عند إخفاء/إظهار أعمدة
+  const columnIds = useMemo(() => getColumnIds(columns), [columns]);
+  const defaultColWidths = useMemo(() => buildDefaultColumnWidths(columns), [columns]);
+  // ترحيل العروض المحفوظة قديماً بترتيب الأعمدة إلى هوية العمود
+  const migrateLegacyWidths = useCallback(
+    (raw: ColumnWidths) => migrateLegacyIndexWidths(raw, columnIds, defaultColWidths),
+    [columnIds, defaultColWidths]
+  );
   const {
     colWidths,
     isResizing: isColumnResizing,
@@ -161,7 +161,13 @@ function ExcelTable<T>({
     defaultWidths: defaultColWidths,
     minWidth: 40,
     isRTL,
+    migrateRaw: migrateLegacyWidths,
   });
+  // العروض بصيغة الترتيب التي تستهلكها الترويسة و colgroup
+  const indexedColWidths = useMemo(
+    () => toIndexedWidths(colWidths, columnIds),
+    [colWidths, columnIds]
+  );
 
   // ⚡ Filtering only. Sorting moved to its own memo further down: previously one
   // keystroke re-sorted the whole dataset and a sort click re-ran the whole filter.
@@ -667,7 +673,7 @@ function ExcelTable<T>({
                 {enableSelection && <col style={{ width: 40 }} />}
                 <col style={{ width: 40 }} />
                 {columns.map((col, idx) => {
-                  const savedWidth = colWidths[String(idx)];
+                  const savedWidth = indexedColWidths[String(idx)];
                   const colStyle = savedWidth
                     ? { width: `${savedWidth}px` }
                     : col.width
@@ -690,12 +696,12 @@ function ExcelTable<T>({
                 isAllSelected={isAllVisibleSelected}
                 isPartiallySelected={hasSomeVisibleSelected}
                 toggleAllSelection={toggleAllSelection}
-                columnWidths={colWidths}
+                columnWidths={indexedColWidths}
                 handleSort={handleSort}
                 sortConfig={sortConfig}
                 isRTL={isRTL}
                 handleMouseDown={(e, idx) => {
-                  onResizeMouseDown(e, String(idx));
+                  onResizeMouseDown(e, columnIds[idx] ?? String(idx));
                 }}
                 isLoading={isLoading}
               />

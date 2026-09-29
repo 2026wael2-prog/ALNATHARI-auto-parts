@@ -631,7 +631,7 @@
   "src/features/reports/components/DebtAgingReport.tsx": 71,
   "src/features/reports/components/DebtReportView.tsx": 20,
   "src/features/reports/components/FocusView.tsx": 0,
-  "src/features/reports/components/InventoryMovementView.tsx": 30,
+  "src/features/reports/components/InventoryMovementView.tsx": 32,
   "src/features/reports/components/InventoryValuationView.tsx": 8,
   "src/features/reports/components/MobileComponents.tsx": 8,
   "src/features/reports/components/OperationalExpensesReport.tsx": 54,

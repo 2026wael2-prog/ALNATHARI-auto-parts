@@ -183,10 +183,12 @@ export const productsApi = {
       return { data: null, error: null };
     }
 
-    // Fallback to setting status='deleted' & deleted_at so search_inventory_paginated excludes it
+    // Fallback: soft-delete via status='archived' + deleted_at so
+    // search_inventory_paginated excludes it. 'deleted' is NOT a permitted value
+    // of products_status_check (active|inactive|archived) and used to fail with 23514.
     return await supabase
       .from('products')
-      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+      .update({ status: 'archived', deleted_at: new Date().toISOString() })
       .eq('id', id);
   },
 
@@ -209,10 +211,11 @@ export const productsApi = {
       return { data: null, error: null };
     }
 
-    // If hard delete fails due to constraints, soft-delete preserving data integrity
+    // If hard delete fails due to constraints, soft-delete preserving data integrity.
+    // status='archived' — القيمة 'deleted' مرفوضة من products_status_check.
     return await supabase
       .from('products')
-      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+      .update({ status: 'archived', deleted_at: new Date().toISOString() })
       .in('id', ids);
   },
 

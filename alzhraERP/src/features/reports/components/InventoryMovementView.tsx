@@ -136,12 +136,12 @@ const InventoryMovementView: React.FC = () => {
           label = 'صادر';
         }
 
-        if (row.reference_type === 'transfer') {
+        if (row.reference_type === 'stock_transfer') {
           icon = <ArrowLeftRight size={12} />;
           label = row.quantity > 0 ? 'استلام مناقلة' : 'إرسال مناقلة';
           color = 'text-blue-600';
           bg = 'bg-blue-500/10 border border-blue-500/20';
-        } else if (row.reference_type === 'audit') {
+        } else if (row.reference_type === 'stock_audit') {
           icon = <CheckCircle2 size={12} />;
           label = 'جرد';
           color = 'text-amber-600';
