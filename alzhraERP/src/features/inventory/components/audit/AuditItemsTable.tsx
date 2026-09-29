@@ -102,10 +102,10 @@ const AuditItemsTable: React.FC<Props> = ({
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
-      <div className="custom-scrollbar overflow-x-auto">
+      <div className="table-scroll-viewport custom-scrollbar overflow-x-auto">
         <table className="w-full border-collapse text-right text-xs">
           <thead className="sticky top-0 z-10 border-b-2 border-slate-700 bg-slate-800 font-bold uppercase tracking-wider text-white dark:bg-slate-900">
-            <tr>
+            <tr className="bg-slate-800 dark:bg-slate-900">
               <th className="w-8 border-l border-slate-700 p-2 text-center text-[10px] sm:w-10 sm:p-3 sm:text-xs">
                 #
               </th>

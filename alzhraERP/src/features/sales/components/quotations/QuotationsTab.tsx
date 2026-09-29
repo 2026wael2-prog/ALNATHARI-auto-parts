@@ -211,7 +211,7 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
           <div className="custom-scrollbar scroll-x-hint-surface table-scroll-viewport">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50 dark:border-slate-800 dark:bg-slate-800/50">
+                <tr className="border-b border-gray-100 bg-gray-50 dark:border-slate-800 dark:bg-slate-800">
                   <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-gray-400">
                     الرقم
                   </th>

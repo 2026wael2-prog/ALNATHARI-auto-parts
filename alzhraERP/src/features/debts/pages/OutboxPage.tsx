@@ -69,10 +69,10 @@ const OutboxPage: React.FC = () => {
           لا توجد رسائل في هذا التصنيف
         </div>
       ) : (
-        <div className="hidden overflow-x-auto rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm md:block">
+        <div className="table-scroll-viewport hidden overflow-x-auto rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm md:block">
           <table className="w-full text-right">
             <thead>
-              <tr className="bg-[var(--app-surface-hover)]/50 border-b border-[var(--app-border)] text-[10px] font-bold text-[var(--app-text-secondary)]">
+              <tr className="border-b border-[var(--app-border)] bg-[var(--app-surface-hover)] text-[10px] font-bold text-[var(--app-text-secondary)]">
                 <th className="px-4 py-3 max-md:px-2 max-md:py-2">العميل</th>
                 <th className="px-4 py-3 max-md:px-2 max-md:py-2">الرسالة</th>
                 <th className="px-4 py-3 max-md:px-2 max-md:py-2">القناة</th>

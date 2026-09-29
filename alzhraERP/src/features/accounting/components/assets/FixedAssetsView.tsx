@@ -168,7 +168,7 @@ const FixedAssetsView: React.FC = () => {
 
       {/* Assets Table */}
       <div className="overflow-hidden rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm">
-        <div className="overflow-x-auto">
+        <div className="table-scroll-viewport overflow-x-auto">
           <table className="w-full text-start text-xs">
             <thead className="border-b border-gray-200 bg-gray-50/80 font-bold text-gray-600 dark:border-slate-800 dark:bg-slate-900/50 dark:text-slate-300">
               <tr>

@@ -100,7 +100,7 @@ export const AdminTableShell: React.FC<AdminTableShellProps> = ({
 
       {/* الجدول */}
       <div className="overflow-hidden rounded-xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-xs">
-        <div className="overflow-x-auto">
+        <div className="table-scroll-viewport overflow-x-auto">
           <table className="w-full text-right text-xs">
             <thead>
               <tr className="border-b border-[var(--app-border)] bg-[var(--app-surface-hover)] text-[10px] font-black uppercase text-[var(--app-text-secondary)]">

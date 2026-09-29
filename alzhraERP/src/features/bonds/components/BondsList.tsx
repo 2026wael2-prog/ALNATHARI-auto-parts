@@ -149,10 +149,10 @@ const BondsList: React.FC<Props> = ({
   if (displayMode === 'table') {
     return (
       <div className="w-full space-y-3">
-        <div className="custom-scrollbar overflow-x-auto rounded-2xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
+        <div className="table-scroll-viewport custom-scrollbar overflow-x-auto rounded-2xl border border-gray-100 bg-[var(--app-surface)] shadow-sm dark:border-slate-800">
           <table className="w-full min-w-[760px] border-collapse text-right">
             <thead>
-              <tr className="sticky top-0 z-10 border-b bg-gray-50/90 text-[10px] font-bold uppercase tracking-widest text-gray-500 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90 dark:text-slate-400">
+              <tr className="sticky top-0 z-10 border-b bg-gray-50 text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
                 <th className="w-12 px-3 py-3 text-center">#</th>
                 <th className="px-4 py-3 font-bold">التاريخ</th>
                 <th className="px-4 py-3 font-bold">رقم السند والنوع</th>

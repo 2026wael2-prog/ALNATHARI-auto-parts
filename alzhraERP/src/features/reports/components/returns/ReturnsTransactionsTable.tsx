@@ -102,7 +102,7 @@ const ReturnsTransactionsTable: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="table-scroll-viewport overflow-x-auto">
         <table className="w-full border-collapse text-right">
           <thead>
             <tr className="border-b border-[var(--app-border)] bg-[var(--app-surface-hover)]">

@@ -131,10 +131,10 @@ const QuickAuditItemsTable: React.FC<Props> = ({ items, onUpdateQuantity, onRemo
   // ── Desktop Table View ───────────────────────────────────────────
   return (
     <div className="max-w-full overflow-hidden rounded-xl border-2 border-slate-200 bg-[var(--app-surface)] shadow-lg dark:border-slate-800">
-      <div className="custom-scrollbar overflow-x-auto bg-white dark:bg-slate-950">
+      <div className="table-scroll-viewport custom-scrollbar overflow-x-auto bg-white dark:bg-slate-950">
         <table className="w-full min-w-[900px] border-collapse text-right text-xs max-md:min-w-0">
           <thead>
-            <tr className="border-b-2 border-slate-200 bg-slate-50 font-black text-slate-900 dark:border-slate-700 dark:bg-slate-800/80 dark:text-gray-100">
+            <tr className="border-b-2 border-slate-200 bg-slate-50 font-black text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-100">
               <th className="min-w-[200px] border-l border-slate-200 px-4 py-3 text-start dark:border-slate-700">
                 اسم القطعة
               </th>

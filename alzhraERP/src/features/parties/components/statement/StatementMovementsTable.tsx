@@ -43,10 +43,10 @@ export const StatementMovementsTable: React.FC<StatementMovementsTableProps> = (
 }) => {
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-md">
-      <div className="overflow-x-auto">
+      <div className="table-scroll-viewport overflow-x-auto">
         <table className="w-full border-collapse border border-[var(--app-border)] text-right">
           <thead>
-            <tr className="border-b border-[var(--app-border)] bg-slate-100/90 text-[11px] font-bold text-slate-700 dark:bg-slate-800/90 dark:text-slate-200">
+            <tr className="border-b border-[var(--app-border)] bg-slate-100 text-[11px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
               {/* Checkbox All */}
               <th className="no-print w-10 border-l border-[var(--app-border)] p-3 text-center">
                 <button

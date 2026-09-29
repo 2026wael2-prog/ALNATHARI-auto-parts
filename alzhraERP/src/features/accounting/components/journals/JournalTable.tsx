@@ -291,7 +291,7 @@ const JournalTable: React.FC = () => {
 
       {/* Journals Table */}
       <div className="overflow-hidden border border-[var(--app-border)] bg-[var(--app-surface)] shadow-sm">
-        <div className="scroll-x-hint-surface hidden overflow-x-auto md:block">
+        <div className="table-scroll-viewport scroll-x-hint-surface hidden overflow-x-auto md:block">
           <table className="w-full border-collapse text-sm">
             <thead className="sticky top-0 z-10 bg-[var(--app-surface-hover)] font-bold text-[var(--app-text)] shadow-sm">
               <tr>

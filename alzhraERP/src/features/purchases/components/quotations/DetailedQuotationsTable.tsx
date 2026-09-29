@@ -116,7 +116,7 @@ const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({
 
 const DetailedQuotationsTableHeader: React.FC = () => (
   <thead>
-    <tr className="border-b border-gray-200 bg-gray-50/80 text-gray-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-gray-300">
+    <tr className="border-b border-gray-200 bg-gray-50 text-gray-700 dark:border-slate-700 dark:bg-slate-800 dark:text-gray-300">
       <th className="w-10 px-3 py-3 text-right text-xs font-bold">#</th>
       <th className="min-w-[110px] px-3 py-3 text-right text-xs font-bold">رقم العرض</th>
       <th className="min-w-[130px] px-3 py-3 text-right text-xs font-bold">المورد</th>
