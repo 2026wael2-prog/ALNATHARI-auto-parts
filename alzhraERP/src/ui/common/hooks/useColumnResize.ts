@@ -50,7 +50,13 @@ export const useColumnResize = ({
     if (!storageKey) return { ...defaultWidths };
     try {
       const saved = localStorage.getItem(storageKey);
-      return saved ? { ...defaultWidths, ...JSON.parse(saved) } : { ...defaultWidths };
+      if (saved === null) return { ...defaultWidths };
+      const parsed = JSON.parse(saved) as ColumnWidths;
+      // يُستبعد أي عرض محفوظ أصغر من الحد الأدنى: أصغر عرض قابل للسحب هو minWidth،
+      // فما دون ذلك لا ينتج إلا عن انضغاط تلقائي لعمود بلا عرض صريح في تخطيط
+      // table-fixed (وهو ما كان يُخفي أسماء المنتجات الطويلة في جداول المنتجات).
+      const usable = Object.entries(parsed).filter(([, width]) => width >= minWidth);
+      return { ...defaultWidths, ...Object.fromEntries(usable) };
     } catch {
       return { ...defaultWidths };
     }

@@ -12,6 +12,10 @@ interface GetProductColumnsProps {
   visibleColumns?: string[] | undefined;
 }
 
+/** يعرض القيمة النصّية أو شرطة عند غيابها — بديل صريح عن `value || '—'`. */
+const textOrDash = (value: string | null | undefined, fallback = '—'): string =>
+  value === null || value === undefined || value === '' ? fallback : value;
+
 export const getProductColumns = ({
   onEdit,
   onDeleteRequest,
@@ -58,7 +62,10 @@ export const getProductColumns = ({
             <Package size={12} />
           </div>
           <div className="min-w-0">
-            <span className="block truncate text-sm font-bold text-slate-900 dark:text-white">
+            <span
+              className="block truncate text-sm font-bold text-slate-900 dark:text-white"
+              title={p.name_ar || p.name || undefined}
+            >
               {p.name_ar || p.name}
             </span>
             {p.brand && (
@@ -69,13 +76,17 @@ export const getProductColumns = ({
           </div>
         </div>
       ),
+      // عرض صريح لعمود اسم القطعة: بدونه (وفي ظل table-fixed) يُعصر العمود إلى
+      // أدنى عرض ممكن (~26px) فتختفي أسماء المنتجات تماماً ويبقى الجدول بعرض ثابت
+      // لا يتنازل عنه، فينزاح أفقيّاً عند ظهور/اختفاء أشرطة التمرير (اهتزاز).
+      width: 'w-72',
       sortKey: 'name',
     },
     {
       header: 'رقم القطعة',
       accessor: p => (
         <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[12px] font-bold text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400">
-          {p.part_number || '—'}
+          {textOrDash(p.part_number)}
         </span>
       ),
       width: 'w-32',
@@ -85,7 +96,7 @@ export const getProductColumns = ({
       header: 'الشركة الصانعة',
       accessor: p => (
         <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400">
-          {p.brand || '—'}
+          {textOrDash(p.brand)}
         </span>
       ),
       width: 'w-24',
@@ -95,7 +106,7 @@ export const getProductColumns = ({
       header: 'المقاس',
       accessor: p => (
         <span className="rounded border border-slate-100 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-slate-500 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-500">
-          {p.size || '—'}
+          {textOrDash(p.size)}
         </span>
       ),
       width: 'w-20',
@@ -105,7 +116,7 @@ export const getProductColumns = ({
       header: 'التصنيف',
       accessor: p => (
         <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400">
-          {p.category || 'عام'}
+          {textOrDash(p.category, 'عام')}
         </span>
       ),
       width: 'w-24',
@@ -115,7 +126,7 @@ export const getProductColumns = ({
       header: 'المخزن/الرف',
       accessor: p => (
         <span className="rounded border border-slate-100 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-400">
-          {p.location || '—'}
+          {textOrDash(p.location)}
         </span>
       ),
       width: 'w-48',

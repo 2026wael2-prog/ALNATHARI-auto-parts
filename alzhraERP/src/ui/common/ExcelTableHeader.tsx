@@ -50,8 +50,11 @@ export function ExcelTableHeader<T>({
     }
   }, [indeterminate]);
 
+  // رأس معتم تماماً وبلا backdrop-blur: الرأس شبه الشفاف مع تمويه الخلفية داخل
+  // حاوية تمرير عمودي كان يعيد الرسم عند كل بكسل تمرير فتظهر الصفوف مرتجّة
+  // خلف الترويسة الثابتة (وهو أوضح ما يكون مع أسماء المنتجات الطويلة).
   return (
-    <thead className="bg-[var(--app-bg)]/95 sticky top-0 z-[12] shadow-sm backdrop-blur-sm">
+    <thead className="sticky top-0 z-[12] bg-[var(--app-bg)] shadow-sm">
       <tr className="border-b border-[var(--app-border)] text-[var(--app-text)]">
         {enableSelection && (
           <th className="relative w-10 border-r border-[var(--app-border)] p-2 text-center">

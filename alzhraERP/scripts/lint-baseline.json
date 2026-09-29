@@ -442,7 +442,7 @@
   "src/features/inventory/components/product_form/ProductImageUploader.tsx": 9,
   "src/features/inventory/components/product_form/ProductStockInfo.tsx": 0,
   "src/features/inventory/components/products/BulkActionsBar.tsx": 0,
-  "src/features/inventory/components/products/ProductTableColumns.tsx": 19,
+  "src/features/inventory/components/products/ProductTableColumns.tsx": 13,
   "src/features/inventory/components/transfers/SmartSuggestionsSection.tsx": 0,
   "src/features/inventory/components/transfers/TransferItemsList.tsx": 13,
   "src/features/inventory/components/transfers/TransferMobileCard.tsx": 22,
@@ -932,7 +932,7 @@
   "src/ui/common/ExcelTable.tsx": 56,
   "src/ui/common/ExcelTableBody.tsx": 55,
   "src/ui/common/ExcelTableDragHandle.tsx": 0,
-  "src/ui/common/ExcelTableHeader.tsx": 14,
+  "src/ui/common/ExcelTableHeader.tsx": 13,
   "src/ui/common/ExcelTablePagination.tsx": 2,
   "src/ui/common/ExcelTableStatusBar.tsx": 0,
   "src/ui/common/ExcelTableToolbar.tsx": 2,
@@ -954,7 +954,7 @@
   "src/ui/common/excelTableThemes.ts": 0,
   "src/ui/common/hooks/index.ts": 0,
   "src/ui/common/hooks/useColumnResize.test.ts": 10,
-  "src/ui/common/hooks/useColumnResize.ts": 9,
+  "src/ui/common/hooks/useColumnResize.ts": 7,
   "src/ui/common/hooks/useTableDrag.ts": 6,
   "src/ui/common/hooks/useTableDragDrop.ts": 7,
   "src/ui/common/hooks/useTableSelection.ts": 3,
@@ -1007,5 +1007,6 @@
   "src/features/bonds/components/BondVoucherModal.tsx": 25,
   "src/ui/common/InvoiceSearchToolbar.tsx": 18,
   "src/ui/layout/tabs/MultiViewContainer.tsx": 0,
-  "src/ui/layout/tabs/WorkspaceTabBar.tsx": 28
+  "src/ui/layout/tabs/WorkspaceTabBar.tsx": 28,
+  "src/features/inventory/components/products/ProductTableColumns.test.tsx": 0
 }
