@@ -14,6 +14,7 @@ import {
 } from '@/core/utils/excelExporterBase';
 import type { ExcelMergeRange, XlsxWorkbook } from '@/core/utils/excelExporterBase';
 import type { RequisitionItem, RequisitionSupplier } from '../types/requisitions';
+import { filledRequisitionItems, sumRequisitionQuantities } from './requisitionsValidation';
 import { formatLocalDate } from '@/core/utils/dateUtils';
 
 export interface RequisitionExcelPayload {
@@ -25,6 +26,8 @@ export interface RequisitionExcelPayload {
   title?: string;
   notes?: string;
   date?: string;
+  /** Server document number (REQ-YYYY-NNNN) when the requisition was saved. */
+  number?: string | null;
 }
 
 export const generateRequisitionsWorkbook = async (
@@ -37,6 +40,10 @@ export const generateRequisitionsWorkbook = async (
   const reqDate = payload.date || formatLocalDate();
   const supplierName = payload.supplier?.name.trim() || 'عام / غير محدد';
   const supplierPhone = payload.supplier?.phone?.trim() || '---';
+  // Audit F17: placeholder rows never reach the sheet, and no quantity is
+  // silently rewritten to 1.
+  const items = filledRequisitionItems(payload.items);
+  const totalQty = sumRequisitionQuantities(items);
 
   // 1. Company Header
   rows.push([payload.companyName]);
@@ -45,15 +52,17 @@ export const generateRequisitionsWorkbook = async (
   rows.push([]);
 
   // 2. Document Title
-  rows.push([payload.title || 'قائمة المنتجات والقطع المطلوبة (طلب شراء)']);
+  const documentTitle = payload.title || 'قائمة المنتجات والقطع المطلوبة (طلب شراء)';
+  rows.push([payload.number ? documentTitle + ' — رقم ' + payload.number : documentTitle]);
   rows.push([]);
 
   // 3. Meta Information
   rows.push(['المورد:', supplierName, '', 'الهاتف:', supplierPhone]);
-  rows.push(['تاريخ الطلب:', reqDate, '', 'عدد الأصناف:', payload.items.length]);
+  rows.push(['تاريخ الطلب:', reqDate, '', 'عدد الأصناف:', items.length]);
+  rows.push(['رقم الطلب:', payload.number || 'لم يُرقّم بعد', '', 'إجمالي الكميات:', totalQty]);
   rows.push([]);
 
-  // 4. Table Header (Row 9)
+  // 4. Table Header
   const headerRowIndex = rows.length;
   rows.push([
     '#',
@@ -65,16 +74,13 @@ export const generateRequisitionsWorkbook = async (
   ]);
 
   // 5. Data Rows
-  let totalQty = 0;
-  payload.items.forEach((item, idx) => {
-    const qty = Number(item.quantity) || 1;
-    totalQty += qty;
+  items.forEach((item, idx) => {
     rows.push([
       idx + 1,
       item.name || '---',
       item.partNumber || '---',
       item.brand || '---',
-      qty,
+      Number(item.quantity) || 0,
       item.notes || '',
     ]);
   });
@@ -110,7 +116,7 @@ export const generateRequisitionsWorkbook = async (
     styling: {
       companyRow: 0,
       subHeaderRows: [1, 2],
-      metaRows: [6, 7],
+      metaRows: [6, 8],
       metaKeyColumns: [0, 3],
       tableHeaderRow: headerRowIndex,
       summaryRows: [summaryRowIndex, summaryRowIndex],
@@ -134,6 +140,7 @@ export const exportRequisitionsToExcel = async (
 ): Promise<void> => {
   const wb = await generateRequisitionsWorkbook(payload);
   const supplierPart = payload.supplier?.name ? sanitizeFileName(payload.supplier.name) : 'عام';
-  const fileName = `مطلوبات_${supplierPart}_${formatLocalDate()}.xlsx`;
+  const numberPart = payload.number ? sanitizeFileName(payload.number) + '_' : '';
+  const fileName = `مطلوبات_${numberPart}${supplierPart}_${formatLocalDate()}.xlsx`;
   saveWorkbookToFile(wb, fileName);
 };

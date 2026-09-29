@@ -1,8 +1,14 @@
-/* eslint-disable max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-conversion, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unnecessary-condition */
+/* eslint-disable complexity, max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unnecessary-condition */
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Trash2, Plus, Copy, Sparkles, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { Trash2, Plus, Copy, Sparkles, ArrowUp, ArrowDown, X, AlertTriangle } from 'lucide-react';
 import { useRequisitionsStore } from '../../store/requisitionsStore';
 import { useProductSearch, type ProductSearchResult } from '../../hooks/useProductSearch';
+import {
+  filledRequisitionItems,
+  findQuantityIssues,
+  isBlankRequisitionItem,
+  sumRequisitionQuantities,
+} from '../../utils/requisitionsValidation';
 import { useCompany } from '@/features/settings/hooks';
 import { cn, normalizeArabicDigits, parseNumberFlexible } from '@/core/utils';
 
@@ -33,15 +39,19 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
     enabled: Boolean(companyId && searchQuery.trim().length >= 2 && isDropdownOpen),
   });
 
-  // Handle selecting a catalog product
+  // Handle selecting a catalog product — audit F3: `searchProduct` returns the
+  // real `part_number`/`brand`, so the autofill now carries them instead of
+  // writing the SKU into the part-number cell and the never-populated
+  // `category` into the brand cell (which left both blank for most parts).
   const handleSelectProduct = useCallback(
     (rowId: string, product: ProductSearchResult) => {
+      const currentRow = useRequisitionsStore.getState().items.find(row => row.id === rowId);
       updateItem(rowId, {
         productId: product.id,
         name: product.name_ar || '',
-        partNumber: product.sku || '',
-        brand: product.category || '',
-        quantity: 1,
+        partNumber: product.part_number || product.sku || '',
+        brand: product.brand || '',
+        quantity: currentRow !== undefined && currentRow.quantity > 0 ? currentRow.quantity : 1,
       });
       setIsDropdownOpen(false);
       setActiveSearchRowId(null);
@@ -76,13 +86,24 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
     );
   });
 
-  const totalQuantity = items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
-  const nonEmptyCount = items.filter(
-    item => item.name.trim() !== '' || item.partNumber.trim() !== ''
-  ).length;
+  const filledItems = filledRequisitionItems(items);
+  const totalQuantity = sumRequisitionQuantities(filledItems);
+  const nonEmptyCount = filledItems.length;
+  const quantityIssues = findQuantityIssues(items);
+  // Reordering while the quick filter hides rows would swap a visible row with
+  // a hidden one, so the arrows stay disabled until the filter is cleared.
+  const reorderDisabled = Boolean(searchTerm?.trim());
 
   return (
     <div className="flex flex-col gap-2" ref={gridContainerRef}>
+      {quantityIssues.length > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
+          <AlertTriangle size={14} />
+          <span>{quantityIssues[0]?.message}</span>
+          {quantityIssues.length > 1 && <span>(و{quantityIssues.length - 1} سطر آخر)</span>}
+        </div>
+      )}
+
       {/* Excel Table Container with Visible Border Lines */}
       <div className="relative overflow-x-auto rounded-lg border-2 border-slate-300 bg-white shadow-xs dark:border-slate-700 dark:bg-slate-900">
         <table className="w-full min-w-[780px] border-collapse text-right text-xs">
@@ -113,6 +134,7 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
           <tbody>
             {filteredItems.map((item, index) => {
               const isEven = index % 2 === 0;
+              const hasQuantityIssue = !isBlankRequisitionItem(item) && item.quantity <= 0;
 
               return (
                 <tr
@@ -205,11 +227,11 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
                                     {prod.name_ar}
                                   </span>
                                   <span className="font-mono text-[10px] text-blue-600 dark:text-blue-400">
-                                    {prod.sku || 'بدون رقم'}
+                                    {prod.part_number || prod.sku || 'بدون رقم'}
                                   </span>
                                 </div>
                                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-                                  <span>التصنيف: {prod.category || 'عام'}</span>
+                                  <span>{prod.brand ? 'الشركة: ' + prod.brand : 'بدون شركة صانعة'}</span>
                                   <span>الرصيد: {prod.quantity ?? 0}</span>
                                 </div>
                               </button>
@@ -254,14 +276,25 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
                         type="text"
                         inputMode="numeric"
                         dir="ltr"
-                        value={item.quantity || 1}
+                        value={hasQuantityIssue ? '' : item.quantity}
+                        placeholder="0"
+                        title={hasQuantityIssue ? 'الكمية غير صحيحة — أدخل رقماً أكبر من صفر' : ''}
                         onChange={e => {
-                          const normalized = normalizeArabicDigits(e.target.value);
-                          const parsed = parseNumberFlexible(normalized);
-                          const qty = !isNaN(parsed) && parsed > 0 ? parsed : 1;
-                          updateItem(item.id, { quantity: qty });
+                          const parsed = parseNumberFlexible(normalizeArabicDigits(e.target.value));
+                          // Audit F17: an unusable quantity used to be rewritten
+                          // to 1, so a typo silently became a real order line.
+                          // 0 keeps the cell flagged (and blocks saving) until
+                          // the user decides the real quantity.
+                          updateItem(item.id, {
+                            quantity: Number.isFinite(parsed) ? parsed : 0,
+                          });
                         }}
-                        className="h-full w-full bg-transparent text-center font-mono text-xs font-bold text-blue-700 outline-none focus:bg-blue-100/60 dark:text-blue-300 dark:focus:bg-blue-950/50"
+                        className={cn(
+                          'h-full w-full bg-transparent text-center font-mono text-xs font-bold outline-none',
+                          hasQuantityIssue
+                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                            : 'text-blue-700 focus:bg-blue-100/60 dark:text-blue-300 dark:focus:bg-blue-950/50'
+                        )}
                       />
                     </div>
                   </td>
@@ -295,10 +328,10 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          moveItem(index, index - 1);
+                          moveItem(item.id, 'up');
                         }}
-                        disabled={index === 0}
-                        title="تحريك لأعلى"
+                        disabled={index === 0 || reorderDisabled}
+                        title={reorderDisabled ? 'أزل البحث السريع لإعادة الترتيب' : 'تحريك لأعلى'}
                         className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-800 disabled:opacity-30 dark:hover:bg-slate-800"
                       >
                         <ArrowUp size={13} />
@@ -306,10 +339,10 @@ export const RequisitionsExcelGrid: React.FC<RequisitionsExcelGridProps> = ({
                       <button
                         type="button"
                         onClick={() => {
-                          moveItem(index, index + 1);
+                          moveItem(item.id, 'down');
                         }}
-                        disabled={index === items.length - 1}
-                        title="تحريك لأسفل"
+                        disabled={index === filteredItems.length - 1 || reorderDisabled}
+                        title={reorderDisabled ? 'أزل البحث السريع لإعادة الترتيب' : 'تحريك لأسفل'}
                         className="rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-800 disabled:opacity-30 dark:hover:bg-slate-800"
                       >
                         <ArrowDown size={13} />

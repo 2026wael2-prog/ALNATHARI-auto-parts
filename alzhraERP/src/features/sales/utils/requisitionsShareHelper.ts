@@ -1,12 +1,13 @@
-/* eslint-disable max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-conversion, @typescript-eslint/restrict-template-expressions */
+/* eslint-disable complexity, max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/restrict-template-expressions */
 // ============================================
 // Sales Requisitions Sharing Utilities
 // WhatsApp and Telegram sharing for purchase requisitions
 // ============================================
 
 import type { RequisitionItem, RequisitionSupplier } from '../types/requisitions';
+import { filledRequisitionItems, sumRequisitionQuantities } from './requisitionsValidation';
 import { formatLocalDate } from '@/core/utils/dateUtils';
-import { buildWhatsAppLink, hasValidWhatsAppPhone } from '@/features/debts/lib/whatsapp';
+import { buildWhatsAppLink, hasValidWhatsAppPhone } from '@/core/utils/whatsapp';
 
 export interface RequisitionSharePayload {
   companyName: string;
@@ -14,6 +15,10 @@ export interface RequisitionSharePayload {
   items: RequisitionItem[];
   notes?: string;
   date?: string;
+  /** Document title shown as the message headline. */
+  title?: string | null;
+  /** Server document number (REQ-YYYY-NNNN) when the requisition was saved. */
+  number?: string | null;
 }
 
 /**
@@ -21,19 +26,16 @@ export interface RequisitionSharePayload {
  */
 export const buildRequisitionsMessageText = (payload: RequisitionSharePayload): string => {
   const dateStr = payload.date || formatLocalDate();
-  const validItems = payload.items.filter(
-    item => item.name.trim() !== '' || item.partNumber.trim() !== ''
-  );
-
-  let totalQty = 0;
-  validItems.forEach(item => {
-    totalQty += Number(item.quantity) || 1;
-  });
+  const validItems = filledRequisitionItems(payload.items);
+  const totalQty = sumRequisitionQuantities(validItems);
 
   const lines: string[] = [];
 
   // Header
-  lines.push(`📦 *طلب شراء ومطلوبات جديدة*`);
+  lines.push(`📦 *${payload.title?.trim() || 'طلب شراء ومطلوبات جديدة'}*`);
+  if (payload.number) {
+    lines.push(`🔢 *رقم الطلب:* ${payload.number}`);
+  }
   if (payload.companyName) {
     lines.push(`🏢 *${payload.companyName}*`);
   }
@@ -54,7 +56,7 @@ export const buildRequisitionsMessageText = (payload: RequisitionSharePayload): 
       const name = item.name.trim() || 'صنف بدون اسم';
       const partNo = item.partNumber.trim() || '---';
       const brand = item.brand.trim() || '---';
-      const qty = item.quantity || 1;
+      const qty = item.quantity;
 
       lines.push(`${num}. *${name}*`);
       lines.push(`   ▫️ رقم القطعة: \`${partNo}\``);

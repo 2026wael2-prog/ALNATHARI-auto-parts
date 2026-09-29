@@ -7133,49 +7133,73 @@ export type Database = {
       }
       prc_purchase_requests: {
         Row: {
+          branch_id: string | null
           company_id: string
           created_at: string
           currency: string
           department_id: string | null
+          idempotency_key: string | null
           justification: string | null
+          notes: string | null
           pr_id: string
           pr_number: string
           priority: string
           requester_id: string
           required_date: string | null
+          sent_at: string | null
+          source: string | null
           status: string
+          supplier_party_id: string | null
+          title: string | null
           total_estimated_value: number | null
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
+          branch_id?: string | null
           company_id: string
           created_at?: string
           currency?: string
           department_id?: string | null
+          idempotency_key?: string | null
           justification?: string | null
+          notes?: string | null
           pr_id?: string
           pr_number: string
           priority?: string
           requester_id: string
           required_date?: string | null
+          sent_at?: string | null
+          source?: string | null
           status?: string
+          supplier_party_id?: string | null
+          title?: string | null
           total_estimated_value?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
+          branch_id?: string | null
           company_id?: string
           created_at?: string
           currency?: string
           department_id?: string | null
+          idempotency_key?: string | null
           justification?: string | null
+          notes?: string | null
           pr_id?: string
           pr_number?: string
           priority?: string
           requester_id?: string
           required_date?: string | null
+          sent_at?: string | null
+          source?: string | null
           status?: string
+          supplier_party_id?: string | null
+          title?: string | null
           total_estimated_value?: number | null
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -13758,6 +13782,10 @@ export type Database = {
         }
         Returns: string
       }
+      commit_sales_requisition: {
+        Args: { p_company_id: string; p_data: Json; p_user_id: string }
+        Returns: Json
+      }
       complete_debt_task: {
         Args: {
           p_activity_id: string
@@ -14476,6 +14504,10 @@ export type Database = {
       get_next_journal_entry_number: {
         Args: { p_company_id: string }
         Returns: number
+      }
+      get_next_requisition_number: {
+        Args: { p_company_id: string }
+        Returns: string
       }
       get_next_sequence: {
         Args: { p_company_id: string; p_sequence_name: string }
@@ -15674,6 +15706,10 @@ export type Database = {
           p_revoked_permissions?: string[]
           p_target_user_id: string
         }
+        Returns: Json
+      }
+      set_sales_requisition_status: {
+        Args: { p_pr_id: string; p_status: string }
         Returns: Json
       }
       soft_delete_account_guarded: {

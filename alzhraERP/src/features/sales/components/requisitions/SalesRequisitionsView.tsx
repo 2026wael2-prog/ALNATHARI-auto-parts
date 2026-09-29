@@ -1,4 +1,4 @@
-/* eslint-disable complexity, max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-conversion, @typescript-eslint/explicit-function-return-type */
+/* eslint-disable complexity, max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/explicit-function-return-type */
 import React, { useState, useRef } from 'react';
 import {
   FileSpreadsheet,
@@ -16,6 +16,10 @@ import {
   Package,
   Layers,
   Phone,
+  ShieldAlert,
+  CloudOff,
+  Hash,
+  X,
 } from 'lucide-react';
 import { useRequisitionsStore } from '../../store/requisitionsStore';
 import { RequisitionsExcelGrid } from './RequisitionsExcelGrid';
@@ -27,8 +31,14 @@ import {
   openRequisitionsWhatsApp,
   openRequisitionsTelegram,
 } from '../../utils/requisitionsShareHelper';
+import {
+  filledRequisitionItems,
+  findBlockingIssues,
+  sumRequisitionQuantities,
+} from '../../utils/requisitionsValidation';
 import { useSuppliers } from '@/features/parties/hooks';
 import { useCompany } from '@/features/settings/hooks';
+import { usePermission } from '@/core/hooks/usePermission';
 import { exportToPDF } from '@/core/utils/pdfExporter';
 import { formatLocalDate } from '@/core/utils/dateUtils';
 import { logger } from '@/core/utils/logger';
@@ -41,15 +51,24 @@ export const SalesRequisitionsView: React.FC = () => {
     items,
     supplier,
     notes,
-    batchTitle,
+    title,
+    serverNumber,
+    storageWarning,
     setSupplier,
     setNotes,
-    setBatchTitle,
-    saveCurrentBatch,
+    setTitle,
+    saveRequisition,
+    dismissStorageWarning,
     clearItems,
   } = useRequisitionsStore();
 
+  // Audit F6: publishing a requisition to a supplier *is* the purchase-request
+  // action of the purchases module, so it is gated by `purchases:create`
+  // instead of relying on menu visibility alone.
+  const { hasPermission: canIssuePurchaseRequest } = usePermission('purchases:create');
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
@@ -68,9 +87,25 @@ export const SalesRequisitionsView: React.FC = () => {
     }, 3500);
   };
 
-  const validItems = items.filter(item => item.name.trim() !== '' || item.partNumber.trim() !== '');
+  const denyIssue = (): void => {
+    showNotification(
+      'error',
+      'عذراً، لا تمتلك صلاحية إصدار طلبات الشراء (purchases:create). راجع مدير النظام لمنحك الصلاحية.'
+    );
+  };
+
+  // Audit F17: blank placeholder rows are ignored, and an unusable quantity
+  // blocks every outgoing action instead of being silently rewritten to 1.
+  const validItems = filledRequisitionItems(items);
   const totalItemsCount = validItems.length;
-  const totalQuantity = validItems.reduce((acc, item) => acc + (Number(item.quantity) || 1), 0);
+  const totalQuantity = sumRequisitionQuantities(validItems);
+  const blockingIssues = findBlockingIssues(items);
+
+  const hasBlockingIssues = (): boolean => {
+    if (blockingIssues.length === 0) return false;
+    showNotification('error', blockingIssues[0]?.message ?? 'يوجد خطأ في بنود الطلب');
+    return true;
+  };
 
   // Handle Export to Excel
   const handleExportExcel = async () => {
@@ -78,6 +113,7 @@ export const SalesRequisitionsView: React.FC = () => {
       showNotification('error', 'يرجى تسجيل صنف واحد على الأقل قبل التصدير');
       return;
     }
+    if (hasBlockingIssues()) return;
     setIsExportingExcel(true);
     try {
       await exportRequisitionsToExcel({
@@ -86,7 +122,8 @@ export const SalesRequisitionsView: React.FC = () => {
         taxNumber: company?.tax_number || '',
         supplier,
         items: validItems,
-        title: batchTitle,
+        title,
+        number: serverNumber,
         notes,
       });
       showNotification('success', 'تم تصدير ملف الإكسل الملون بنجاح');
@@ -104,6 +141,7 @@ export const SalesRequisitionsView: React.FC = () => {
       showNotification('error', 'يرجى تسجيل صنف واحد على الأقل قبل تصدير PDF');
       return;
     }
+    if (hasBlockingIssues()) return;
     if (!printRef.current) {
       showNotification('error', 'تعذر العثور على ورقة الطباعة');
       return;
@@ -111,7 +149,7 @@ export const SalesRequisitionsView: React.FC = () => {
 
     setIsExportingPdf(true);
     try {
-      const fileName = `مطلوبات_${supplier?.name ? supplier.name.replace(/\s+/g, '_') : 'طلب'}_${formatLocalDate()}`;
+      const fileName = `مطلوبات_${serverNumber ? serverNumber + '_' : ''}${supplier?.name ? supplier.name.replace(/\s+/g, '_') : 'طلب'}_${formatLocalDate()}`;
       await exportToPDF(printRef.current, fileName, {
         pageSize: 'a4',
         orientation: 'p',
@@ -128,14 +166,21 @@ export const SalesRequisitionsView: React.FC = () => {
 
   // Handle WhatsApp Share
   const handleShareWhatsApp = () => {
+    if (!canIssuePurchaseRequest) {
+      denyIssue();
+      return;
+    }
     if (validItems.length === 0) {
       showNotification('error', 'يرجى كتابة صنف واحد على الأقل للمشاركة عبر واتساب');
       return;
     }
+    if (hasBlockingIssues()) return;
     openRequisitionsWhatsApp({
       companyName: company?.name_ar || company?.name_en || '',
       supplier,
       items: validItems,
+      title,
+      number: serverNumber,
       notes,
     });
     showNotification('success', 'تم فتح واتساب مع الرسالة المنسقة');
@@ -143,32 +188,69 @@ export const SalesRequisitionsView: React.FC = () => {
 
   // Handle Telegram Share
   const handleShareTelegram = () => {
+    if (!canIssuePurchaseRequest) {
+      denyIssue();
+      return;
+    }
     if (validItems.length === 0) {
       showNotification('error', 'يرجى كتابة صنف واحد على الأقل للمشاركة عبر تليجرام');
       return;
     }
+    if (hasBlockingIssues()) return;
     openRequisitionsTelegram({
       companyName: company?.name_ar || company?.name_en || '',
       supplier,
       items: validItems,
+      title,
+      number: serverNumber,
       notes,
     });
     showNotification('success', 'تم فتح تليجرام مع الرسالة المنسقة');
   };
 
-  // Handle Save Current Batch
-  const handleSaveBatch = () => {
+  // Handle Save Current Requisition
+  const handleSaveRequisition = async () => {
+    if (!canIssuePurchaseRequest) {
+      denyIssue();
+      return;
+    }
     if (validItems.length === 0) {
       showNotification('error', 'الجدول فارغ، لا يوجد ما يمكن حفظه');
       return;
     }
-    saveCurrentBatch();
-    showNotification('success', 'تم حفظ الطلب في سجل المطلوبات بنجاح');
+    if (hasBlockingIssues()) return;
+
+    setIsSaving(true);
+    try {
+      // Audit F2/F5: the reliable path is the server. A device-only draft is
+      // reported as exactly that — never as an official numbered requisition.
+      const outcome = await saveRequisition();
+      if (outcome.uploaded) {
+        const savedNumber = outcome.record.number;
+        showNotification(
+          'success',
+          savedNumber === null
+            ? 'تم حفظ الطلب على الخادم'
+            : `تم حفظ الطلب برقم رسمي ${savedNumber} على الخادم`
+        );
+      } else {
+        showNotification(
+          'info',
+          'تم الحفظ على هذا الجهاز فقط: ' + (outcome.error ?? 'تعذّر الاتصال بالخادم')
+        );
+      }
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Handle Clear Table
   const handleClear = () => {
-    if (window.confirm('هل أنت متأكد من مسح جميع بنود الجدول الحالية؟')) {
+    if (
+      window.confirm(
+        'هل أنت متأكد من مسح جميع بنود الجدول الحالية؟ سيُفقد رقم الطلب المرتبط إن وُجد.'
+      )
+    ) {
       clearItems();
       showNotification('info', 'تم مسح الجدول');
     }
@@ -192,6 +274,36 @@ export const SalesRequisitionsView: React.FC = () => {
         </div>
       )}
 
+      {/* Read-only mode: the user cannot issue purchase requests */}
+      {!canIssuePurchaseRequest && (
+        <div className="flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 p-2.5 text-xs font-bold text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200">
+          <ShieldAlert size={15} />
+          <span>
+            وضع القراءة فقط: لا تمتلك صلاحية إصدار طلبات الشراء (purchases:create)، لذا الحفظ
+            والمشاركة مع المورد معطّلان. التصدير والطباعة واللصق متاحة.
+          </span>
+        </div>
+      )}
+
+      {/* Draft could not be persisted by the browser */}
+      {storageWarning && (
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-rose-300 bg-rose-50 p-2.5 text-xs font-bold text-rose-800 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-200">
+          <span className="flex items-center gap-2">
+            <CloudOff size={15} />
+            تعذّر حفظ مسودة المطلوبات في هذا المتصفح (مساحة التخزين ممتلئة أو وضع التصفح الخاصة) —
+            صدّر الطلب أو اطبعه قبل إغلاق الصفحة.
+          </span>
+          <button
+            type="button"
+            onClick={dismissStorageWarning}
+            className="rounded p-1 hover:bg-rose-100 dark:hover:bg-rose-900"
+            title="إخفاء التنبيه"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       {/* Control & Header Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900">
         {/* Left: Supplier Selector & Title */}
@@ -201,13 +313,23 @@ export const SalesRequisitionsView: React.FC = () => {
             <span className="text-xs font-bold text-slate-500">عنوان الطلب:</span>
             <input
               type="text"
-              value={batchTitle}
+              value={title}
               onChange={e => {
-                setBatchTitle(e.target.value);
+                setTitle(e.target.value);
               }}
               placeholder="مثال: طلبية قطع أسبوعية..."
               className="h-8 rounded-lg border border-slate-300 bg-slate-50 px-2.5 text-xs font-bold text-slate-800 outline-none focus:border-blue-500 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             />
+          </div>
+
+          {/* Document number — shows the real server number, or states that the
+              requisition is still an unnumbered local draft (audit F2/F5). */}
+          <div
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-600 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300"
+            title="رقم الطلب الرسمي يُصدره الخادم تسلسلياً"
+          >
+            <Hash size={13} className="text-blue-600" />
+            <span className="font-mono">{serverNumber || 'بدون رقم — مسودة محلية'}</span>
           </div>
 
           {/* Supplier Picker */}
@@ -290,12 +412,19 @@ export const SalesRequisitionsView: React.FC = () => {
             <span className="hidden sm:inline">السجل</span>
           </button>
 
-          {/* Save Batch */}
+          {/* Save Requisition */}
           <button
             type="button"
-            onClick={handleSaveBatch}
-            className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-800 transition-colors hover:bg-blue-100 active:scale-95 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/60"
-            title="حفظ القائمة الحالية كمسودة"
+            onClick={() => void handleSaveRequisition()}
+            disabled={!canIssuePurchaseRequest || isSaving}
+            className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs font-bold text-blue-800 transition-colors hover:bg-blue-100 active:scale-95 disabled:opacity-50 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-900/60"
+            title={
+              !canIssuePurchaseRequest
+                ? 'تتطلب صلاحية purchases:create'
+                : isSaving
+                  ? 'جارٍ الحفظ على الخادم...'
+                  : 'حفظ القائمة الحالية كطلب مطلوبات'
+            }
           >
             <Save size={14} />
             <span>حفظ</span>
@@ -333,8 +462,13 @@ export const SalesRequisitionsView: React.FC = () => {
           <button
             type="button"
             onClick={handleShareWhatsApp}
-            className="shadow-2xs flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
-            title="إرسال قائمة المطلوب عبر واتساب للمورد"
+            disabled={!canIssuePurchaseRequest}
+            className="shadow-2xs flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700 active:scale-95 disabled:opacity-50"
+            title={
+              canIssuePurchaseRequest
+                ? 'إرسال قائمة المطلوب عبر واتساب للمورد'
+                : 'تتطلب صلاحية purchases:create'
+            }
           >
             <Send size={13} />
             <span>واتساب</span>
@@ -344,8 +478,9 @@ export const SalesRequisitionsView: React.FC = () => {
           <button
             type="button"
             onClick={handleShareTelegram}
-            className="shadow-2xs flex items-center gap-1.5 rounded-lg bg-sky-600 px-2.5 py-1.5 text-xs font-bold text-white transition-all hover:bg-sky-700 active:scale-95"
-            title="مشاركة عبر تليجرام"
+            disabled={!canIssuePurchaseRequest}
+            className="shadow-2xs flex items-center gap-1.5 rounded-lg bg-sky-600 px-2.5 py-1.5 text-xs font-bold text-white transition-all hover:bg-sky-700 active:scale-95 disabled:opacity-50"
+            title={canIssuePurchaseRequest ? 'مشاركة عبر تليجرام' : 'تتطلب صلاحية purchases:create'}
           >
             <SendHorizontal size={13} />
             <span>تليجرام</span>
@@ -446,7 +581,8 @@ export const SalesRequisitionsView: React.FC = () => {
             supplier={supplier}
             items={validItems}
             notes={notes}
-            batchTitle={batchTitle}
+            title={title}
+            number={serverNumber}
           />
         </div>
       </div>

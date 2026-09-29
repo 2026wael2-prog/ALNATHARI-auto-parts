@@ -1,7 +1,8 @@
 /* eslint-disable max-lines-per-function */
 import React, { useState } from 'react';
-import { Clipboard, Check, X } from 'lucide-react';
+import { Clipboard, Check, X, AlertTriangle, CopyCheck } from 'lucide-react';
 import { useRequisitionsStore } from '../../store/requisitionsStore';
+import type { RequisitionImportResult } from '../../types/requisitions';
 
 interface RequisitionsPasteModalProps {
   isOpen: boolean;
@@ -13,20 +14,23 @@ export const RequisitionsPasteModal: React.FC<RequisitionsPasteModalProps> = ({
   onClose,
 }) => {
   const [pasteContent, setPasteContent] = useState('');
-  const [importedCount, setImportedCount] = useState<number | null>(null);
-  const { importFromText } = useRequisitionsStore();
+  const [result, setResult] = useState<RequisitionImportResult | null>(null);
+  const importFromText = useRequisitionsStore(state => state.importFromText);
 
   if (!isOpen) return null;
 
   const handleImport = (): void => {
-    const count = importFromText(pasteContent);
-    setImportedCount(count);
-    if (count > 0) {
+    // The store reports skipped rows instead of hiding them: a silently dropped
+    // duplicate or a quantity that could not be parsed is a data-loss bug in an
+    // order document, so the modal states exactly what happened.
+    const importResult = importFromText(pasteContent);
+    setResult(importResult);
+    if (importResult.imported > 0) {
       setTimeout(() => {
-        setImportedCount(null);
+        setResult(null);
         setPasteContent('');
         onClose();
-      }, 700);
+      }, 1200);
     }
   };
 
@@ -66,10 +70,27 @@ export const RequisitionsPasteModal: React.FC<RequisitionsPasteModalProps> = ({
           dir="ltr"
         />
 
-        {importedCount !== null && (
-          <div className="mt-2 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
-            <Check size={14} />
-            <span>تم استيراد {importedCount} صنف بنجاح!</span>
+        {result !== null && (
+          <div className="mt-2 space-y-1 text-xs font-bold">
+            <div className="flex items-center gap-1.5 text-emerald-600">
+              <Check size={14} />
+              <span>تم استيراد {result.imported} صنف بنجاح.</span>
+            </div>
+            {result.duplicates > 0 && (
+              <div className="flex items-center gap-1.5 text-slate-500">
+                <CopyCheck size={14} />
+                <span>تم تجاهل {result.duplicates} سطر مكرر موجود مسبقاً في الجدول.</span>
+              </div>
+            )}
+            {result.invalid > 0 && (
+              <div className="flex items-center gap-1.5 text-amber-600">
+                <AlertTriangle size={14} />
+                <span>
+                  {result.invalid} سطر بكمية غير صحيحة — استُورد بكمية 0 وبانتظار تصحيحك (لن
+                  يُحفظ الطلب قبل التصحيح).
+                </span>
+              </div>
+            )}
           </div>
         )}
 

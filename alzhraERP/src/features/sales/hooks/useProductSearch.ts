@@ -21,6 +21,14 @@ export interface ProductSearchResult {
   sale_price: number;
   purchase_price: number;
   quantity: number;
+  /**
+   * Manufacturer part number and brand. `searchProduct` already returns both,
+   * but they used to be dropped here — so the requisition grid filled the
+   * part-number cell with the SKU and the brand cell with the never-populated
+   * `category`, leaving both empty for most parts (audit F3).
+   */
+  part_number?: string;
+  brand?: string;
   category?: string;
   alternative_numbers?: string;
   is_core?: boolean;
@@ -88,6 +96,9 @@ export const useProductSearch = (searchTerm: string, options?: UseProductSearchO
           sale_price: Number(item.sale_price || 0),
           purchase_price: Number(item.purchase_price || 0),
           quantity: totalQty,
+          // Manufacturer part number and brand as returned by the search RPC.
+          part_number: typeof item.part_number === 'string' ? item.part_number : undefined,
+          brand: typeof item.brand === 'string' ? item.brand : undefined,
           alternative_numbers: item.alternative_numbers
             ? String(item.alternative_numbers)
             : undefined,

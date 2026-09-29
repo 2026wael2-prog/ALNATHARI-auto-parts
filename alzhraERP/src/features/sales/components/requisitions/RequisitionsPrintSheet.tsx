@@ -1,6 +1,10 @@
-/* eslint-disable max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/no-unnecessary-type-conversion */
+/* eslint-disable max-lines-per-function, @typescript-eslint/strict-boolean-expressions, @typescript-eslint/prefer-nullish-coalescing */
 import React from 'react';
 import type { RequisitionItem, RequisitionSupplier } from '../../types/requisitions';
+import {
+  filledRequisitionItems,
+  sumRequisitionQuantities,
+} from '../../utils/requisitionsValidation';
 import { useDocumentHeaderSettings } from '@/features/settings/settingsStore';
 import { UniversalDocumentHeader } from '@/ui/common/UniversalDocumentHeader';
 import { formatLocalDate } from '@/core/utils/dateUtils';
@@ -18,7 +22,9 @@ interface RequisitionsPrintSheetProps {
   supplier?: RequisitionSupplier | null | undefined;
   items: RequisitionItem[];
   notes?: string | undefined;
-  batchTitle?: string | undefined;
+  title?: string | undefined;
+  /** Server document number (REQ-YYYY-NNNN) when the requisition was saved. */
+  number?: string | null | undefined;
 }
 
 export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
@@ -26,18 +32,17 @@ export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
   supplier,
   items,
   notes,
-  batchTitle,
+  title,
+  number,
 }) => {
   const headerConfig = useDocumentHeaderSettings();
   const currentDate = formatLocalDate();
 
-  const validItems = items.filter(item => item.name.trim() !== '' || item.partNumber.trim() !== '');
+  // Audit F17: blank placeholder rows are dropped and unusable quantities are
+  // never printed as 1 — the total is the real sum of what was requested.
+  const validItems = filledRequisitionItems(items);
   const displayItems = validItems.length > 0 ? validItems : items;
-
-  let totalQuantity = 0;
-  displayItems.forEach(item => {
-    totalQuantity += Number(item.quantity) || 1;
-  });
+  const totalQuantity = sumRequisitionQuantities(displayItems);
 
   return (
     <div className="requisitions-print-wrapper bg-white p-6 text-slate-900" dir="rtl">
@@ -51,23 +56,27 @@ export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
             font-family: 'Arial', 'Segoe UI', Tahoma, sans-serif !important;
             color: #000 !important;
           }
-          table {
+          /* Audit F10: bare table / th, td selectors are global, so printing the
+             requisition restyled every other table in the app. The rules below
+             are scoped to the requisition wrapper instead. */
+          .requisitions-print-wrapper table {
             border-collapse: collapse !important;
             width: 100% !important;
           }
-          th, td {
+          .requisitions-print-wrapper th,
+          .requisitions-print-wrapper td {
             border: 1px solid #1e293b !important;
             padding: 6px 8px !important;
             color: #000 !important;
             font-size: 11px !important;
           }
-          th {
+          .requisitions-print-wrapper th {
             background-color: #1F4E78 !important;
             color: #ffffff !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          tr:nth-child(even) td {
+          .requisitions-print-wrapper tr:nth-child(even) td {
             background-color: #f8fafc !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -112,7 +121,7 @@ export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
             slogan: company.slogan,
             logo_url: company.logo_url,
           }}
-          documentTitle={batchTitle || 'قائمة طلبات الشراء والمطلوبات'}
+          documentTitle={title || 'قائمة طلبات الشراء والمطلوبات'}
           documentDate={currentDate}
         />
       </div>
@@ -136,6 +145,12 @@ export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
         <div>
           <span className="font-bold text-slate-500">عدد الأصناف: </span>
           <span className="font-bold text-blue-700">{displayItems.length} صنف</span>
+        </div>
+        <div>
+          <span className="font-bold text-slate-500">رقم الطلب: </span>
+          <span className="font-mono font-bold text-slate-900" dir="ltr">
+            {number || 'لم يُرقّم بعد'}
+          </span>
         </div>
       </div>
 
@@ -162,7 +177,7 @@ export const RequisitionsPrintSheet: React.FC<RequisitionsPrintSheetProps> = ({
                 </td>
                 <td>{item.brand || '---'}</td>
                 <td style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>
-                  {item.quantity || 1}
+                  {item.quantity}
                 </td>
                 <td style={{ fontSize: '10px', color: '#475569' }}>{item.notes || ''}</td>
               </tr>
