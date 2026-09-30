@@ -1,9 +1,12 @@
 import { supabase } from '../../../lib/supabaseClient';
 import { logger } from '../../../core/utils/logger';
+import { parseError } from '../../../core/utils/errorUtils';
 import type {
   DailyDrawerSummary,
   CommitDailyReconciliationDTO,
+  CommitDailyReconciliationResult,
   QuickDrawerExpenseDTO,
+  QuickDrawerExpenseResult,
   ExistingReconciliationRecord,
 } from '../types';
 
@@ -38,7 +41,7 @@ export const reconciliationApi = {
           date,
           error,
         });
-        throw error;
+        throw parseError(error);
       }
 
       return data as DailyDrawerSummary;
@@ -53,7 +56,7 @@ export const reconciliationApi = {
    */
   commitReconciliation: async (
     payload: CommitDailyReconciliationDTO
-  ): Promise<{ success: boolean; reconciliation_id: string; message: string }> => {
+  ): Promise<CommitDailyReconciliationResult> => {
     try {
       const { data, error } = await callRpc('commit_daily_reconciliation', {
         p_company_id: payload.company_id,
@@ -74,10 +77,10 @@ export const reconciliationApi = {
           payload,
           error,
         });
-        throw error;
+        throw parseError(error);
       }
 
-      return data as { success: boolean; reconciliation_id: string; message: string };
+      return data as CommitDailyReconciliationResult;
     } catch (err) {
       logger.error('reconciliationApi', 'commitReconciliation exception', err);
       throw err;
@@ -86,10 +89,12 @@ export const reconciliationApi = {
 
   /**
    * تسجيل سريع لمصروف نثري من الدرج في 3 ثوانٍ
+   *
+   * العملة وسعر الصرف ومفتاح منع التكرار تُمرَّر صراحةً: النسخة السابقة كانت
+   * تُرسل المبلغ بلا عملة فيُسجَّل قسراً بالريال السعودي (تضخّم 410× للريال اليمني)
+   * وبلا قيد محاسبي. الخادم الآن يحوّل لعملة الأساس ويرحّل القيد ويعيد journal_entry_id.
    */
-  recordQuickExpense: async (
-    payload: QuickDrawerExpenseDTO
-  ): Promise<{ success: boolean; expense_id: string; message: string }> => {
+  recordQuickExpense: async (payload: QuickDrawerExpenseDTO): Promise<QuickDrawerExpenseResult> => {
     try {
       const { data, error } = await callRpc('record_quick_drawer_expense', {
         p_company_id: payload.company_id,
@@ -97,6 +102,9 @@ export const reconciliationApi = {
         p_description: payload.description,
         p_branch_id: payload.branch_id || null,
         p_expense_date: payload.expense_date || null,
+        p_currency_code: payload.currency_code || null,
+        p_exchange_rate: payload.exchange_rate || null,
+        p_idempotency_key: payload.idempotency_key || null,
       });
 
       if (error) {
@@ -104,10 +112,10 @@ export const reconciliationApi = {
           payload,
           error,
         });
-        throw error;
+        throw parseError(error);
       }
 
-      return data as { success: boolean; expense_id: string; message: string };
+      return data as QuickDrawerExpenseResult;
     } catch (err) {
       logger.error('reconciliationApi', 'recordQuickExpense exception', err);
       throw err;
@@ -124,7 +132,7 @@ export const reconciliationApi = {
   ): Promise<ExistingReconciliationRecord[]> => {
     try {
       let query = supabase
-        .from('daily_reconciliations' as any)
+        .from('daily_reconciliations')
         .select('*')
         .eq('company_id', companyId)
         .order('reconciliation_date', { ascending: false })
@@ -140,10 +148,10 @@ export const reconciliationApi = {
           companyId,
           error,
         });
-        throw error;
+        throw parseError(error);
       }
 
-      return (data || []) as unknown as ExistingReconciliationRecord[];
+      return (data ?? []) as unknown as ExistingReconciliationRecord[];
     } catch (err) {
       logger.error('reconciliationApi', 'fetchReconciliationHistory exception', err);
       throw err;
