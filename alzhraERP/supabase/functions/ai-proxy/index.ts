@@ -3,7 +3,7 @@ import { OpenAI } from 'https://esm.sh/openai@4.26.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const ALLOWED_ORIGINS = [
-  'https://zzthamxjxnxzzpswllid.supabase.co',
+  'https://gvjmpgxdmekjsgzhlzzz.supabase.co',
   'https://alzhra-erp.vercel.app',
   'https://alzhra-erp.netlify.app',
   'https://alzhra-2030karim2-devs-projects.vercel.app',

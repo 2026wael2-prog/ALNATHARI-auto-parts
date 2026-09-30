@@ -3,7 +3,7 @@ import { OpenAI } from "https://esm.sh/openai@4.26.0"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3"
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || 'https://zzthamxjxnxzzpswllid.supabase.co',
+  'Access-Control-Allow-Origin': Deno.env.get('SITE_URL') || 'https://gvjmpgxdmekjsgzhlzzz.supabase.co',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 

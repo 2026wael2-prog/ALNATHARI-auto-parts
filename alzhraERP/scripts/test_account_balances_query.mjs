@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const token = fs.readFileSync(process.env.USERPROFILE + '/.supabase/access-token', 'utf8').trim();
-const projectRef = 'zzthamxjxnxzzpswllid';
+const projectRef = 'gvjmpgxdmekjsgzhlzzz';
 const COMPANY_ID = 'cd8123f3-3cd4-4310-8b7a-042546c2b09c';
 
 export async function query(sql, retries = 5) {

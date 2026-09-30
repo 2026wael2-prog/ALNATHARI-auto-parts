@@ -26,7 +26,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'zzthamxjxnxzzpswllid';
+const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'gvjmpgxdmekjsgzhlzzz';
 const TARGET_REF = process.env.TARGET_PROJECT_REF || 'orxlyiokccaodypindye';
 const COMPANY = 'cd8123f3-3cd4-4310-8b7a-042546c2b09c';
 

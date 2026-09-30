@@ -5,7 +5,7 @@ import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/b
 // Origin allow-list (mirrors ai-proxy). We never echo arbitrary origins — a
 // non-listed origin receives the sandbox origin instead of being reflected.
 const ALLOWED_ORIGINS = [
-    'https://zzthamxjxnxzzpswllid.supabase.co',
+    'https://gvjmpgxdmekjsgzhlzzz.supabase.co',
     'https://alzhra-erp.vercel.app',
     'https://alzhra-erp.netlify.app',
     'https://alzhra-2030karim2-devs-projects.vercel.app',

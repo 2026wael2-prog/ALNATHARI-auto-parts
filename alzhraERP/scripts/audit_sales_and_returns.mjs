@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 
 const token = (await import('node:fs')).readFileSync(process.env.USERPROFILE + '/.supabase/access-token', 'utf8').trim();
-const projectRef = 'zzthamxjxnxzzpswllid';
+const projectRef = 'gvjmpgxdmekjsgzhlzzz';
 
 async function query(sql) {
   const res = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/database/query`, {

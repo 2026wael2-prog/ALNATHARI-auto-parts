@@ -47,10 +47,10 @@ jobs:
     timeout-minutes: 30
 
     env:
-      SOURCE_PROJECT_REF: orxlyiokccaodypindye
+      SOURCE_PROJECT_REF: gvjmpgxdmekjsgzhlzzz
       SOURCE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      # Jaafari tenant
-      COMPANY_ID: cd8123f3-3cd4-4310-8b7a-042546c2b09c
+      # Al-Nathari tenant (the only company in project gvjmpgxdmekjsgzhlzzz)
+      COMPANY_ID: 7f3a9c21-5b4e-4d8a-9e12-6c0d3b8a5f47
       BACKUP_DIR: tenant-backup
 
     steps:

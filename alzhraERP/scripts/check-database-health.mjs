@@ -40,7 +40,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'orxlyiokccaodypindye';
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'gvjmpgxdmekjsgzhlzzz';
 const ENDPOINT = `https://api.supabase.com/v1/projects/${PROJECT_REF}/database/query`;
 const LIMIT_MB = Number(process.env.DB_PLAN_LIMIT_MB || 500);
 

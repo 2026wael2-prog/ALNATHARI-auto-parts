@@ -10,7 +10,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 
 const ALLOWED_ORIGINS = [
-  'https://zzthamxjxnxzzpswllid.supabase.co',
+  'https://gvjmpgxdmekjsgzhlzzz.supabase.co',
   'https://alzhra-erp.vercel.app',
   'https://alzhra-erp.netlify.app',
   'https://alzhra-2030karim2-devs-projects.vercel.app',

@@ -16,7 +16,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'zzthamxjxnxzzpswllid';
+const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'gvjmpgxdmekjsgzhlzzz';
 const TARGET_REF = process.env.TARGET_PROJECT_REF || 'orxlyiokccaodypindye';
 
 function tokenFor(which) {

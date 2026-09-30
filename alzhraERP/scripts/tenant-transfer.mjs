@@ -47,7 +47,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 
-const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'zzthamxjxnxzzpswllid';
+const SOURCE_REF = process.env.SOURCE_PROJECT_REF || 'gvjmpgxdmekjsgzhlzzz';
 const DEFAULT_TARGET = process.env.TARGET_PROJECT_REF || 'orxlyiokccaodypindye';
 
 /**
