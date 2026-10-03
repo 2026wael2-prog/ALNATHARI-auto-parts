@@ -202,6 +202,8 @@ const InvoiceListView: React.FC<InvoiceListViewProps> = ({
           items: [],
           subtotal: row.total,
           totalAmount: row.total,
+          // مبلغ المستند بعملة الفاتورة (كان يُطبع دائماً برمز SAR)
+          currency: row.currencyCode || 'SAR',
         };
         const blob = await generateInvoiceExcelBlob(data);
         const file = new File([blob], `فاتورة_${row.invoiceNumber}.xlsx`, {

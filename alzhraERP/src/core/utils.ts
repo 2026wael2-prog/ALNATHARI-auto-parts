@@ -30,6 +30,19 @@ export function formatNumberDisplay(value: number): string {
 }
 
 export { formatLocalDate, getLocalYearStart } from './utils/dateUtils';
+
+// Document money semantics (base vs document currency) — see utils/documentMoney.ts
+export {
+  BASE_CURRENCY,
+  documentFactor,
+  toDocumentAmount,
+  toDocumentTotal,
+  formatDocumentAmount,
+  formatDocumentTotal,
+  formatBaseAmount,
+  formatDocumentWithBase,
+} from './utils/documentMoney';
+
 export { netUnitPrices } from './utils/invoiceDiscount';
 export {
   normalizeArabic,

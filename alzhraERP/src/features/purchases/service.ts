@@ -2,7 +2,6 @@ import { purchasesApi } from './api';
 import type { CreatePurchaseDTO, PurchaseInvoiceResponse, PurchaseStats } from './types';
 import { purchaseAccountingService } from './services/purchaseAccounting';
 import { messagingService } from '../notifications/messagingService';
-import { toBaseCurrency } from '../../core/utils/currencyUtils';
 import { validatePurchasePayload, assertValid } from '../../core/utils/validationUtils';
 import { logger } from '../../core/utils/logger';
 import { resolveStrictPaymentAccount, type RoutableAccount } from '../../core/utils/accountRouting';
@@ -71,23 +70,13 @@ const asPurchaseStats = (value: unknown): PurchaseStatsPayload => {
 const isPurchaseReturn = (purchase: PurchaseListRow): boolean =>
   purchase.type === 'purchase_return';
 
-/** Converts a purchase amount to base currency without throwing on bad rates. */
-const safeToBase = (purchase: PurchaseListRow): number => {
-  try {
-    return toBaseCurrency({
-      amount: purchase.total_amount,
-      currency_code: purchase.currency_code,
-      exchange_rate: purchase.exchange_rate,
-    });
-  } catch (err) {
-    logger.warn('PurchaseService', 'Invalid exchange rate — purchase amount treated as 0', {
-      currency_code: purchase.currency_code,
-      exchange_rate: purchase.exchange_rate,
-      error: err,
-    });
-    return 0;
-  }
-};
+/**
+ * ⚠️ `total_amount` في جداول المستندات مخزَّن بعملة الأساس (SAR) مطابقةً
+ * لـ `Mizan.Bill.Total` ⇒ مبلغ الأساس هو الرقم نفسه بلا أي تحويل.
+ * كان تمريره على `toBaseCurrency` يقسم على سعر صرف اليمني فيضخّم مبالغ
+ * المشتريات اليمنية نحو 415 مرة (نفس عطل تقرير المبيعات اليومية).
+ */
+const safeToBase = (purchase: PurchaseListRow): number => Number(purchase.total_amount) || 0;
 
 export { purchasesApi };
 

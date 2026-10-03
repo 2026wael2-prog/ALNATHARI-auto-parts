@@ -1,0 +1,908 @@
+{
+  "0_landscape": [
+    {
+      "currency_code": "OMR",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002778",
+      "invoices": 2,
+      "sum_base_sar": "0.66",
+      "sum_document": "240.00"
+    },
+    {
+      "currency_code": "SAR",
+      "rate_bucket": "1 (identity)",
+      "exchange_rate": "1.000000",
+      "invoices": 21692,
+      "sum_base_sar": "7734326.41",
+      "sum_document": "7734326.41"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.001540",
+      "invoices": 686,
+      "sum_base_sar": "58826.34",
+      "sum_document": "40242422.60"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.001670",
+      "invoices": 594,
+      "sum_base_sar": "54194.75",
+      "sum_document": "34117441.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.001890",
+      "invoices": 800,
+      "sum_base_sar": "71620.75",
+      "sum_document": "39546590.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.001900",
+      "invoices": 446,
+      "sum_base_sar": "42701.87",
+      "sum_document": "24239170.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.001980",
+      "invoices": 782,
+      "sum_base_sar": "76426.70",
+      "sum_document": "40584339.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002000",
+      "invoices": 351,
+      "sum_base_sar": "38261.09",
+      "sum_document": "20089442.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002220",
+      "invoices": 3761,
+      "sum_base_sar": "424177.69",
+      "sum_document": "202517813.84"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002222",
+      "invoices": 271,
+      "sum_base_sar": "47023.20",
+      "sum_document": "21340060.58"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002237",
+      "invoices": 1,
+      "sum_base_sar": "67.11",
+      "sum_document": "30000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002247",
+      "invoices": 2,
+      "sum_base_sar": "373.00",
+      "sum_document": "166000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002330",
+      "invoices": 1075,
+      "sum_base_sar": "134085.23",
+      "sum_document": "59783823.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002340",
+      "invoices": 1038,
+      "sum_base_sar": "110430.25",
+      "sum_document": "49614917.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002381",
+      "invoices": 3,
+      "sum_base_sar": "671.44",
+      "sum_document": "282000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002400",
+      "invoices": 1,
+      "sum_base_sar": "336.00",
+      "sum_document": "140000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002439",
+      "invoices": 1,
+      "sum_base_sar": "180.49",
+      "sum_document": "74000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002470",
+      "invoices": 1,
+      "sum_base_sar": "1409.13",
+      "sum_document": "570500.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002500",
+      "invoices": 1884,
+      "sum_base_sar": "281262.24",
+      "sum_document": "116015390.80"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002564",
+      "invoices": 1,
+      "sum_base_sar": "230.76",
+      "sum_document": "90000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002670",
+      "invoices": 2141,
+      "sum_base_sar": "244341.11",
+      "sum_document": "95580673.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002703",
+      "invoices": 427,
+      "sum_base_sar": "77735.29",
+      "sum_document": "29451945.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002740",
+      "invoices": 2,
+      "sum_base_sar": "202.76",
+      "sum_document": "74000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002817",
+      "invoices": 1,
+      "sum_base_sar": "295.79",
+      "sum_document": "105000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002857",
+      "invoices": 183,
+      "sum_base_sar": "34552.68",
+      "sum_document": "12148031.59"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002940",
+      "invoices": 3636,
+      "sum_base_sar": "462956.15",
+      "sum_document": "165064639.08"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.002985",
+      "invoices": 3,
+      "sum_base_sar": "685.06",
+      "sum_document": "229500.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003012",
+      "invoices": 7,
+      "sum_base_sar": "2930.66",
+      "sum_document": "973000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003030",
+      "invoices": 7,
+      "sum_base_sar": "1664.99",
+      "sum_document": "549500.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003125",
+      "invoices": 2763,
+      "sum_base_sar": "440912.50",
+      "sum_document": "145135476.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003130",
+      "invoices": 162,
+      "sum_base_sar": "22204.05",
+      "sum_document": "7418450.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003170",
+      "invoices": 1,
+      "sum_base_sar": "139.48",
+      "sum_document": "44000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003210",
+      "invoices": 1,
+      "sum_base_sar": "240.75",
+      "sum_document": "75000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003230",
+      "invoices": 4034,
+      "sum_base_sar": "597479.32",
+      "sum_document": "192172727.63"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003240",
+      "invoices": 1,
+      "sum_base_sar": "191.16",
+      "sum_document": "59000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003279",
+      "invoices": 1,
+      "sum_base_sar": "363.97",
+      "sum_document": "111000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003330",
+      "invoices": 1143,
+      "sum_base_sar": "230717.82",
+      "sum_document": "69284644.02"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003333",
+      "invoices": 791,
+      "sum_base_sar": "164921.67",
+      "sum_document": "50422301.39"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003448",
+      "invoices": 171,
+      "sum_base_sar": "37903.11",
+      "sum_document": "11203400.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003450",
+      "invoices": 274,
+      "sum_base_sar": "53945.10",
+      "sum_document": "16246260.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003571",
+      "invoices": 136,
+      "sum_base_sar": "22408.54",
+      "sum_document": "6465650.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003704",
+      "invoices": 149,
+      "sum_base_sar": "30627.37",
+      "sum_document": "8617734.88"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.003846",
+      "invoices": 426,
+      "sum_base_sar": "148632.76",
+      "sum_document": "39517083.98"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004082",
+      "invoices": 1,
+      "sum_base_sar": "495.96",
+      "sum_document": "121500.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004167",
+      "invoices": 390,
+      "sum_base_sar": "79688.02",
+      "sum_document": "19576326.39"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004255",
+      "invoices": 1443,
+      "sum_base_sar": "322907.40",
+      "sum_document": "78428261.69"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004348",
+      "invoices": 2805,
+      "sum_base_sar": "594710.52",
+      "sum_document": "141358607.43"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004545",
+      "invoices": 2470,
+      "sum_base_sar": "519487.67",
+      "sum_document": "118374397.38"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.004550",
+      "invoices": 1,
+      "sum_base_sar": "546.00",
+      "sum_document": "120000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.005000",
+      "invoices": 1392,
+      "sum_base_sar": "422473.57",
+      "sum_document": "87313213.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.005710",
+      "invoices": 1415,
+      "sum_base_sar": "357246.42",
+      "sum_document": "64507378.83"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.005780",
+      "invoices": 2,
+      "sum_base_sar": "268.77",
+      "sum_document": "46500.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.005880",
+      "invoices": 14,
+      "sum_base_sar": "11049.02",
+      "sum_document": "1879085.03"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.006600",
+      "invoices": 1,
+      "sum_base_sar": "59.40",
+      "sum_document": "9000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.006670",
+      "invoices": 146,
+      "sum_base_sar": "53987.64",
+      "sum_document": "8144114.77"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0<x<=0.02 (SAR per YER, e.g.0.0022)",
+      "exchange_rate": "0.009350",
+      "invoices": 4,
+      "sum_base_sar": "2674.10",
+      "sum_document": "286000.00"
+    },
+    {
+      "currency_code": "YER",
+      "rate_bucket": "0.02<x<1 (ambiguous)",
+      "exchange_rate": "0.222200",
+      "invoices": 1,
+      "sum_base_sar": "2222.00",
+      "sum_document": "10000.00"
+    }
+  ],
+  "0b_by_company": [
+    {
+      "company_id": "7f3a9c21-5b4e-4d8a-9e12-6c0d3b8a5f47",
+      "currency_code": "OMR",
+      "invoices": 2
+    },
+    {
+      "company_id": "7f3a9c21-5b4e-4d8a-9e12-6c0d3b8a5f47",
+      "currency_code": "SAR",
+      "invoices": 21692
+    },
+    {
+      "company_id": "7f3a9c21-5b4e-4d8a-9e12-6c0d3b8a5f47",
+      "currency_code": "YER",
+      "invoices": 38243
+    }
+  ],
+  "1_SAR_doc_neq_base": [
+    {
+      "invoices": 0,
+      "sum_base": null,
+      "sum_doc": "0.00"
+    }
+  ],
+  "2_SAR_but_huge": [
+    {
+      "invoice_number": "2-مبيع:40443",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "138043.0000",
+      "total_document_amount": "138043.0000",
+      "issue_date": "2024-05-08"
+    },
+    {
+      "invoice_number": "2-مبيع:64254",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "130000.0000",
+      "total_document_amount": "130000.0000",
+      "issue_date": "2026-09-16"
+    },
+    {
+      "invoice_number": "2-مبيع:24373",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "60110.0000",
+      "total_document_amount": "60110.0000",
+      "issue_date": "2022-11-13"
+    },
+    {
+      "invoice_number": "2-مبيع:61964",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "60000.0000",
+      "total_document_amount": "60000.0000",
+      "issue_date": "2026-07-01"
+    },
+    {
+      "invoice_number": "2-مبيع:40464",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "53544.0000",
+      "total_document_amount": "53544.0000",
+      "issue_date": "2024-05-09"
+    }
+  ],
+  "3_YER_but_small_doc": [
+    {
+      "invoice_number": "2-مبيع:31463",
+      "currency_code": "YER",
+      "exchange_rate": "0.002940",
+      "total_amount": "2.7900",
+      "total_document_amount": "950.0000",
+      "issue_date": "2023-06-19"
+    },
+    {
+      "invoice_number": "2-مبيع:12798",
+      "currency_code": "YER",
+      "exchange_rate": "0.002500",
+      "total_amount": "2.2500",
+      "total_document_amount": "900.0000",
+      "issue_date": "2021-11-04"
+    },
+    {
+      "invoice_number": "2-مبيع:7776",
+      "currency_code": "YER",
+      "exchange_rate": "0.004348",
+      "total_amount": "3.9100",
+      "total_document_amount": "900.0000",
+      "issue_date": "2021-03-06"
+    },
+    {
+      "invoice_number": "2-مبيع:4361",
+      "currency_code": "YER",
+      "exchange_rate": "0.004545",
+      "total_amount": "3.6400",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-10-31"
+    },
+    {
+      "invoice_number": "2-مبيع:157",
+      "currency_code": "YER",
+      "exchange_rate": "0.006670",
+      "total_amount": "5.3400",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-02-22"
+    },
+    {
+      "invoice_number": "2-مبيع:18727",
+      "currency_code": "YER",
+      "exchange_rate": "0.003125",
+      "total_amount": "2.5000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2022-05-06"
+    },
+    {
+      "invoice_number": "2-مبيع:9106",
+      "currency_code": "YER",
+      "exchange_rate": "0.004255",
+      "total_amount": "3.4000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2021-05-02"
+    },
+    {
+      "invoice_number": "2-مبيع:2298",
+      "currency_code": "YER",
+      "exchange_rate": "0.005000",
+      "total_amount": "4.0000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-07-10"
+    },
+    {
+      "invoice_number": "2-مبيع:33968",
+      "currency_code": "YER",
+      "exchange_rate": "0.002670",
+      "total_amount": "2.0300",
+      "total_document_amount": "762.0000",
+      "issue_date": "2023-09-05"
+    },
+    {
+      "invoice_number": "2-مبيع:31945",
+      "currency_code": "YER",
+      "exchange_rate": "0.002940",
+      "total_amount": "2.0600",
+      "total_document_amount": "700.0000",
+      "issue_date": "2023-07-09"
+    },
+    {
+      "invoice_number": "2-مبيع:63675",
+      "currency_code": "YER",
+      "exchange_rate": "0.002220",
+      "total_amount": "1.5500",
+      "total_document_amount": "700.0000",
+      "issue_date": "2026-08-27"
+    },
+    {
+      "invoice_number": "2-مبيع:16273",
+      "currency_code": "YER",
+      "exchange_rate": "0.003125",
+      "total_amount": "2.1900",
+      "total_document_amount": "700.0000",
+      "issue_date": "2022-02-18"
+    },
+    {
+      "invoice_number": "2-مبيع:12896",
+      "currency_code": "YER",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.8200",
+      "total_document_amount": "620.0000",
+      "issue_date": "2021-11-07"
+    },
+    {
+      "invoice_number": "2-مبيع:24995",
+      "currency_code": "YER",
+      "exchange_rate": "0.003230",
+      "total_amount": "1.9400",
+      "total_document_amount": "600.0000",
+      "issue_date": "2022-11-19"
+    },
+    {
+      "invoice_number": "2-مبيع:12589",
+      "currency_code": "YER",
+      "exchange_rate": "0.002703",
+      "total_amount": "1.6200",
+      "total_document_amount": "600.0000",
+      "issue_date": "2021-10-30"
+    },
+    {
+      "invoice_number": "2-مبيع:6808",
+      "currency_code": "YER",
+      "exchange_rate": "0.004348",
+      "total_amount": "1.5200",
+      "total_document_amount": "550.0000",
+      "issue_date": "2021-02-01"
+    },
+    {
+      "invoice_number": "2-مبيع:16795",
+      "currency_code": "YER",
+      "exchange_rate": "0.003125",
+      "total_amount": "1.7200",
+      "total_document_amount": "550.0000",
+      "issue_date": "2022-03-03"
+    },
+    {
+      "invoice_number": "2-مبيع:16939",
+      "currency_code": "YER",
+      "exchange_rate": "0.003125",
+      "total_amount": "1.6900",
+      "total_document_amount": "540.0000",
+      "issue_date": "2022-03-06"
+    },
+    {
+      "invoice_number": "2-مبيع:32285",
+      "currency_code": "YER",
+      "exchange_rate": "0.002670",
+      "total_amount": "1.3600",
+      "total_document_amount": "511.0000",
+      "issue_date": "2023-07-17"
+    },
+    {
+      "invoice_number": "2-مبيع:1358",
+      "currency_code": "YER",
+      "exchange_rate": "0.005710",
+      "total_amount": "2.8600",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-05-12"
+    }
+  ],
+  "4_YER_matches_neither": [
+    {
+      "invoice_number": "2-مبيع:1",
+      "exchange_rate": "0.002220",
+      "total_amount": "383.1700",
+      "total_document_amount": "322600.0000",
+      "doc_if_div": "172599.10",
+      "doc_if_mul": "0.85"
+    },
+    {
+      "invoice_number": "2-مبيع:10068",
+      "exchange_rate": "0.004255",
+      "total_amount": "76.5900",
+      "total_document_amount": "23000.0000",
+      "doc_if_div": "18000.00",
+      "doc_if_mul": "0.33"
+    },
+    {
+      "invoice_number": "2-مبيع:1012",
+      "exchange_rate": "0.005710",
+      "total_amount": "693.7600",
+      "total_document_amount": "221500.0000",
+      "doc_if_div": "121499.12",
+      "doc_if_mul": "3.96"
+    },
+    {
+      "invoice_number": "2-مبيع:10138",
+      "exchange_rate": "0.004255",
+      "total_amount": "382.9500",
+      "total_document_amount": "140000.0000",
+      "doc_if_div": "90000.00",
+      "doc_if_mul": "1.63"
+    },
+    {
+      "invoice_number": "2-مبيع:10179",
+      "exchange_rate": "0.004255",
+      "total_amount": "238.2800",
+      "total_document_amount": "106000.0000",
+      "doc_if_div": "56000.00",
+      "doc_if_mul": "1.01"
+    },
+    {
+      "invoice_number": "2-مبيع:10202",
+      "exchange_rate": "0.004255",
+      "total_amount": "510.6000",
+      "total_document_amount": "170000.0000",
+      "doc_if_div": "120000.00",
+      "doc_if_mul": "2.17"
+    },
+    {
+      "invoice_number": "2-مبيع:10205",
+      "exchange_rate": "0.004255",
+      "total_amount": "42.5500",
+      "total_document_amount": "15000.0000",
+      "doc_if_div": "10000.00",
+      "doc_if_mul": "0.18"
+    },
+    {
+      "invoice_number": "2-مبيع:10264",
+      "exchange_rate": "0.004255",
+      "total_amount": "599.9600",
+      "total_document_amount": "241000.0000",
+      "doc_if_div": "141001.18",
+      "doc_if_mul": "2.55"
+    },
+    {
+      "invoice_number": "2-مبيع:10298",
+      "exchange_rate": "0.004255",
+      "total_amount": "70.2100",
+      "total_document_amount": "21500.0000",
+      "doc_if_div": "16500.59",
+      "doc_if_mul": "0.30"
+    },
+    {
+      "invoice_number": "2-مبيع:10300",
+      "exchange_rate": "0.004255",
+      "total_amount": "263.8100",
+      "total_document_amount": "86500.0000",
+      "doc_if_div": "62000.00",
+      "doc_if_mul": "1.12"
+    },
+    {
+      "invoice_number": "2-مبيع:1031",
+      "exchange_rate": "0.005710",
+      "total_amount": "205.5600",
+      "total_document_amount": "61000.0000",
+      "doc_if_div": "36000.00",
+      "doc_if_mul": "1.17"
+    },
+    {
+      "invoice_number": "2-مبيع:10332",
+      "exchange_rate": "0.004255",
+      "total_amount": "119.1400",
+      "total_document_amount": "48000.0000",
+      "doc_if_div": "28000.00",
+      "doc_if_mul": "0.51"
+    },
+    {
+      "invoice_number": "2-مبيع:1041",
+      "exchange_rate": "0.005710",
+      "total_amount": "513.9000",
+      "total_document_amount": "93000.0000",
+      "doc_if_div": "90000.00",
+      "doc_if_mul": "2.93"
+    },
+    {
+      "invoice_number": "2-مبيع:10436",
+      "exchange_rate": "0.004255",
+      "total_amount": "127.6500",
+      "total_document_amount": "59000.0000",
+      "doc_if_div": "30000.00",
+      "doc_if_mul": "0.54"
+    },
+    {
+      "invoice_number": "2-مبيع:1044",
+      "exchange_rate": "0.005710",
+      "total_amount": "59.9500",
+      "total_document_amount": "17000.0000",
+      "doc_if_div": "10499.12",
+      "doc_if_mul": "0.34"
+    },
+    {
+      "invoice_number": "2-مبيع:1047",
+      "exchange_rate": "0.005710",
+      "total_amount": "28.5500",
+      "total_document_amount": "8500.0000",
+      "doc_if_div": "5000.00",
+      "doc_if_mul": "0.16"
+    },
+    {
+      "invoice_number": "2-مبيع:10475",
+      "exchange_rate": "0.004255",
+      "total_amount": "38.3000",
+      "total_document_amount": "13700.0000",
+      "doc_if_div": "9001.18",
+      "doc_if_mul": "0.16"
+    },
+    {
+      "invoice_number": "2-مبيع:10477",
+      "exchange_rate": "0.004255",
+      "total_amount": "25.5300",
+      "total_document_amount": "9000.0000",
+      "doc_if_div": "6000.00",
+      "doc_if_mul": "0.11"
+    },
+    {
+      "invoice_number": "2-مبيع:10479",
+      "exchange_rate": "0.004255",
+      "total_amount": "170.2000",
+      "total_document_amount": "60000.0000",
+      "doc_if_div": "40000.00",
+      "doc_if_mul": "0.72"
+    },
+    {
+      "invoice_number": "2-مبيع:10481",
+      "exchange_rate": "0.004255",
+      "total_amount": "531.8800",
+      "total_document_amount": "127500.0000",
+      "doc_if_div": "125001.18",
+      "doc_if_mul": "2.26"
+    }
+  ],
+  "5_audit_view_flags": [
+    {
+      "audit_flag": "ok",
+      "invoices": 36216
+    },
+    {
+      "audit_flag": "base_currency_ok",
+      "invoices": 21685
+    },
+    {
+      "audit_flag": "document_vs_derived_mismatch",
+      "invoices": 2021
+    },
+    {
+      "audit_flag": "missing_document_amount",
+      "invoices": 15
+    }
+  ],
+  "6_catalog_ratio": [
+    {
+      "currency_code": "OMR",
+      "lines": 10,
+      "avg_ratio": "0.0003",
+      "min_ratio": "0.0003",
+      "max_ratio": "0.0003"
+    },
+    {
+      "currency_code": "SAR",
+      "lines": 55586,
+      "avg_ratio": "1.0625",
+      "min_ratio": "0.0019",
+      "max_ratio": "666.6667"
+    },
+    {
+      "currency_code": "YER",
+      "lines": 87435,
+      "avg_ratio": "1.0072",
+      "min_ratio": "0.0001",
+      "max_ratio": "101.0000"
+    }
+  ],
+  "7_ledger_vs_invoice_tag": [
+    {
+      "inv_currency": "OMR",
+      "ledger_currency": "OMR",
+      "invoices": 2
+    },
+    {
+      "inv_currency": "SAR",
+      "ledger_currency": "SAR",
+      "invoices": 21685
+    },
+    {
+      "inv_currency": "YER",
+      "ledger_currency": "YER",
+      "invoices": 38235
+    }
+  ]
+}

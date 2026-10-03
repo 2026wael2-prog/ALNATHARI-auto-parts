@@ -4,6 +4,8 @@ import {
   getDisplayItemName,
   getDisplayItemCode,
   formatLocalDate,
+  documentFactor,
+  toDocumentTotal,
 } from '../../../core/utils';
 import { tafqeet } from '../../../core/utils/tafqeet';
 import { useInvoiceSettings } from '../../settings/settingsStore';
@@ -62,8 +64,10 @@ const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
     discount_amount: rawDiscount,
     tax_amount: rawTax,
     total_amount,
+    total_document_amount,
     paid_amount,
     currency_code = 'SAR',
+    exchange_rate,
     payment_method,
     branch_name,
     issuedBy,
@@ -131,6 +135,12 @@ const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
     }));
   }, [settingsCompany, invoiceCompany, invoiceSettings]);
 
+  // ⚠️ دلالة المبالغ (2026-10-02): كل مبالغ الفاتورة مخزَّنة بعملة الأساس (SAR)
+  // مطابقةً لـ Mizan.Bill.Total/BillItem.UnitPrice ⇒ تُحوَّل مرة واحدة هنا إلى
+  // عملة المستند حتى تظهر الفاتورة المطبوعة بأرقام العميل الحقيقية
+  // (مثال: 159.84 ر.س ⇒ 72,000 ر.ي).
+  const docFactor = documentFactor(currency_code, exchange_rate);
+
   // Items formatting
   const displayItems: InvoiceItemDisplay[] = (items || [])
     .filter((i: any) => i && (i.name || i.description || i.product?.name_ar))
@@ -140,20 +150,29 @@ const PrintableInvoice: React.FC<PrintableInvoiceProps> = ({
       sku: getDisplayItemCode(i, ''),
       part_number: i.part_number || i.product?.part_number || '',
       quantity: Number(i.quantity || 1),
-      price: Number(i.price ?? i.unit_price ?? 0),
-      discount: Number(i.discount || 0),
-      tax_amount: Number(i.tax_amount || 0),
-      total: Number(i.total ?? Number(i.price ?? i.unit_price ?? 0) * Number(i.quantity || 1)),
+      price: Number(i.price ?? i.unit_price ?? 0) * docFactor,
+      discount: Number(i.discount || 0) * docFactor,
+      tax_amount: Number(i.tax_amount || 0) * docFactor,
+      total:
+        Number(i.total ?? Number(i.price ?? i.unit_price ?? 0) * Number(i.quantity || 1)) *
+        docFactor,
     }));
 
-  // Calculations
-  const calculatedTotal = Number(total_amount || 0);
+  // Calculations (بعملة المستند)
+  const calculatedTotal = toDocumentTotal({
+    total_amount,
+    total_document_amount,
+    currency_code,
+    exchange_rate,
+  });
   const calculatedTax =
-    rawTax !== undefined ? Number(rawTax) : Math.round(calculatedTotal * (15 / 115) * 100) / 100;
+    rawTax !== undefined
+      ? Number(rawTax) * docFactor
+      : Math.round(calculatedTotal * (15 / 115) * 100) / 100;
   const calculatedSubtotal =
-    rawSubtotal !== undefined ? Number(rawSubtotal) : calculatedTotal - calculatedTax;
-  const calculatedDiscount = Number(rawDiscount || 0);
-  const calculatedPaid = Number(paid_amount || 0);
+    rawSubtotal !== undefined ? Number(rawSubtotal) * docFactor : calculatedTotal - calculatedTax;
+  const calculatedDiscount = Number(rawDiscount || 0) * docFactor;
+  const calculatedPaid = Number(paid_amount || 0) * docFactor;
   const remainingBalance = Math.max(0, calculatedTotal - calculatedPaid);
 
   const currencyUnit =

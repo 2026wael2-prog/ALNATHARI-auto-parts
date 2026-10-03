@@ -1,0 +1,125 @@
+{
+  "A_items_vs_base_vs_doc": [
+    {
+      "currency_code": "YER",
+      "invoices": 38243,
+      "avg_absdiff_vs_base": "0.00",
+      "avg_absdiff_vs_doc": "52670.58"
+    },
+    {
+      "currency_code": "OMR",
+      "invoices": 2,
+      "avg_absdiff_vs_base": "0.01",
+      "avg_absdiff_vs_doc": "119.66"
+    },
+    {
+      "currency_code": "SAR",
+      "invoices": 21692,
+      "avg_absdiff_vs_base": "0.00",
+      "avg_absdiff_vs_doc": "0.00"
+    }
+  ],
+  "B_same_product_price": [
+    {
+      "sku": "1011538",
+      "avg_price_on_sar": "1.00",
+      "avg_price_on_yer": "55.05",
+      "yer_to_sar_ratio": "55.05"
+    },
+    {
+      "sku": "1017046",
+      "avg_price_on_sar": "0.50",
+      "avg_price_on_yer": "18.78",
+      "yer_to_sar_ratio": "37.56"
+    },
+    {
+      "sku": "1014607",
+      "avg_price_on_sar": "3.00",
+      "avg_price_on_yer": "77.52",
+      "yer_to_sar_ratio": "25.84"
+    },
+    {
+      "sku": "1017588",
+      "avg_price_on_sar": "0.60",
+      "avg_price_on_yer": "12.50",
+      "yer_to_sar_ratio": "20.83"
+    },
+    {
+      "sku": "1019052",
+      "avg_price_on_sar": "10.00",
+      "avg_price_on_yer": "204.55",
+      "yer_to_sar_ratio": "20.45"
+    },
+    {
+      "sku": "1009229",
+      "avg_price_on_sar": "3.50",
+      "avg_price_on_yer": "70.81",
+      "yer_to_sar_ratio": "20.23"
+    },
+    {
+      "sku": "1007531",
+      "avg_price_on_sar": "50.00",
+      "avg_price_on_yer": "888.00",
+      "yer_to_sar_ratio": "17.76"
+    },
+    {
+      "sku": "1009854",
+      "avg_price_on_sar": "1.00",
+      "avg_price_on_yer": "14.54",
+      "yer_to_sar_ratio": "14.54"
+    },
+    {
+      "sku": "1018380",
+      "avg_price_on_sar": "11.67",
+      "avg_price_on_yer": "168.52",
+      "yer_to_sar_ratio": "14.44"
+    },
+    {
+      "sku": "1007046",
+      "avg_price_on_sar": "45.00",
+      "avg_price_on_yer": "500.00",
+      "yer_to_sar_ratio": "11.11"
+    },
+    {
+      "sku": "1013605",
+      "avg_price_on_sar": "5.00",
+      "avg_price_on_yer": "54.61",
+      "yer_to_sar_ratio": "10.92"
+    },
+    {
+      "sku": "1011958",
+      "avg_price_on_sar": "6.00",
+      "avg_price_on_yer": "53.62",
+      "yer_to_sar_ratio": "8.94"
+    },
+    {
+      "sku": "1012254",
+      "avg_price_on_sar": "0.83",
+      "avg_price_on_yer": "6.84",
+      "yer_to_sar_ratio": "8.21"
+    },
+    {
+      "sku": "1005673",
+      "avg_price_on_sar": "3.13",
+      "avg_price_on_yer": "22.87",
+      "yer_to_sar_ratio": "7.32"
+    },
+    {
+      "sku": "1021918",
+      "avg_price_on_sar": "3.38",
+      "avg_price_on_yer": "23.30",
+      "yer_to_sar_ratio": "6.90"
+    }
+  ],
+  "C_counts": [
+    {
+      "sar_doc_neq_base": 0,
+      "sar_huge_ge50k": 5,
+      "yer_small_doc_lt1000": 86,
+      "yer_matches_neither": 2020,
+      "yer_rate_ge_1": 0,
+      "yer_rate_ambiguous": 1,
+      "missing_doc_amount": 0
+    }
+  ]
+}

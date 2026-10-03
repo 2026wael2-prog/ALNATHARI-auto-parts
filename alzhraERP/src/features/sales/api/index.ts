@@ -56,6 +56,7 @@ export const salesApi = {
         invoice_number,
         issue_date,
         total_amount,
+        total_document_amount,
         status,
         type,
         payment_method,

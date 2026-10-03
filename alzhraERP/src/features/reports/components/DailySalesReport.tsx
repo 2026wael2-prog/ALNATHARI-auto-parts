@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../auth/store';
 import { reportsApi } from '../api';
-import { formatCurrency, cn, formatLocalDate, toBaseCurrency } from '../../../core/utils';
+import { formatCurrency, formatDocumentAmount, cn, formatLocalDate } from '../../../core/utils';
 import {
   BarChart3,
   TrendingUp,
@@ -66,13 +66,10 @@ const useDailySalesReport = (days = 30) => {
         const date = inv.issue_date?.split('T')[0] || inv.issue_date;
         if (!dailyMap[date]) dailyMap[date] = { date, total: 0, count: 0 };
 
-        // التحويل المالي المعتمد للعملة الأساسية (SAR) باستخدام toBaseCurrency
-        // لمنع تضخيم العملات ذات المعامل العكسي (مثل الريال اليمني YER)
-        const convertedAmount = toBaseCurrency({
-          total_amount: inv.total_amount,
-          currency_code: inv.currency_code,
-          exchange_rate: inv.exchange_rate,
-        });
+        // ⚠️ `total_amount` مخزَّن بعملة الأساس (SAR) مطابقةً لـ Mizan.Bill.Total
+        // ⇒ لا حاجة لأي تحويل. كان تمريره على `toBaseCurrency` يقسم على سعر
+        // صرف اليمني (0.00222) فيضخّم مبيعات اليمني نحو 415 مرة.
+        const convertedAmount = Number(inv.total_amount) || 0;
 
         const isReturn = inv.type === 'sale_return' || inv.type === 'return_sale';
         if (isReturn) {
@@ -100,11 +97,7 @@ const useDailySalesReport = (days = 30) => {
         invoices: (invoices || [])
           .filter(inv => inv.status !== 'void' && inv.status !== 'draft')
           .map(inv => {
-            const convertedAmount = toBaseCurrency({
-              total_amount: inv.total_amount,
-              currency_code: inv.currency_code,
-              exchange_rate: inv.exchange_rate,
-            });
+            const convertedAmount = Number(inv.total_amount) || 0;
             const isReturn = inv.type === 'sale_return' || inv.type === 'return_sale';
             return {
               ...inv,
@@ -203,7 +196,12 @@ const DailySalesReport: React.FC = () => {
               </span>
               {isForeign && (
                 <span dir="ltr" className="font-mono text-[10px] text-gray-400">
-                  ({formatCurrency(Number(row.total_amount) || 0, row.currency_code || undefined)})
+                  (
+                  {formatDocumentAmount(
+                    Number(row.total_amount) || 0,
+                    row.currency_code,
+                    row.exchange_rate
+                  )})
                 </span>
               )}
             </div>

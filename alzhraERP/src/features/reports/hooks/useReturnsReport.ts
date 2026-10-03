@@ -5,7 +5,6 @@ import { useSalesReturns } from '../../sales/hooks/useSalesReturns';
 import { usePurchaseReturns } from '../../purchases/hooks/usePurchaseReturns';
 import { exportReturnsToExcel } from '../../../core/utils/returnsExcelExporter';
 import { formatLocalDate } from '../../../core/utils/dateUtils';
-import { toBaseCurrency } from '../../../core/utils';
 import {
   normalizeSalesReturn,
   normalizePurchaseReturn,
@@ -175,13 +174,10 @@ export const useReturnsReport = () => {
     });
   }, [normalizedPurchaseReturns, filters.status, filters.reason]);
 
-  const getRowBaseAmount = (r: ReturnReportRow): number => {
-    return toBaseCurrency({
-      amount: Number(r.total_amount) || 0,
-      currency_code: r.currency_code ?? null,
-      exchange_rate: Number(r.exchange_rate) || 1,
-    });
-  };
+  // ⚠️ `total_amount` في جداول المستندات مخزَّن بعملة الأساس (SAR) مطابقةً
+  // لـ Mizan ⇒ لا تحويل. كان `toBaseCurrency` يقسم على سعر صرف اليمني
+  // فيضخّم إجمالي المرتجعات نحو 415 مرة.
+  const getRowBaseAmount = (r: ReturnReportRow): number => Number(r.total_amount) || 0;
 
   // Calculate statistics
   const stats = useMemo(() => {

@@ -28,7 +28,14 @@ import InvoiceItemsTable from './InvoiceItemsTable';
 import InvoiceActionButtons from './InvoiceActionButtons';
 import { ErrorBoundary } from '@/core/components/ErrorBoundary';
 import { PdfCaptureHost } from '@/core/components/PdfCaptureHost';
-import { formatCurrency, cn, getDisplayItemName } from '@/core/utils';
+import {
+  formatDocumentAmount,
+  formatDocumentWithBase,
+  toDocumentAmount,
+  toDocumentTotal,
+  cn,
+  getDisplayItemName,
+} from '@/core/utils';
 
 interface Props {
   invoiceId: string | null;
@@ -37,7 +44,7 @@ interface Props {
 }
 
 const InvoiceDetailsModal: React.FC<Props> = ({ invoiceId, onClose, onReturn }) => {
-  const { data: invoice, isLoading } = useInvoiceDetails(invoiceId);
+  const { data: invoice, isLoading, isError } = useInvoiceDetails(invoiceId);
   const { data: company } = useCompany();
   const { user } = useAuthStore();
   const headerConfig = useDocumentHeaderSettings();
@@ -93,13 +100,17 @@ const InvoiceDetailsModal: React.FC<Props> = ({ invoiceId, onClose, onReturn }) 
       items: (invoice.invoice_items || []).map((i: InvoiceDetailItem) => ({
         name: getDisplayItemName(i),
         quantity: i.quantity,
-        unitPrice: i.unit_price,
-        total: i.total,
+        unitPrice: toDocumentAmount(i.unit_price, invoice.currency_code, invoice.exchange_rate),
+        total: toDocumentAmount(i.total, invoice.currency_code, invoice.exchange_rate),
       })),
-      subtotal:
+      subtotal: toDocumentAmount(
         ((invoice as Record<string, unknown>).subtotal as number) ||
         invoice.total_amount - (((invoice as Record<string, unknown>).tax_amount as number) || 0),
-      totalAmount: invoice.total_amount,
+        invoice.currency_code,
+        invoice.exchange_rate
+      ),
+      totalAmount: toDocumentTotal(invoice),
+      currency: invoice.currency_code ?? 'SAR',
     });
     setShowAlert({ type: 'success', message: 'تم تصدير ملف Excel بنجاح' });
     setTimeout(() => {
@@ -152,13 +163,17 @@ const InvoiceDetailsModal: React.FC<Props> = ({ invoiceId, onClose, onReturn }) 
         items: (invoice.invoice_items || []).map((i: InvoiceDetailItem) => ({
           name: getDisplayItemName(i),
           quantity: i.quantity,
-          unitPrice: i.unit_price,
-          total: i.total,
+          unitPrice: toDocumentAmount(i.unit_price, invoice.currency_code, invoice.exchange_rate),
+          total: toDocumentAmount(i.total, invoice.currency_code, invoice.exchange_rate),
         })),
-        subtotal:
+        subtotal: toDocumentAmount(
           ((invoice as Record<string, unknown>).subtotal as number) ||
           invoice.total_amount - (((invoice as Record<string, unknown>).tax_amount as number) || 0),
-        totalAmount: invoice.total_amount,
+          invoice.currency_code,
+          invoice.exchange_rate
+        ),
+        totalAmount: toDocumentTotal(invoice),
+        currency: invoice.currency_code ?? 'SAR',
       };
 
       const blob = await generateInvoiceExcelBlob(data);
@@ -278,6 +293,16 @@ const InvoiceDetailsModal: React.FC<Props> = ({ invoiceId, onClose, onReturn }) 
           </div>
         )}
 
+        {/* تنبيه: عند فشل جلب التفاصيل تُعرض بيانات القوائم المخزّنة مؤقتاً — يجب ألا يمرّ ذلك صامتاً */}
+        {isError && invoice != null && (
+          <div className="mb-3 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-xs font-bold text-amber-700 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-400">
+            <AlertTriangle size={16} />
+            <span>
+              تعذّر تحديث بيانات الفاتورة من الخادم — المعروض من الذاكرة المؤقتة وقد يكون ناقصاً.
+            </span>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="flex flex-col items-center justify-center gap-2 p-16 text-center">
             <Loader2 className="animate-spin text-blue-500" size={28} />
@@ -383,12 +408,16 @@ const InvoiceDetailsModal: React.FC<Props> = ({ invoiceId, onClose, onReturn }) 
                       <span className="text-[10px] font-bold uppercase">المبلغ الإجمالي</span>
                     </div>
                     <p className="font-mono text-sm font-black text-blue-700 dark:text-blue-300">
-                      {formatCurrency(invoice.total_amount, invoice.currency_code || 'SAR')}
+                      {formatDocumentWithBase(invoice)}
                     </p>
                     {paymentInfo && paymentInfo.remaining > 0 && (
                       <p className="mt-0.5 font-mono text-[10px] font-bold text-rose-600">
                         متبقي:{' '}
-                        {formatCurrency(paymentInfo.remaining, invoice.currency_code || 'SAR')}
+                        {formatDocumentAmount(
+                          paymentInfo.remaining,
+                          invoice.currency_code,
+                          invoice.exchange_rate
+                        )}
                       </p>
                     )}
                   </div>

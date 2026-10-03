@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../auth/store';
 import { reportsApi } from '../api';
-import { toBaseCurrency, formatLocalDate } from '../../../core/utils';
+import { formatLocalDate } from '../../../core/utils';
 import { bucketForDays as bucketForOverdueDays } from '../../debts/lib/aging';
 import { daysDiffLocal } from '../../../core/utils/dateBucket';
 import { type AgingPartyRow, type DebtAgingData, AGING_LABELS } from '../types/debtAging';
@@ -33,15 +33,10 @@ export const useDebtAging = () => {
         const remainingRaw = (inv.total_amount || 0) - (inv.paid_amount || 0);
         if (remainingRaw <= 0) return;
 
-        const invWithCurrency = inv as unknown as {
-          currency_code?: string | null;
-          exchange_rate?: number | null;
-        };
-        const remaining = toBaseCurrency({
-          amount: remainingRaw,
-          currency_code: invWithCurrency.currency_code ?? null,
-          exchange_rate: invWithCurrency.exchange_rate ?? null,
-        });
+        // ⚠️ `total_amount` و`paid_amount` مخزَّنان بعملة الأساس (SAR) مطابقةً
+        // لـ Mizan.Bill.Total ⇒ المتبقي أساسي بلا تحويل. كان تمريره على
+        // `toBaseCurrency` يقسم على سعر صرف اليمني فيضخّم أعمار الديون ~415 مرة.
+        const remaining = remainingRaw;
 
         const partyId = inv.party_id ?? '';
         const partyName = inv.parties?.name || 'غير محدد';

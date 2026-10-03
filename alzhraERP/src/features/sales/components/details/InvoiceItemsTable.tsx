@@ -1,9 +1,10 @@
 import React from 'react';
 import {
-  formatCurrency,
   formatNumberDisplay,
   getDisplayItemName,
   getDisplayItemCode,
+  formatDocumentAmount,
+  formatDocumentWithBase,
 } from '../../../../core/utils';
 import { Package } from 'lucide-react';
 
@@ -22,8 +23,7 @@ const InvoiceItemsTable: React.FC<Props> = ({ invoice }) => {
           لا توجد أصناف مسجلة في بنود هذه الفاتورة
         </p>
         <p className="mt-0.5 text-[11px] text-slate-400">
-          تم قيد الفاتورة بمبلغ إجمالي قدره{' '}
-          {formatCurrency(invoice?.total_amount || 0, invoice?.currency_code || 'SAR')}
+          تم قيد الفاتورة بمبلغ إجمالي قدره {formatDocumentWithBase(invoice)}
         </p>
       </div>
     );
@@ -102,12 +102,17 @@ const InvoiceItemsTable: React.FC<Props> = ({ invoice }) => {
                     </span>
                   </td>
                   <td className="border-r border-slate-200 px-3 py-2 text-left font-mono dark:border-slate-700">
-                    {formatCurrency(item.unit_price, invoice.currency_code || 'SAR')}
+                    {formatDocumentAmount(
+                      item.unit_price,
+                      invoice.currency_code,
+                      invoice.exchange_rate
+                    )}
                   </td>
                   <td className="border-r border-slate-200 px-3 py-2 text-left font-mono font-bold text-emerald-600 dark:border-slate-700 dark:text-emerald-400">
-                    {formatCurrency(
+                    {formatDocumentAmount(
                       item.total || item.quantity * item.unit_price,
-                      invoice.currency_code || 'SAR'
+                      invoice.currency_code,
+                      invoice.exchange_rate
                     )}
                   </td>
                   <td className="px-3 py-2 text-center">
@@ -132,14 +137,14 @@ const InvoiceItemsTable: React.FC<Props> = ({ invoice }) => {
           <div className="flex justify-between text-slate-600 dark:text-slate-300">
             <span>مجموع البنود:</span>
             <span dir="ltr" className="font-mono font-bold">
-              {formatCurrency(displaySubtotal, invoice.currency_code || 'SAR')}
+              {formatDocumentAmount(displaySubtotal, invoice.currency_code, invoice.exchange_rate)}
             </span>
           </div>
           {Number(invoice.tax_amount) > 0 && (
             <div className="flex justify-between text-slate-600 dark:text-slate-300">
               <span>ضريبة القيمة المضافة:</span>
               <span dir="ltr" className="font-mono font-bold text-amber-600">
-                {formatCurrency(invoice.tax_amount, invoice.currency_code || 'SAR')}
+                {formatDocumentAmount(invoice.tax_amount, invoice.currency_code, invoice.exchange_rate)}
               </span>
             </div>
           )}
@@ -147,14 +152,14 @@ const InvoiceItemsTable: React.FC<Props> = ({ invoice }) => {
             <div className="flex justify-between text-rose-600">
               <span>الخصم:</span>
               <span dir="ltr" className="font-mono font-bold">
-                -{formatCurrency(invoice.discount_amount, invoice.currency_code || 'SAR')}
+                -{formatDocumentAmount(invoice.discount_amount, invoice.currency_code, invoice.exchange_rate)}
               </span>
             </div>
           )}
           <div className="flex justify-between border-t border-slate-200 pt-1.5 text-sm font-black text-slate-900 dark:border-slate-700 dark:text-slate-100">
             <span>الصافي النهائي:</span>
             <span dir="ltr" className="font-mono text-emerald-600 dark:text-emerald-400">
-              {formatCurrency(invoice.total_amount, invoice.currency_code || 'SAR')}
+              {formatDocumentWithBase(invoice)}
             </span>
           </div>
         </div>

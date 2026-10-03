@@ -23,6 +23,18 @@ export {
 
 export type { CurrencyCode, CurrencyConversionParams } from './currencyUtils';
 
+// Document money semantics (base vs document currency) — see documentMoney.ts
+export {
+  BASE_CURRENCY,
+  documentFactor,
+  toDocumentAmount,
+  toDocumentTotal,
+  formatDocumentAmount,
+  formatDocumentTotal,
+  formatBaseAmount,
+  formatDocumentWithBase,
+} from './documentMoney';
+
 // Validation utilities
 export {
   validateInvoiceItems,

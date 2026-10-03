@@ -1,7 +1,7 @@
 import React from 'react';
 import ExcelTable from '../../../ui/common/ExcelTable';
 import MicroListItem from '../../../ui/common/MicroListItem';
-import { formatCurrency } from '../../../core/utils';
+import { formatDocumentAmount, formatBaseAmount } from '../../../core/utils';
 import { Eye, Trash2, ArrowLeftRight, ShoppingCart, Printer, Package } from 'lucide-react';
 import { useDeletePurchase } from '../hooks';
 import type { MatchedInvoiceItem } from '@/core/types/invoiceSearch';
@@ -28,8 +28,11 @@ interface PurchasesTableProps {
 type DeletePurchase = (id: string) => void;
 
 const getSupplierName = (row: PurchaseTableRow): string => row.party?.name ?? 'مورد عام';
-const getBaseAmount = (row: PurchaseTableRow): number =>
-  row.currency_code === 'SAR' ? row.total_amount : row.total_amount * (row.exchange_rate ?? 1);
+// ⚠️ `total_amount` مخزَّن بعملة الأساس (SAR) مطابقةً لـ Mizan.Bill.Total
+// ⇒ لا حاجة لأي تحويل للحصول على مبلغ الأساس، والتحويل إلى عملة المستند
+// يمرّ عبر `formatDocumentAmount`. (كان الكود يضرب الأساس في سعر الصرف
+// فيُنتج رقماً خاطئاً بمقدار 410 مرة لليمني.)
+const getBaseAmount = (row: PurchaseTableRow): number => row.total_amount;
 const hasForeignCurrency = (row: PurchaseTableRow): boolean =>
   row.currency_code !== null && row.currency_code !== '' && row.currency_code !== 'SAR';
 
@@ -69,12 +72,16 @@ const MobilePurchaseList = ({
                   <Printer size={16} />
                 </button>
                 <p dir="ltr" className="font-mono text-sm font-bold">
-                  {formatCurrency(item.total_amount, item.currency_code ?? undefined)}
+                  {formatDocumentAmount(
+                    item.total_amount,
+                    item.currency_code,
+                    item.exchange_rate
+                  )}
                 </p>
               </div>
               {hasForeignCurrency(item) && (
                 <p dir="ltr" className="text-xs font-bold text-blue-500">
-                  {formatCurrency(getBaseAmount(item))}
+                  {formatBaseAmount(getBaseAmount(item))}
                 </p>
               )}
             </div>
@@ -184,11 +191,11 @@ const totalColumn = {
         dir="ltr"
         className={`font-mono text-sm font-bold leading-none md:text-base ${row.type === 'purchase_return' ? 'text-rose-600' : 'text-emerald-600'}`}
       >
-        {formatCurrency(row.total_amount, row.currency_code ?? undefined)}
+        {formatDocumentAmount(row.total_amount, row.currency_code, row.exchange_rate)}
       </span>
       {hasForeignCurrency(row) && (
         <span dir="ltr" className="mt-1 text-xs font-bold text-blue-500">
-          {formatCurrency(getBaseAmount(row))}
+          {formatBaseAmount(getBaseAmount(row))}
         </span>
       )}
     </div>

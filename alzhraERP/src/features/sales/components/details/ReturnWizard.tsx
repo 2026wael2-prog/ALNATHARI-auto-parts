@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { RotateCcw } from 'lucide-react';
 import {
-  formatCurrency,
   parseNumberFlexible,
   ensureLatinDigits,
   sanitizeNumericInput,
 } from '../../../../core/utils/currencyUtils';
+import { formatDocumentAmount } from '../../../../core/utils/documentMoney';
 import type { Invoice, InvoiceItem } from '../../../returns/types';
 import { getItemDisplayName } from '../../../returns/utils/returnHelpers';
 
@@ -100,7 +100,7 @@ const ReturnWizard: React.FC<Props> = ({ invoice, onReturn, onCancel, onAlert })
                 </p>
                 <p className="text-xs text-gray-500" dir="ltr">
                   المتوفر: {ensureLatinDigits(item.quantity)} ×{' '}
-                  {formatCurrency(item.unit_price, invoice.currency_code || 'SAR')}
+                  {formatDocumentAmount(item.unit_price, invoice.currency_code, invoice.exchange_rate)}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -127,9 +127,10 @@ const ReturnWizard: React.FC<Props> = ({ invoice, onReturn, onCancel, onAlert })
               </div>
               <div className="w-24 text-left">
                 <span className="font-mono text-sm font-bold text-rose-600" dir="ltr">
-                  {formatCurrency(
+                  {formatDocumentAmount(
                     (returnItems[item.id] || 0) * item.unit_price,
-                    invoice.currency_code ?? 'SAR'
+                    invoice.currency_code,
+                    invoice.exchange_rate
                   )}
                 </span>
               </div>
@@ -139,7 +140,7 @@ const ReturnWizard: React.FC<Props> = ({ invoice, onReturn, onCancel, onAlert })
         <div className="mt-3 flex items-center justify-between border-t border-rose-200 pt-3 dark:border-rose-700">
           <span className="font-bold text-rose-700 dark:text-rose-400">إجمالي الإرجاع:</span>
           <span className="font-mono text-xl font-bold text-rose-600" dir="ltr">
-            {formatCurrency(totalReturnAmount, invoice.currency_code ?? 'SAR')}
+            {formatDocumentAmount(totalReturnAmount, invoice.currency_code, invoice.exchange_rate)}
           </span>
         </div>
         <div className="mt-4 flex w-full gap-2">

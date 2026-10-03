@@ -7,7 +7,7 @@ import {
   type SalesReturn,
 } from '../../hooks/useSalesReturns';
 import { useDeleteInvoice } from '../../hooks/index';
-import { formatCurrency, sumInBaseCurrency } from '../../../../core/utils';
+import { formatCurrency, formatDocumentAmount } from '../../../../core/utils';
 import Button from '../../../../ui/base/Button';
 import { exportToPDF } from '../../../../core/utils/pdfExporter';
 import { formatLocalDate } from '../../../../core/utils/dateUtils';
@@ -130,13 +130,13 @@ const SalesReturnsView: React.FC<SalesReturnsViewProps> = ({
     clearFilters,
     hasActiveFilters,
   } = useReturnsListView(normalizedReturns, 'sales', filteredReturns => {
-    // Guard the display total: a corrupted historical exchange rate must not
-    // crash the returns view — it is logged by sumInBaseCurrency/toBaseCurrency.
-    try {
-      return sumInBaseCurrency(filteredReturns as SalesReturnRow[]);
-    } catch {
-      return 0;
-    }
+    // ⚠️ `total_amount` مخزَّن بعملة الأساس (SAR) مطابقةً لـ Mizan.Bill.Total
+    // ⇒ الجمع مباشر. كان `sumInBaseCurrency` يقسم على سعر صرف اليمني فيضخّم
+    // إجمالي المرتجعات نحو 415 مرة.
+    return filteredReturns.reduce<number>(
+      (sum, row) => sum + (Number(row.total_amount) || 0),
+      0
+    );
   });
 
   // Sync initial search term
@@ -297,7 +297,12 @@ const SalesReturnsView: React.FC<SalesReturnsViewProps> = ({
                 accessor: (row: SalesReturnRow) => (
                   <div className="font-bold">
                     <span className="text-red-500">
-                      -{formatCurrency(Number(row.total_amount), row.currency_code || 'SAR')}
+                      -
+                      {formatDocumentAmount(
+                        Number(row.total_amount),
+                        row.currency_code,
+                        row.exchange_rate
+                      )}
                     </span>
                   </div>
                 ),

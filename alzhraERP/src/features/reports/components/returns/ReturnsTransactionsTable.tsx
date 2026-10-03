@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency, toBaseCurrency } from '../../../../core/utils';
+import { formatBaseAmount, formatDocumentAmount } from '../../../../core/utils';
 import type { ReportView, ReturnsType } from '../../hooks/useReturnsReport';
 import type { ReturnReportRow } from '../../hooks/returnsNormalizers';
 
@@ -52,19 +52,11 @@ const ReturnAmountCell: React.FC<{ item: ReturnReportRow }> = ({ item }) => {
   return (
     <>
       <span className="font-mono text-xs font-bold text-slate-800 dark:text-white">
-        {formatCurrency(Number(item.total_amount ?? 0), code ?? 'SAR')}
+        {formatDocumentAmount(Number(item.total_amount ?? 0), code, item.exchange_rate)}
       </span>
       {isForeign ? (
         <span className="block font-mono text-[10px] text-slate-400">
-          ≈{' '}
-          {formatCurrency(
-            toBaseCurrency({
-              amount: Number(item.total_amount ?? 0),
-              currency_code: code,
-              exchange_rate: Number(item.exchange_rate ?? 1),
-            }),
-            'SAR'
-          )}
+          ≈ {formatBaseAmount(Number(item.total_amount ?? 0))}
         </span>
       ) : null}
     </>

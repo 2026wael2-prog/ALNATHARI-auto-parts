@@ -1,54 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { salesApi, type InvoiceWithDetails } from '@/features/sales/api';
 import { useAuthStore } from '@/features/auth/store';
-
-// Shape of a list-level invoice row (partial, from cache)
-interface CachedInvoiceRow {
-  id?: string;
-  invoice_number?: string;
-  invoiceNumber?: string;
-  total_amount?: number;
-  total?: number;
-  issue_date?: string;
-  date?: string;
-  currency_code?: string;
-  currencyCode?: string;
-  exchange_rate?: number;
-  exchangeRate?: number;
-  status?: string;
-  type?: string;
-  payment_method?: string;
-  paymentMethod?: string;
-  party_id?: string;
-  party?: { id?: string; name?: string };
-  parties?: { name?: string };
-  customerName?: string;
-  invoice_items?: InvoiceWithDetails['invoice_items'];
-  payment_allocations?: InvoiceWithDetails['payment_allocations'];
-}
-
-/** Extract a single field from cache row, preferring snake_case over camelCase */
-const pickStr = (a?: string, b?: string, fallback = ''): string => a ?? b ?? fallback;
-const pickNum = (a?: number, b?: number, fallback = 0): number => a ?? b ?? fallback;
-
-const mapFoundToDetails = (found: CachedInvoiceRow): InvoiceWithDetails => ({
-  ...(found as unknown as InvoiceWithDetails),
-  id: found.id ?? '',
-  invoice_number: pickStr(found.invoice_number, found.invoiceNumber),
-  total_amount: pickNum(found.total_amount, found.total),
-  issue_date: pickStr(found.issue_date, found.date),
-  currency_code: pickStr(found.currency_code, found.currencyCode, 'SAR'),
-  exchange_rate: pickNum(found.exchange_rate, found.exchangeRate, 1),
-  status: found.status ?? 'draft',
-  type: found.type ?? 'sale',
-  payment_method: pickStr(found.payment_method, found.paymentMethod, 'cash'),
-  parties: {
-    id: found.party_id ?? found.party?.id ?? '',
-    name: found.parties?.name ?? found.party?.name ?? found.customerName ?? 'عميل نقدي',
-  } as InvoiceWithDetails['parties'],
-  invoice_items: found.invoice_items ?? [],
-  payment_allocations: found.payment_allocations ?? [],
-});
+import { mapCachedInvoiceRow, type CachedInvoiceRow } from './invoiceDetailsPlaceholder';
 
 const searchList = (
   list: CachedInvoiceRow[] | undefined,
@@ -56,7 +9,7 @@ const searchList = (
 ): InvoiceWithDetails | undefined => {
   if (!Array.isArray(list)) return undefined;
   const found = list.find(inv => inv.id === invoiceId);
-  return found != null ? mapFoundToDetails(found) : undefined;
+  return found != null ? mapCachedInvoiceRow(found) : undefined;
 };
 
 export const useInvoiceDetails = (

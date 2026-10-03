@@ -1,0 +1,706 @@
+{
+  "1_huge_SAR_ledger": [
+    {
+      "invoice_number": "2-مبيع:40443",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "138043.0000",
+      "total_document_amount": "138043.0000",
+      "ledger_cur": "SAR",
+      "ledger_foreign": "138043.00",
+      "acct_code": "135"
+    },
+    {
+      "invoice_number": "2-مبيع:64254",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "130000.0000",
+      "total_document_amount": "130000.0000",
+      "ledger_cur": "SAR",
+      "ledger_foreign": "130000.00",
+      "acct_code": "135"
+    },
+    {
+      "invoice_number": "2-مبيع:24373",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "60110.0000",
+      "total_document_amount": "60110.0000",
+      "ledger_cur": "SAR",
+      "ledger_foreign": "60110.00",
+      "acct_code": "121563"
+    },
+    {
+      "invoice_number": "2-مبيع:61964",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "60000.0000",
+      "total_document_amount": "60000.0000",
+      "ledger_cur": "SAR",
+      "ledger_foreign": "60000.00",
+      "acct_code": "135"
+    },
+    {
+      "invoice_number": "2-مبيع:40464",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "53544.0000",
+      "total_document_amount": "53544.0000",
+      "ledger_cur": "SAR",
+      "ledger_foreign": "53544.00",
+      "acct_code": "135"
+    }
+  ],
+  "2_invoice_64254": [
+    {
+      "invoice_number": "2-مبيع:64254",
+      "currency_code": "SAR",
+      "exchange_rate": "1.000000",
+      "total_amount": "130000.0000",
+      "total_document_amount": "130000.0000",
+      "issue_date": "2026-09-16",
+      "status": "posted",
+      "created_at": "2026-09-16 00:00:00+00",
+      "updated_at": "2026-09-27 18:14:29.777148+00"
+    }
+  ],
+  "3_mismatch_ledger_check": [
+    {
+      "mismatch_invoices": 2020,
+      "doc_backed_by_ledger": 2020,
+      "doc_not_in_ledger": 0
+    }
+  ],
+  "4_OMR_detail": [
+    {
+      "invoice_number": "2-مبيع:45862",
+      "currency_code": "OMR",
+      "exchange_rate": "0.002778",
+      "total_amount": "0.1900",
+      "total_document_amount": "70.0000",
+      "issue_date": "2024-11-19"
+    },
+    {
+      "invoice_number": "2-مبيع:61829",
+      "currency_code": "OMR",
+      "exchange_rate": "0.002778",
+      "total_amount": "0.4700",
+      "total_document_amount": "170.0000",
+      "issue_date": "2026-06-26"
+    }
+  ],
+  "5_ambiguous_rate": [
+    {
+      "invoice_number": "2-مبيع:14030",
+      "currency_code": "YER",
+      "exchange_rate": "0.222200",
+      "total_amount": "2222.0000",
+      "total_document_amount": "10000.0000",
+      "issue_date": "2021-12-12"
+    }
+  ],
+  "6_small_doc_list": [
+    {
+      "invoice_number": "2-مبيع:31463",
+      "exchange_rate": "0.002940",
+      "total_amount": "2.7900",
+      "total_document_amount": "950.0000",
+      "issue_date": "2023-06-19"
+    },
+    {
+      "invoice_number": "2-مبيع:12798",
+      "exchange_rate": "0.002500",
+      "total_amount": "2.2500",
+      "total_document_amount": "900.0000",
+      "issue_date": "2021-11-04"
+    },
+    {
+      "invoice_number": "2-مبيع:7776",
+      "exchange_rate": "0.004348",
+      "total_amount": "3.9100",
+      "total_document_amount": "900.0000",
+      "issue_date": "2021-03-06"
+    },
+    {
+      "invoice_number": "2-مبيع:18727",
+      "exchange_rate": "0.003125",
+      "total_amount": "2.5000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2022-05-06"
+    },
+    {
+      "invoice_number": "2-مبيع:9106",
+      "exchange_rate": "0.004255",
+      "total_amount": "3.4000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2021-05-02"
+    },
+    {
+      "invoice_number": "2-مبيع:157",
+      "exchange_rate": "0.006670",
+      "total_amount": "5.3400",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-02-22"
+    },
+    {
+      "invoice_number": "2-مبيع:2298",
+      "exchange_rate": "0.005000",
+      "total_amount": "4.0000",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-07-10"
+    },
+    {
+      "invoice_number": "2-مبيع:4361",
+      "exchange_rate": "0.004545",
+      "total_amount": "3.6400",
+      "total_document_amount": "800.0000",
+      "issue_date": "2020-10-31"
+    },
+    {
+      "invoice_number": "2-مبيع:33968",
+      "exchange_rate": "0.002670",
+      "total_amount": "2.0300",
+      "total_document_amount": "762.0000",
+      "issue_date": "2023-09-05"
+    },
+    {
+      "invoice_number": "2-مبيع:31945",
+      "exchange_rate": "0.002940",
+      "total_amount": "2.0600",
+      "total_document_amount": "700.0000",
+      "issue_date": "2023-07-09"
+    },
+    {
+      "invoice_number": "2-مبيع:16273",
+      "exchange_rate": "0.003125",
+      "total_amount": "2.1900",
+      "total_document_amount": "700.0000",
+      "issue_date": "2022-02-18"
+    },
+    {
+      "invoice_number": "2-مبيع:63675",
+      "exchange_rate": "0.002220",
+      "total_amount": "1.5500",
+      "total_document_amount": "700.0000",
+      "issue_date": "2026-08-27"
+    },
+    {
+      "invoice_number": "2-مبيع:12896",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.8200",
+      "total_document_amount": "620.0000",
+      "issue_date": "2021-11-07"
+    },
+    {
+      "invoice_number": "2-مبيع:12589",
+      "exchange_rate": "0.002703",
+      "total_amount": "1.6200",
+      "total_document_amount": "600.0000",
+      "issue_date": "2021-10-30"
+    },
+    {
+      "invoice_number": "2-مبيع:24995",
+      "exchange_rate": "0.003230",
+      "total_amount": "1.9400",
+      "total_document_amount": "600.0000",
+      "issue_date": "2022-11-19"
+    },
+    {
+      "invoice_number": "2-مبيع:6808",
+      "exchange_rate": "0.004348",
+      "total_amount": "1.5200",
+      "total_document_amount": "550.0000",
+      "issue_date": "2021-02-01"
+    },
+    {
+      "invoice_number": "2-مبيع:16795",
+      "exchange_rate": "0.003125",
+      "total_amount": "1.7200",
+      "total_document_amount": "550.0000",
+      "issue_date": "2022-03-03"
+    },
+    {
+      "invoice_number": "2-مبيع:16939",
+      "exchange_rate": "0.003125",
+      "total_amount": "1.6900",
+      "total_document_amount": "540.0000",
+      "issue_date": "2022-03-06"
+    },
+    {
+      "invoice_number": "2-مبيع:32285",
+      "exchange_rate": "0.002670",
+      "total_amount": "1.3600",
+      "total_document_amount": "511.0000",
+      "issue_date": "2023-07-17"
+    },
+    {
+      "invoice_number": "2-مبيع:824",
+      "exchange_rate": "0.005710",
+      "total_amount": "2.8600",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-04-13"
+    },
+    {
+      "invoice_number": "2-مبيع:3935",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.2700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-10-14"
+    },
+    {
+      "invoice_number": "2-مبيع:4491",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.2700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-11-04"
+    },
+    {
+      "invoice_number": "2-مبيع:1358",
+      "exchange_rate": "0.005710",
+      "total_amount": "2.8600",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-05-12"
+    },
+    {
+      "invoice_number": "2-مبيع:7721",
+      "exchange_rate": "0.004348",
+      "total_amount": "2.1700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2021-03-04"
+    },
+    {
+      "invoice_number": "2-مبيع:6073",
+      "exchange_rate": "0.004348",
+      "total_amount": "2.1700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2021-01-04"
+    },
+    {
+      "invoice_number": "2-مبيع:7106",
+      "exchange_rate": "0.004348",
+      "total_amount": "2.1700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2021-02-07"
+    },
+    {
+      "invoice_number": "2-مبيع:5218",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.2700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-12-01"
+    },
+    {
+      "invoice_number": "2-مبيع:4277",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.2700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-10-27"
+    },
+    {
+      "invoice_number": "2-مبيع:11533",
+      "exchange_rate": "0.003333",
+      "total_amount": "1.6700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2021-09-24"
+    },
+    {
+      "invoice_number": "2-مبيع:2259",
+      "exchange_rate": "0.005000",
+      "total_amount": "2.5000",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-07-09"
+    },
+    {
+      "invoice_number": "2-مبيع:38604",
+      "exchange_rate": "0.002330",
+      "total_amount": "1.1700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2024-02-22"
+    },
+    {
+      "invoice_number": "2-مبيع:3643",
+      "exchange_rate": "0.004545",
+      "total_amount": "2.2700",
+      "total_document_amount": "500.0000",
+      "issue_date": "2020-10-04"
+    },
+    {
+      "invoice_number": "2-مبيع:38143",
+      "exchange_rate": "0.002330",
+      "total_amount": "1.1400",
+      "total_document_amount": "490.0000",
+      "issue_date": "2024-02-04"
+    },
+    {
+      "invoice_number": "2-مبيع:19697",
+      "exchange_rate": "0.003450",
+      "total_amount": "1.5900",
+      "total_document_amount": "460.0000",
+      "issue_date": "2022-06-02"
+    },
+    {
+      "invoice_number": "2-مبيع:49599",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.7700",
+      "total_document_amount": "460.0000",
+      "issue_date": "2025-04-09"
+    },
+    {
+      "invoice_number": "2-مبيع:25158",
+      "exchange_rate": "0.003230",
+      "total_amount": "1.4500",
+      "total_document_amount": "450.0000",
+      "issue_date": "2022-11-24"
+    },
+    {
+      "invoice_number": "2-مبيع:3931",
+      "exchange_rate": "0.004545",
+      "total_amount": "1.8200",
+      "total_document_amount": "400.0000",
+      "issue_date": "2020-10-14"
+    },
+    {
+      "invoice_number": "2-مبيع:25841",
+      "exchange_rate": "0.003230",
+      "total_amount": "1.2500",
+      "total_document_amount": "388.0000",
+      "issue_date": "2022-12-20"
+    },
+    {
+      "invoice_number": "2-مبيع:38868",
+      "exchange_rate": "0.002330",
+      "total_amount": "0.8900",
+      "total_document_amount": "380.0000",
+      "issue_date": "2024-03-03"
+    },
+    {
+      "invoice_number": "2-مبيع:49086",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.5800",
+      "total_document_amount": "350.0000",
+      "issue_date": "2025-03-17"
+    },
+    {
+      "invoice_number": "2-مبيع:48156",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.5300",
+      "total_document_amount": "320.0000",
+      "issue_date": "2025-02-09"
+    },
+    {
+      "invoice_number": "2-مبيع:49691",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.5300",
+      "total_document_amount": "320.0000",
+      "issue_date": "2025-04-13"
+    },
+    {
+      "invoice_number": "2-مبيع:49899",
+      "exchange_rate": "0.001540",
+      "total_amount": "0.4600",
+      "total_document_amount": "300.0000",
+      "issue_date": "2025-04-22"
+    },
+    {
+      "invoice_number": "2-مبيع:44294",
+      "exchange_rate": "0.001980",
+      "total_amount": "0.5700",
+      "total_document_amount": "290.0000",
+      "issue_date": "2024-09-22"
+    },
+    {
+      "invoice_number": "2-مبيع:14364",
+      "exchange_rate": "0.004545",
+      "total_amount": "1.2900",
+      "total_document_amount": "283.0000",
+      "issue_date": "2021-12-22"
+    },
+    {
+      "invoice_number": "2-مبيع:21354",
+      "exchange_rate": "0.004545",
+      "total_amount": "1.2300",
+      "total_document_amount": "270.0000",
+      "issue_date": "2022-07-28"
+    },
+    {
+      "invoice_number": "2-مبيع:53951",
+      "exchange_rate": "0.002340",
+      "total_amount": "0.5900",
+      "total_document_amount": "250.0000",
+      "issue_date": "2025-09-09"
+    },
+    {
+      "invoice_number": "2-مبيع:63689",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.5600",
+      "total_document_amount": "250.0000",
+      "issue_date": "2026-08-25"
+    },
+    {
+      "invoice_number": "2-مبيع:47700",
+      "exchange_rate": "0.001900",
+      "total_amount": "0.4600",
+      "total_document_amount": "240.0000",
+      "issue_date": "2025-01-25"
+    },
+    {
+      "invoice_number": "2-مبيع:41405",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.4900",
+      "total_document_amount": "220.0000",
+      "issue_date": "2024-06-08"
+    },
+    {
+      "invoice_number": "2-مبيع:23277",
+      "exchange_rate": "0.003230",
+      "total_amount": "0.6500",
+      "total_document_amount": "200.0000",
+      "issue_date": "2022-09-28"
+    },
+    {
+      "invoice_number": "2-مبيع:63416",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.4000",
+      "total_document_amount": "180.0000",
+      "issue_date": "2026-08-19"
+    },
+    {
+      "invoice_number": "2-مبيع:15078",
+      "exchange_rate": "0.004545",
+      "total_amount": "0.7300",
+      "total_document_amount": "160.0000",
+      "issue_date": "2022-01-12"
+    },
+    {
+      "invoice_number": "2-مبيع:49893",
+      "exchange_rate": "0.001540",
+      "total_amount": "0.2300",
+      "total_document_amount": "150.0000",
+      "issue_date": "2025-04-21"
+    },
+    {
+      "invoice_number": "2-مبيع:14665",
+      "exchange_rate": "0.003571",
+      "total_amount": "0.5400",
+      "total_document_amount": "150.0000",
+      "issue_date": "2021-12-30"
+    },
+    {
+      "invoice_number": "2-مبيع:29872",
+      "exchange_rate": "0.002940",
+      "total_amount": "0.4400",
+      "total_document_amount": "150.0000",
+      "issue_date": "2023-05-01"
+    },
+    {
+      "invoice_number": "2-مبيع:56959",
+      "exchange_rate": "0.002340",
+      "total_amount": "0.2900",
+      "total_document_amount": "125.0000",
+      "issue_date": "2025-12-17"
+    },
+    {
+      "invoice_number": "2-مبيع:58906",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.2700",
+      "total_document_amount": "120.0000",
+      "issue_date": "2026-03-04"
+    },
+    {
+      "invoice_number": "2-مبيع:19782",
+      "exchange_rate": "0.004545",
+      "total_amount": "0.5000",
+      "total_document_amount": "110.0000",
+      "issue_date": "2022-06-05"
+    },
+    {
+      "invoice_number": "2-مبيع:49002",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.1800",
+      "total_document_amount": "108.0000",
+      "issue_date": "2025-03-14"
+    },
+    {
+      "invoice_number": "2-مبيع:52991",
+      "exchange_rate": "0.004348",
+      "total_amount": "0.4300",
+      "total_document_amount": "100.0000",
+      "issue_date": "2025-08-13"
+    },
+    {
+      "invoice_number": "2-مبيع:45010",
+      "exchange_rate": "0.001890",
+      "total_amount": "0.1900",
+      "total_document_amount": "100.0000",
+      "issue_date": "2024-10-19"
+    },
+    {
+      "invoice_number": "2-مبيع:32773",
+      "exchange_rate": "0.003330",
+      "total_amount": "0.3300",
+      "total_document_amount": "100.0000",
+      "issue_date": "2023-07-31"
+    },
+    {
+      "invoice_number": "2-مبيع:60285",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.2100",
+      "total_document_amount": "95.0000",
+      "issue_date": "2026-04-28"
+    },
+    {
+      "invoice_number": "2-مبيع:48912",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.1500",
+      "total_document_amount": "90.0000",
+      "issue_date": "2025-03-10"
+    },
+    {
+      "invoice_number": "2-مبيع:47431",
+      "exchange_rate": "0.001900",
+      "total_amount": "0.1500",
+      "total_document_amount": "80.0000",
+      "issue_date": "2025-01-16"
+    },
+    {
+      "invoice_number": "2-مبيع:39321",
+      "exchange_rate": "0.003330",
+      "total_amount": "0.2300",
+      "total_document_amount": "70.0000",
+      "issue_date": "2024-03-23"
+    },
+    {
+      "invoice_number": "2-مبيع:43338",
+      "exchange_rate": "0.001980",
+      "total_amount": "0.1300",
+      "total_document_amount": "64.0000",
+      "issue_date": "2024-08-17"
+    },
+    {
+      "invoice_number": "2-مبيع:22090",
+      "exchange_rate": "0.003230",
+      "total_amount": "0.1900",
+      "total_document_amount": "60.0000",
+      "issue_date": "2022-08-21"
+    },
+    {
+      "invoice_number": "2-مبيع:28674",
+      "exchange_rate": "0.002940",
+      "total_amount": "0.1800",
+      "total_document_amount": "60.0000",
+      "issue_date": "2023-03-20"
+    },
+    {
+      "invoice_number": "2-مبيع:26267",
+      "exchange_rate": "0.003130",
+      "total_amount": "0.1600",
+      "total_document_amount": "50.0000",
+      "issue_date": "2023-01-02"
+    },
+    {
+      "invoice_number": "2-مبيع:49892",
+      "exchange_rate": "0.001540",
+      "total_amount": "0.0800",
+      "total_document_amount": "50.0000",
+      "issue_date": "2025-04-21"
+    },
+    {
+      "invoice_number": "2-مبيع:59987",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.1000",
+      "total_document_amount": "45.0000",
+      "issue_date": "2026-04-17"
+    },
+    {
+      "invoice_number": "2-مبيع:44530",
+      "exchange_rate": "0.001980",
+      "total_amount": "0.0900",
+      "total_document_amount": "45.0000",
+      "issue_date": "2024-09-30"
+    },
+    {
+      "invoice_number": "2-مبيع:13666",
+      "exchange_rate": "0.002500",
+      "total_amount": "0.1000",
+      "total_document_amount": "40.0000",
+      "issue_date": "2021-11-30"
+    },
+    {
+      "invoice_number": "2-مبيع:50191",
+      "exchange_rate": "0.001540",
+      "total_amount": "0.0600",
+      "total_document_amount": "40.0000",
+      "issue_date": "2025-05-02"
+    },
+    {
+      "invoice_number": "2-مبيع:17706",
+      "exchange_rate": "0.003125",
+      "total_amount": "0.1100",
+      "total_document_amount": "35.0000",
+      "issue_date": "2022-03-27"
+    },
+    {
+      "invoice_number": "2-مبيع:55947",
+      "exchange_rate": "0.002340",
+      "total_amount": "0.0800",
+      "total_document_amount": "35.0000",
+      "issue_date": "2025-11-11"
+    },
+    {
+      "invoice_number": "2-مبيع:17294",
+      "exchange_rate": "0.003125",
+      "total_amount": "0.0800",
+      "total_document_amount": "25.0000",
+      "issue_date": "2022-03-16"
+    },
+    {
+      "invoice_number": "2-مبيع:15786",
+      "exchange_rate": "0.003125",
+      "total_amount": "0.0800",
+      "total_document_amount": "25.0000",
+      "issue_date": "2022-02-04"
+    },
+    {
+      "invoice_number": "2-مبيع:18157",
+      "exchange_rate": "0.003125",
+      "total_amount": "0.0600",
+      "total_document_amount": "20.0000",
+      "issue_date": "2022-04-14"
+    },
+    {
+      "invoice_number": "2-مبيع:48573",
+      "exchange_rate": "0.001670",
+      "total_amount": "0.0300",
+      "total_document_amount": "15.0000",
+      "issue_date": "2025-02-24"
+    },
+    {
+      "invoice_number": "2-مبيع:11832",
+      "exchange_rate": "0.003333",
+      "total_amount": "0.0300",
+      "total_document_amount": "9.0000",
+      "issue_date": "2021-10-05"
+    },
+    {
+      "invoice_number": "2-مبيع:40253",
+      "exchange_rate": "0.002330",
+      "total_amount": "0.0200",
+      "total_document_amount": "8.0000",
+      "issue_date": "2024-04-30"
+    },
+    {
+      "invoice_number": "2-مبيع:63348",
+      "exchange_rate": "0.002220",
+      "total_amount": "0.0100",
+      "total_document_amount": "4.0000",
+      "issue_date": "2026-08-16"
+    },
+    {
+      "invoice_number": "2-مبيع:55532",
+      "exchange_rate": "0.003330",
+      "total_amount": "0.0000",
+      "total_document_amount": "1.0000",
+      "issue_date": "2025-10-29"
+    }
+  ]
+}

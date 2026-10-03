@@ -42,15 +42,24 @@ export class CurrencyError extends Error {
 }
 
 export const convertToBaseCurrency = (params: CurrencyConversionParams): number => {
-  const { amount, exchangeRate, exchangeOperator = 'multiply' } = params;
-
-  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-    throw new CurrencyError(`Invalid exchange rate: ${exchangeRate}. Must be a positive number.`);
-  }
+  const { amount, currencyCode, exchangeRate, exchangeOperator = 'multiply' } = params;
 
   // التحقق من المبلغ قبل أي مسار إرجاع مبكر — حتى مع rate === 1 لا يمرّ NaN/Infinity.
   if (!Number.isFinite(amount)) {
     throw new CurrencyError(`Invalid amount: ${amount}. Must be a finite number.`);
+  }
+
+  // ── حارس عملة الأساس (2026-10-02) ────────────────────────────────────────────
+  // الريال السعودي هو عملة الأساس في هذا النظام ⇒ لا تحويل مطلقاً.
+  // كان الإعداد `supported_currencies.SAR.exchange_operator = 'divide'` يجعل
+  // أي سعر صرف مُدخل بالخطأ (مثل 415) يقسم مبلغ الفاتورة السعودية على 415
+  // فتظهر 50 ر.س كـ 0.12. الأساس لا يحتاج سعراً ولا معاملاً إطلاقاً.
+  if (String(currencyCode ?? '').trim().toUpperCase() === 'SAR') {
+    return Math.round((amount + Number.EPSILON) * 100) / 100;
+  }
+
+  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
+    throw new CurrencyError(`Invalid exchange rate: ${exchangeRate}. Must be a positive number.`);
   }
 
   if (exchangeRate === 1) {
@@ -68,15 +77,21 @@ export const convertToBaseCurrency = (params: CurrencyConversionParams): number 
 };
 
 export const convertFromBaseCurrency = (params: CurrencyConversionParams): number => {
-  const { amount, exchangeRate, exchangeOperator = 'multiply' } = params;
-
-  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
-    throw new CurrencyError(`Invalid exchange rate: ${exchangeRate}. Must be a positive number.`);
-  }
+  const { amount, currencyCode, exchangeRate, exchangeOperator = 'multiply' } = params;
 
   // التحقق من المبلغ قبل أي مسار إرجاع مبكر — حتى مع rate === 1 لا يمرّ NaN/Infinity.
   if (!Number.isFinite(amount)) {
     throw new CurrencyError(`Invalid amount: ${amount}. Must be a finite number.`);
+  }
+
+  // حارس عملة الأساس: تحويل "من الأساس" إلى الأساس نفسه = لا تحويل (انظر الشرح
+  // في convertToBaseCurrency).
+  if (String(currencyCode ?? '').trim().toUpperCase() === 'SAR') {
+    return Math.round((amount + Number.EPSILON) * 100) / 100;
+  }
+
+  if (!Number.isFinite(exchangeRate) || exchangeRate <= 0) {
+    throw new CurrencyError(`Invalid exchange rate: ${exchangeRate}. Must be a positive number.`);
   }
 
   if (exchangeRate === 1) {

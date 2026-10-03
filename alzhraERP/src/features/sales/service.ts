@@ -2,8 +2,8 @@ import { salesApi } from './api/index';
 import type { CreateInvoiceDTO } from './types';
 import { messagingService } from '../notifications/messagingService';
 import { notificationService } from '../notifications/service';
-import { toBaseCurrency } from '../../core/utils/currencyUtils';
 import { formatLocalDate } from '../../core/utils/dateUtils';
+import { toDocumentAmount } from '../../core/utils/documentMoney';
 import { netUnitPrices } from '../../core/utils/invoiceDiscount';
 import { validateSalePayload, assertValid } from '../../core/utils/validationUtils';
 import { resolveStrictPaymentAccount, type RoutableAccount } from '../../core/utils/accountRouting';
@@ -15,24 +15,34 @@ import { supabase } from '../../lib/supabaseClient';
 const CASH_CUSTOMER_LABEL = 'عميل نقدي';
 
 /**
- * Convert a row amount to base currency, never throwing for display lists.
- * A corrupted exchange rate (<= 0 / non-finite) is logged and treated as 0 so
- * the sales log stays usable instead of crashing — while the underlying
- * `toBaseCurrency` utility still fails loudly for callers that need correctness.
+ * ⚠️ تصحيح جذري لدلالة المبالغ (2026-10-02):
+ *
+ * القاعدة المُثبتة على القاعدة الحيّة ونسخة الميزان الأصلية:
+ *   `invoices.total_amount` = **بعملة الأساس (SAR)** مطابقةً لـ `Mizan.Bill.Total`،
+ *   ومبلغ المستند بعملة الفاتورة = `total_document_amount` (من الدفتر =
+ *   `Mizan.EntryItem.CDebit`)، أو الأساس ÷ سعر الصرف.
+ *
+ * كان الكود يعتبر `total_amount` مبلغاً بعملة الفاتورة ثم «يحوّله» إلى الأساس
+ * (`safeBaseTotal` بتقسيم على السعر) — وهو **عكس الدلالة**، فكانت الفاتورة
+ * اليمنية تُعرض بمعادل الأساس تحت الرمز الأجنبي.
+ *
+ * مثال مُثبت (2-مبيع:64294): 72,000 ر.ي كان يُعرض «159.84 ر.ي».
  */
-const safeBaseTotal = (
+const baseTotalOf = (amount: number | null | undefined): number => Number(amount) || 0;
+
+/** مبلغ المستند بعملة الفاتورة (العمود المخزَّن إن وُجد، وإلا الأساس ÷ سعر الصرف). */
+const documentTotalOf = (
   amount: number | null | undefined,
+  documentAmount: number | null | undefined,
   currency: string | null | undefined,
   rate: number | null | undefined
 ): number => {
+  const stored = Number(documentAmount) || 0;
+  if (stored > 0) return stored;
   try {
-    return toBaseCurrency({
-      amount: Number(amount) || 0,
-      currency_code: currency || 'SAR',
-      exchange_rate: Number(rate) || 1,
-    });
+    return toDocumentAmount(baseTotalOf(amount), currency, rate);
   } catch (err) {
-    logger.warn('SalesService', 'Invalid exchange rate — baseTotal set to 0', {
+    logger.warn('SalesService', 'Invalid exchange rate — documentTotal unavailable', {
       currency,
       rate,
       error: err,
@@ -48,6 +58,7 @@ interface RawInvoice {
   party: { name?: string } | null;
   issue_date: string;
   total_amount: number | null;
+  total_document_amount?: number | null;
   status: string;
   type: string;
   payment_method: string | null;
@@ -75,8 +86,13 @@ export const salesService = {
           invoiceNumber: _inv.invoice_number,
           customerName: _inv.party?.name || CASH_CUSTOMER_LABEL,
           date: formatLocalDate(_inv.issue_date),
-          total: Number(_inv.total_amount) || 0,
-          baseTotal: safeBaseTotal(_inv.total_amount, _inv.currency_code, _inv.exchange_rate),
+          total: documentTotalOf(
+            _inv.total_amount,
+            _inv.total_document_amount,
+            _inv.currency_code,
+            _inv.exchange_rate
+          ),
+          baseTotal: baseTotalOf(_inv.total_amount),
           status: _inv.status,
           type: _inv.type,
           paymentMethod: _inv.payment_method,
@@ -129,8 +145,13 @@ export const salesService = {
         customerName: r.party_name || CASH_CUSTOMER_LABEL,
         partyPhone: r.party_phone,
         date: formatLocalDate(r.issue_date),
-        total: Number(r.total_amount) || 0,
-        baseTotal: safeBaseTotal(r.total_amount, r.currency_code, r.exchange_rate),
+        total: documentTotalOf(
+          r.total_amount,
+          (r as { total_document_amount?: number | null }).total_document_amount,
+          r.currency_code,
+          r.exchange_rate
+        ),
+        baseTotal: baseTotalOf(r.total_amount),
         status: r.status as any,
         type: r.type as any,
         paymentMethod: r.payment_method,
@@ -303,11 +324,11 @@ export const salesService = {
       const { data: prevWindowData, error: prevWindowError } = await queryPrevWindow;
       if (prevWindowError) throw prevWindowError;
 
-      // Calculate totals, converting to base currency if necessary
+      // `total_amount` مخزَّن بعملة الأساس أصلاً (مطابقةً لـ Mizan.Bill.Total)
+      // ⇒ الجمع مباشر. كان الكود يمرّره على `toBaseCurrency` (قسمة على السعر
+      // لليمني) فيضخّم إجمالي المبيعات ومتوسط الفاتورة بنحو 415 مرة.
       const calcTotal = (data: SalesStatsRow[]) =>
-        data.reduce((sum, inv) => {
-          return sum + toBaseCurrency(inv);
-        }, 0);
+        data.reduce((sum, inv) => sum + baseTotalOf(inv.total_amount), 0);
 
       const totalSales = calcTotal(thisWindowData || []);
       const invoiceCount = (thisWindowData || []).length;
