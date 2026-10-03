@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, History, FileText } from 'lucide-react';
-import { formatCurrency } from '../../../core/utils';
+import { formatDocumentAmount } from '../../../core/utils';
 import { supplierPortalService } from '../services/supplierPortalService';
 import { logger } from '../../../core/utils/logger';
 import type { QuotationRevision } from '../types';
@@ -119,7 +119,11 @@ export const QuotationHistoryModal: React.FC<Props> = ({
                       className="font-mono font-bold text-slate-900 dark:text-slate-200"
                       dir="ltr"
                     >
-                      {formatCurrency(rev.total_amount, rev.currency)}
+                      {formatDocumentAmount(
+                        rev.total_amount,
+                        rev.currency,
+                        (rev as { exchange_rate?: number | null }).exchange_rate
+                      )}
                     </span>
                     <span className="text-[10px] text-slate-400">
                       {rev.items_snapshot.length} أصناف
@@ -149,7 +153,11 @@ export const QuotationHistoryModal: React.FC<Props> = ({
                   <div>
                     <span className="block text-[10px] text-slate-400">الإجمالي الصافي</span>
                     <span className="font-mono font-bold text-slate-900 dark:text-white" dir="ltr">
-                      {formatCurrency(selectedRev.total_amount, selectedRev.currency)}
+                      {formatDocumentAmount(
+                        selectedRev.total_amount,
+                        selectedRev.currency,
+                        (selectedRev as { exchange_rate?: number | null }).exchange_rate
+                      )}
                     </span>
                   </div>
                   <div>
@@ -201,7 +209,11 @@ export const QuotationHistoryModal: React.FC<Props> = ({
                           </td>
                           <td className="p-2 text-center font-mono">{item.quantity}</td>
                           <td className="p-2 text-center font-mono" dir="ltr">
-                            {formatCurrency(item.unit_price, selectedRev.currency)}
+                            {formatDocumentAmount(
+                              item.unit_price,
+                              selectedRev.currency,
+                              (selectedRev as { exchange_rate?: number | null }).exchange_rate
+                            )}
                           </td>
                           <td className="p-2 text-center font-mono text-rose-500">
                             {item.discount_percentage ? `${item.discount_percentage}%` : '0%'}
@@ -210,7 +222,11 @@ export const QuotationHistoryModal: React.FC<Props> = ({
                             className="p-2 text-center font-mono font-bold text-slate-900 dark:text-white"
                             dir="ltr"
                           >
-                            {formatCurrency(item.total_price, selectedRev.currency)}
+                            {formatDocumentAmount(
+                              item.total_price,
+                              selectedRev.currency,
+                              (selectedRev as { exchange_rate?: number | null }).exchange_rate
+                            )}
                           </td>
                           <td className="p-2 text-center text-[11px]">
                             {item.availability === 'in_stock' ? 'متوفر' : 'تحت الطلب'}

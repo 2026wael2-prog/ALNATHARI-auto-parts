@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Share2, Edit3, History } from 'lucide-react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatDocumentAmount } from '../../../../core/utils';
 import type { VendorQuotation } from '../../types';
 
 interface QuotationsTabProps {
@@ -20,7 +20,7 @@ export const QuotationsTab: React.FC<QuotationsTabProps> = ({
       `رقم العرض: ${quote.quotation_number}`,
       `المورد: ${quote.supplier_name}`,
       `المراجعة: #${quote.current_revision_number}`,
-      `الإجمالي: ${formatCurrency(quote.total_amount, quote.currency)}`,
+      `الإجمالي: ${formatDocumentAmount(quote.total_amount, quote.currency, (quote as { exchange_rate?: number | null }).exchange_rate)}`,
       `صالح حتى: ${quote.valid_until || '---'}`,
       `عدد الأصناف: ${quote.items.length} صنف`,
     ];
@@ -95,7 +95,11 @@ export const QuotationsTab: React.FC<QuotationsTabProps> = ({
                   className="block font-mono text-sm font-bold text-slate-900 dark:text-white"
                   dir="ltr"
                 >
-                  {formatCurrency(quote.total_amount, quote.currency)}
+                  {formatDocumentAmount(
+                    quote.total_amount,
+                    quote.currency,
+                    (quote as { exchange_rate?: number | null }).exchange_rate
+                  )}
                 </span>
                 <span className="block text-[10px] text-slate-400">صافي العرض</span>
               </div>

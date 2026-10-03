@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Printer, RotateCcw } from 'lucide-react';
-import { formatCurrency, cn } from '../../../../core/utils';
+import { formatDocumentAmount, cn } from '../../../../core/utils';
 import ExcelTable, { type Column } from '../../../../ui/common/ExcelTable';
 import type { PublicPortalQuotation } from '../../types';
 
@@ -81,7 +81,11 @@ const BASE_COLUMNS: Array<Column<PublicPortalQuotation>> = [
     align: 'center',
     accessor: row => (
       <span className="font-mono text-xs font-black text-emerald-400" dir="ltr">
-        {formatCurrency(row.total_amount, row.currency_code)}
+        {formatDocumentAmount(
+          row.total_amount,
+          row.currency_code,
+          (row as { exchange_rate?: number | null }).exchange_rate
+        )}
       </span>
     ),
   },
