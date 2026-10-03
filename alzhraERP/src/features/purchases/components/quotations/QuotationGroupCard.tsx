@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatDocumentAmount } from '../../../../core/utils';
 import QuotationActionIcons from '../../../sales/components/quotations/QuotationActionIcons';
 import type { QuotationRowAction } from '../../../sales/components/quotations/QuotationActionIcons';
 import { QuotationItemsTable } from './QuotationItemsTable';
@@ -43,7 +43,11 @@ const QuotationRowHeader: React.FC<QuotationRowHeaderProps> = ({
       </div>
       <div className="flex items-center gap-4">
         <span className="font-mono text-sm font-bold text-gray-900 dark:text-white" dir="ltr">
-          {formatCurrency(quotation.total_amount, quotation.currency_code)}
+          {formatDocumentAmount(
+            quotation.total_amount,
+            quotation.currency_code,
+            (quotation as { exchange_rate?: number | null }).exchange_rate
+          )}
         </span>
         <span className="text-xs font-medium text-gray-400">{quotation.item_count} بنود</span>
         {onQuotationAction !== undefined && (
@@ -96,7 +100,11 @@ export const QuotationRow: React.FC<QuotationRowProps> = ({
         {quotation.items.length === 0 ? (
           <p className="py-2 text-center text-xs text-gray-400">لا توجد تفاصيل لبنود هذا العرض</p>
         ) : (
-          <QuotationItemsTable items={quotation.items} currencyCode={quotation.currency_code} />
+          <QuotationItemsTable
+            items={quotation.items}
+            currencyCode={quotation.currency_code}
+            exchangeRate={(quotation as { exchange_rate?: number | null }).exchange_rate}
+          />
         )}
       </div>
     )}

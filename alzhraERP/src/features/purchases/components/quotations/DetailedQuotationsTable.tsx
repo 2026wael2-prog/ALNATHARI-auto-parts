@@ -1,6 +1,6 @@
 /* eslint-disable max-lines-per-function */
 import React, { useMemo } from 'react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatDocumentAmount } from '../../../../core/utils';
 import { STATUS_CONFIG } from './statusConfig';
 import QuotationActionIcons from '../../../sales/components/quotations/QuotationActionIcons';
 import type { QuotationRowAction } from '../../../sales/components/quotations/QuotationActionIcons';
@@ -80,15 +80,20 @@ const DetailedQuotationsTableRow: React.FC<DetailedQuotationsTableRowProps> = ({
         className="bg-emerald-50/20 px-3 py-3 text-center font-mono text-xs font-bold text-emerald-600 dark:bg-emerald-950/10 dark:text-emerald-400"
         dir="ltr"
       >
-        {formatCurrency(item.unit_price, item.currencyCode)}
+        {formatDocumentAmount(
+          item.unit_price,
+          item.currencyCode,
+          (item as { exchangeRate?: number | null }).exchangeRate
+        )}
       </td>
       <td
         className="px-3 py-3 text-center font-mono text-xs font-bold text-gray-900 dark:text-white"
         dir="ltr"
       >
-        {formatCurrency(
+        {formatDocumentAmount(
           item.total > 0 ? item.total : item.unit_price * item.quantity,
-          item.currencyCode
+          item.currencyCode,
+          (item as { exchangeRate?: number | null }).exchangeRate
         )}
       </td>
       <td className="px-3 py-3 text-center">

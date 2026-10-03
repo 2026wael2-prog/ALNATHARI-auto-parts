@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { salesQuotationsApi } from '@/features/sales/api/quotationsApi';
 import { useAuthStore } from '@/features/auth/store';
-import { formatCurrency, normalizeSearch } from '@/core/utils';
+import { formatDocumentAmount, normalizeSearch } from '@/core/utils';
 import type { QuotationStatus } from '@/features/sales/types/quotation';
 import { useBranchFilter } from '@/features/branches/hooks/useBranchFilter';
 import CreateQuotationModal from '@/features/sales/components/quotations/CreateQuotationModal';
@@ -275,7 +275,11 @@ export const QuotationsTab: React.FC<Props> = ({ onConvertToInvoice }) => {
                         className="px-4 py-3 font-mono font-bold text-gray-900 dark:text-white"
                         dir="ltr"
                       >
-                        {formatCurrency(q.total_amount, q.currency_code || 'SAR')}
+                        {formatDocumentAmount(
+                          q.total_amount,
+                          q.currency_code || 'SAR',
+                          (q as { exchange_rate?: number | null }).exchange_rate
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span

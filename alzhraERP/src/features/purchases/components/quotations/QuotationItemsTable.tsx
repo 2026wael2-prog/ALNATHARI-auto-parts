@@ -1,14 +1,20 @@
 import React from 'react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatDocumentAmount } from '../../../../core/utils';
 import type { QuotationItemDetail } from './types';
 
 interface QuotationItemRowProps {
   item: QuotationItemDetail;
   index: number;
   currencyCode: string;
+  exchangeRate?: number | null | undefined;
 }
 
-const QuotationItemRow: React.FC<QuotationItemRowProps> = ({ item, index, currencyCode }) => (
+const QuotationItemRow: React.FC<QuotationItemRowProps> = ({
+  item,
+  index,
+  currencyCode,
+  exchangeRate,
+}) => (
   <tr className="transition-colors hover:bg-gray-50/70 dark:hover:bg-slate-700/30">
     <td className="px-3 py-2.5 font-mono text-gray-400">{index + 1}</td>
     <td className="px-3 py-2.5">
@@ -43,13 +49,17 @@ const QuotationItemRow: React.FC<QuotationItemRowProps> = ({ item, index, curren
       className="bg-emerald-50/30 px-3 py-2.5 text-center font-mono font-bold text-emerald-600 dark:bg-emerald-950/10 dark:text-emerald-400"
       dir="ltr"
     >
-      {formatCurrency(item.unit_price, currencyCode)}
+      {formatDocumentAmount(item.unit_price, currencyCode, exchangeRate)}
     </td>
     <td
       className="px-3 py-2.5 text-center font-mono font-bold text-gray-900 dark:text-white"
       dir="ltr"
     >
-      {formatCurrency(item.total > 0 ? item.total : item.unit_price * item.quantity, currencyCode)}
+      {formatDocumentAmount(
+        item.total > 0 ? item.total : item.unit_price * item.quantity,
+        currencyCode,
+        exchangeRate
+      )}
     </td>
   </tr>
 );
@@ -57,11 +67,13 @@ const QuotationItemRow: React.FC<QuotationItemRowProps> = ({ item, index, curren
 interface QuotationItemsTableProps {
   items: QuotationItemDetail[];
   currencyCode: string;
+  exchangeRate?: number | null | undefined;
 }
 
 export const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
   items,
   currencyCode,
+  exchangeRate,
 }) => (
   <div className="custom-scrollbar overflow-x-auto rounded-xl border border-gray-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-800/80">
     <table className="w-full table-fixed text-xs">
@@ -94,6 +106,7 @@ export const QuotationItemsTable: React.FC<QuotationItemsTableProps> = ({
             item={item}
             index={index}
             currencyCode={currencyCode}
+          exchangeRate={exchangeRate}
           />
         ))}
       </tbody>
