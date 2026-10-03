@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table as TableIcon, Search, Copy, Check, Layers } from 'lucide-react';
-import { formatCurrency } from '../../../../core/utils';
+import { formatDocumentAmount } from '../../../../core/utils';
 import type { PurchasePrintItem } from '../PurchaseInvoicePrintTemplate';
 import type { PurchaseDetailInvoice } from './InvoiceMetaCards';
 
@@ -109,6 +109,7 @@ interface TableRowItemProps {
   item: PurchasePrintItem;
   index: number;
   currencyCode: string;
+  exchangeRate?: number | null | undefined;
   copiedSku: string | null;
   onCopySku: (sku: string) => void;
 }
@@ -117,6 +118,7 @@ const TableRowItem: React.FC<TableRowItemProps> = ({
   item,
   index,
   currencyCode,
+  exchangeRate,
   copiedSku,
   onCopySku,
 }) => {
@@ -156,7 +158,7 @@ const TableRowItem: React.FC<TableRowItemProps> = ({
         className="border-l border-slate-200 px-3 py-2 text-center text-slate-700 dark:border-slate-700 dark:text-slate-300"
         dir="ltr"
       >
-        {formatCurrency(item.unit_price, currencyCode)}
+        {formatDocumentAmount(item.unit_price, currencyCode, exchangeRate)}
       </td>
       <td
         className="border-l border-slate-200 px-3 py-2 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400"
@@ -168,13 +170,13 @@ const TableRowItem: React.FC<TableRowItemProps> = ({
         className="border-l border-slate-200 px-3 py-2 text-center text-slate-500 dark:border-slate-700 dark:text-slate-400"
         dir="ltr"
       >
-        {formatCurrency(item.total * 0.15, currencyCode)}
+        {formatDocumentAmount(item.total * 0.15, currencyCode, exchangeRate)}
       </td>
       <td
         className="bg-emerald-50/20 px-3 py-2 text-center font-black text-slate-900 dark:bg-emerald-950/10 dark:text-slate-100"
         dir="ltr"
       >
-        {formatCurrency(item.total, currencyCode)}
+        {formatDocumentAmount(item.total, currencyCode, exchangeRate)}
       </td>
     </tr>
   );
@@ -238,6 +240,7 @@ interface TableFooterProps {
   totalUnitsCount: number;
   totalLinesAmount: number;
   currencyCode: string;
+  exchangeRate?: number | null | undefined;
 }
 
 const TableFooter: React.FC<TableFooterProps> = ({
@@ -245,6 +248,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
   totalUnitsCount,
   totalLinesAmount,
   currencyCode,
+  exchangeRate,
 }) => (
   <tfoot>
     <tr className="border-t-2 border-slate-300 bg-gradient-to-r from-slate-200 via-slate-100 to-emerald-100/60 text-xs font-black dark:border-slate-700 dark:from-slate-900 dark:via-slate-800 dark:to-emerald-950/40">
@@ -276,13 +280,13 @@ const TableFooter: React.FC<TableFooterProps> = ({
         className="border-l border-slate-300 px-3 py-2 text-center font-mono text-slate-600 dark:border-slate-700 dark:text-slate-400"
         dir="ltr"
       >
-        {formatCurrency(totalLinesAmount * 0.15, currencyCode)}
+        {formatDocumentAmount(totalLinesAmount * 0.15, currencyCode, exchangeRate)}
       </td>
       <td
         className="bg-emerald-50 px-3 py-2 text-center font-mono text-sm font-black text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300"
         dir="ltr"
       >
-        {formatCurrency(totalLinesAmount, currencyCode)}
+        {formatDocumentAmount(totalLinesAmount, currencyCode, exchangeRate)}
       </td>
     </tr>
   </tfoot>
@@ -320,14 +324,14 @@ const TableFooterSummary: React.FC<TableFooterSummaryProps> = ({ invoice }) => {
         <div className="flex justify-between text-slate-600 dark:text-slate-400">
           <span>المجموع الفرعي (قبل الضريبة):</span>
           <span dir="ltr" className="font-mono font-bold">
-            {formatCurrency(subtotal, currencyCode)}
+            {formatDocumentAmount(subtotal, currencyCode, invoice.exchange_rate)}
           </span>
         </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 pt-2 text-sm font-black text-slate-900 dark:border-slate-700 dark:text-slate-100">
           <span>الإجمالي النهائي المستحق:</span>
           <span dir="ltr" className="font-mono text-base text-emerald-600 dark:text-emerald-400">
-            {formatCurrency(invoice.total_amount, currencyCode)}
+            {formatDocumentAmount(invoice.total_amount, currencyCode, invoice.exchange_rate)}
           </span>
         </div>
       </div>
@@ -338,6 +342,7 @@ const TableFooterSummary: React.FC<TableFooterSummaryProps> = ({ invoice }) => {
 interface TableBodyProps {
   filteredItems: PurchasePrintItem[];
   currencyCode: string;
+  exchangeRate?: number | null | undefined;
   copiedSku: string | null;
   onCopySku: (sku: string) => void;
 }
@@ -345,6 +350,7 @@ interface TableBodyProps {
 const TableBody: React.FC<TableBodyProps> = ({
   filteredItems,
   currencyCode,
+  exchangeRate,
   copiedSku,
   onCopySku,
 }) => (
@@ -355,6 +361,7 @@ const TableBody: React.FC<TableBodyProps> = ({
         item={item}
         index={index}
         currencyCode={currencyCode}
+        exchangeRate={exchangeRate}
         copiedSku={copiedSku}
         onCopySku={onCopySku}
       />
@@ -380,6 +387,7 @@ export const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
   totalLinesAmount,
 }) => {
   const currencyCode = invoice.currency_code ?? 'SAR';
+  const exchangeRate = invoice.exchange_rate;
 
   return (
     <div className="overflow-hidden rounded-2xl border-2 border-slate-300 bg-[var(--app-surface)] shadow-md dark:border-slate-700">
@@ -395,6 +403,7 @@ export const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
           <TableBody
             filteredItems={filteredItems}
             currencyCode={currencyCode}
+            exchangeRate={exchangeRate}
             copiedSku={copiedSku}
             onCopySku={onCopySku}
           />
@@ -403,6 +412,7 @@ export const InvoiceItemsTable: React.FC<InvoiceItemsTableProps> = ({
             totalUnitsCount={totalUnitsCount}
             totalLinesAmount={totalLinesAmount}
             currencyCode={currencyCode}
+            exchangeRate={exchangeRate}
           />
         </table>
       </div>
