@@ -35,27 +35,29 @@ const PerformanceGauge: React.FC<PerformanceGaugeProps> = ({
     : (target - value).toLocaleString('en-US');
 
   React.useEffect(() => {
-    const checkDimensions = () => {
-      if (
-        containerRef.current &&
-        containerRef.current.offsetWidth > 0 &&
-        containerRef.current.offsetHeight > 0
-      ) {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // قياس واحد فقط (بلا استطلاع دوري) ثم مراقبة التغيّر — يمنع إعادة التخطيط القسري المتكرر.
+    if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+      setIsMounted(true);
+      return;
+    }
+
+    if (typeof ResizeObserver === 'undefined') {
+      setIsMounted(true);
+      return;
+    }
+
+    const observer = new ResizeObserver(entries => {
+      const rect = entries[0]?.contentRect;
+      if (rect && rect.width > 0 && rect.height > 0) {
         setIsMounted(true);
-        return true;
+        observer.disconnect();
       }
-      return false;
-    };
-
-    if (checkDimensions()) return;
-
-    const interval = setInterval(() => {
-      if (checkDimensions()) clearInterval(interval);
-    }, 500);
-
-    return () => {
-      clearInterval(interval);
-    };
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const percentage = target > 0 ? Math.min(100, (value / target) * 100) : 0;
