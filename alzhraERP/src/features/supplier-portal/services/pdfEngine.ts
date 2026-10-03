@@ -1,4 +1,4 @@
-import { formatCurrency } from '../../../core/utils';
+import { formatDocumentAmount } from '../../../core/utils';
 import type { QuotationItemDraft } from '../types';
 
 export interface PDFQuotationOptions {
@@ -11,6 +11,8 @@ export interface PDFQuotationOptions {
   issueDate: string;
   validUntil?: string | null;
   currency: string;
+  /** سعر صرف عرض السعر — لعرض المبالغ بعملة المستند بدل معادل الأساس. */
+  exchangeRate?: number | null;
   items: QuotationItemDraft[];
   subtotal: number;
   discountAmount: number;
@@ -119,8 +121,8 @@ export const generateQuotationPDF = async (options: PDFQuotationOptions): Promis
     doc.text(itemName, 30, y + 5);
     doc.text(item.oem_number || '---', 95, y + 5);
     doc.text(`${item.quantity} ${item.unit_of_measure}`, 130, y + 5);
-    doc.text(formatCurrency(item.unit_price, options.currency), 150, y + 5);
-    doc.text(formatCurrency(item.total_price, options.currency), pageWidth - 20, y + 5, {
+    doc.text(formatDocumentAmount(item.unit_price, options.currency, options.exchangeRate), 150, y + 5);
+    doc.text(formatDocumentAmount(item.total_price, options.currency, options.exchangeRate), pageWidth - 20, y + 5, {
       align: 'right',
     });
 
@@ -141,14 +143,14 @@ export const generateQuotationPDF = async (options: PDFQuotationOptions): Promis
   const summaryX = pageWidth - 70;
   doc.setFontSize(9);
   doc.text('Subtotal:', summaryX, y);
-  doc.text(formatCurrency(options.subtotal, options.currency), pageWidth - 20, y, {
+  doc.text(formatDocumentAmount(options.subtotal, options.currency, options.exchangeRate), pageWidth - 20, y, {
     align: 'right',
   });
   y += 5;
 
   if (options.discountAmount > 0) {
     doc.text('Discount:', summaryX, y);
-    doc.text(`-${formatCurrency(options.discountAmount, options.currency)}`, pageWidth - 20, y, {
+    doc.text(`-${formatDocumentAmount(options.discountAmount, options.currency, options.exchangeRate)}`, pageWidth - 20, y, {
       align: 'right',
     });
     y += 5;
@@ -156,7 +158,7 @@ export const generateQuotationPDF = async (options: PDFQuotationOptions): Promis
 
   if (options.taxAmount > 0) {
     doc.text('VAT / Tax:', summaryX, y);
-    doc.text(formatCurrency(options.taxAmount, options.currency), pageWidth - 20, y, {
+    doc.text(formatDocumentAmount(options.taxAmount, options.currency, options.exchangeRate), pageWidth - 20, y, {
       align: 'right',
     });
     y += 5;
@@ -167,7 +169,7 @@ export const generateQuotationPDF = async (options: PDFQuotationOptions): Promis
   doc.setFont('Helvetica', 'bold');
   doc.setTextColor(15, 23, 42);
   doc.text('Grand Total:', summaryX, y + 5);
-  doc.text(formatCurrency(options.totalAmount, options.currency), pageWidth - 20, y + 5, {
+  doc.text(formatDocumentAmount(options.totalAmount, options.currency, options.exchangeRate), pageWidth - 20, y + 5, {
     align: 'right',
   });
 

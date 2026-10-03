@@ -2,7 +2,7 @@ import React from 'react';
 import { Printer, X, Building2, FileText, CheckCircle2 } from 'lucide-react';
 import Modal from '../../../ui/base/Modal';
 import Button from '../../../ui/base/Button';
-import { formatCurrency } from '../../../core/utils';
+import { formatDocumentAmount } from '../../../core/utils';
 import type { PublicPortalContext } from '../types';
 
 export interface QuotationPrintItem {
@@ -214,13 +214,21 @@ export const SupplierQuotationPrintModal: React.FC<Props> = ({
                         {item.quantity}
                       </td>
                       <td className="p-2.5 text-center font-mono text-slate-800">
-                        {formatCurrency(item.unit_price, currency)}
+                        {formatDocumentAmount(
+                          item.unit_price,
+                          currency,
+                          (quotation as { exchange_rate?: number | null }).exchange_rate
+                        )}
                       </td>
                       <td className="p-2.5 text-center font-mono text-slate-600">
                         {item.discount_percent ? `${item.discount_percent}%` : '0%'}
                       </td>
                       <td className="p-2.5 text-center font-mono font-black text-emerald-700">
-                        {formatCurrency(lineTotal, currency)}
+                        {formatDocumentAmount(
+                          lineTotal,
+                          currency,
+                          (quotation as { exchange_rate?: number | null }).exchange_rate
+                        )}
                       </td>
                     </tr>
                   );
@@ -255,11 +263,23 @@ export const SupplierQuotationPrintModal: React.FC<Props> = ({
             <div className="space-y-1.5 rounded-xl border border-slate-300 bg-slate-100 p-3 font-mono text-xs">
               <div className="flex justify-between text-slate-600">
                 <span>المجموع الفرعي:</span>
-                <span className="font-bold">{formatCurrency(calculatedSubtotal, currency)}</span>
+                <span className="font-bold">
+                  {formatDocumentAmount(
+                    calculatedSubtotal,
+                    currency,
+                    (quotation as { exchange_rate?: number | null }).exchange_rate
+                  )}
+                </span>
               </div>
               <div className="flex justify-between border-t border-slate-300 pt-1.5 text-sm font-black text-emerald-800">
                 <span>المجموع الإجمالي النهائي:</span>
-                <span>{formatCurrency(quotation.total_amount, currency)}</span>
+                <span>
+                  {formatDocumentAmount(
+                    quotation.total_amount,
+                    currency,
+                    (quotation as { exchange_rate?: number | null }).exchange_rate
+                  )}
+                </span>
               </div>
             </div>
           </div>
