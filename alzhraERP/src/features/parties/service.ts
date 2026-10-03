@@ -49,6 +49,8 @@ export interface StatementTransactionDetails {
   type?: string;
   status?: string;
   currency_code?: string;
+  /** سعر صرف الفاتورة — يُستخدم لعرض المبالغ بعملة المستند (D-3). */
+  exchange_rate?: number | null | undefined;
   subtotal?: number;
   discount_amount?: number;
   tax_amount?: number;

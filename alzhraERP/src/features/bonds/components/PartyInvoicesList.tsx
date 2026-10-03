@@ -43,8 +43,12 @@ const PartyInvoicesList: React.FC<PartyInvoicesListProps> = ({
     if (!invoices) return [];
 
     let list = invoices.map((inv: any) => {
-      const total = Number(inv.total_amount || 0);
-      const paid = Number(inv.paid_amount || 0);
+      // مبالغ المستند: المخزَّن بالأساس (SAR) ⇒ يُحوَّل لعملة الفاتورة بالقسمة على سعر الصرف
+      const rate = Number(inv.exchange_rate ?? 1);
+      const cur = String(inv.currency_code ?? 'SAR').toUpperCase();
+      const factor = cur !== 'SAR' && Number.isFinite(rate) && rate > 0 ? 1 / rate : 1;
+      const total = Number(inv.total_amount || 0) * factor;
+      const paid = Number(inv.paid_amount || 0) * factor;
       const remaining = Math.max(0, total - paid);
       const isPartial = paid > 0;
       return {

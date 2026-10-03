@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { FileText, Search, X, ChevronDown, Calendar, User, Banknote } from 'lucide-react';
 import type { Invoice } from '../types';
-import { formatCurrency, normalizeSearch } from '../../../core/utils';
+import { formatDocumentAmount, normalizeSearch } from '../../../core/utils';
 
 interface InvoiceSelectorProps {
   invoices: Invoice[];
@@ -57,7 +57,11 @@ const InvoiceOptionList: React.FC<InvoiceOptionListProps> = ({
               <div className="flex items-center gap-1 text-green-600 max-md:gap-1">
                 <Banknote size={14} />
                 <span className="font-bold">
-                  {formatCurrency(invoice.total_amount, invoice.currency_code ?? 'SAR')}
+                  {formatDocumentAmount(
+                    invoice.total_amount,
+                    invoice.currency_code ?? 'SAR',
+                    (invoice as { exchange_rate?: number | null }).exchange_rate
+                  )}
                 </span>
               </div>
               <span className="text-xs text-gray-400">

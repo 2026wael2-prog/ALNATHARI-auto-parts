@@ -5,7 +5,7 @@ import {
   type StatementMovement,
   type StatementTransactionDetails,
 } from '../../service';
-import { formatCurrency } from '../../../../core/utils';
+import { formatCurrency, formatDocumentAmount } from '../../../../core/utils';
 import { useAuthStore } from '../../../auth/store';
 
 interface Props {
@@ -100,14 +100,14 @@ export const StatementTransactionDetailRow: React.FC<Props> = ({
             <span className="text-xs text-slate-600 dark:text-slate-300">
               الإجمالي:{' '}
               <strong className="font-mono text-slate-900 dark:text-white" dir="ltr">
-                {formatCurrency(details.total_amount || 0, details.currency_code)}
+                {formatDocumentAmount(details.total_amount || 0, details.currency_code, details.exchange_rate)}
               </strong>
             </span>
             {details.paid_amount !== undefined && details.paid_amount > 0 && (
               <span className="text-xs text-emerald-600 dark:text-emerald-400">
                 المدفوع:{' '}
                 <strong className="font-mono" dir="ltr">
-                  {formatCurrency(details.paid_amount, details.currency_code)}
+                  {formatDocumentAmount(details.paid_amount, details.currency_code, details.exchange_rate)}
                 </strong>
               </span>
             )}
@@ -115,7 +115,7 @@ export const StatementTransactionDetailRow: React.FC<Props> = ({
               <span className="text-xs text-rose-600 dark:text-rose-400">
                 المتبقي:{' '}
                 <strong className="font-mono" dir="ltr">
-                  {formatCurrency(details.remaining_amount, details.currency_code)}
+                  {formatDocumentAmount(details.remaining_amount, details.currency_code, details.exchange_rate)}
                 </strong>
               </span>
             )}
@@ -184,21 +184,21 @@ export const StatementTransactionDetailRow: React.FC<Props> = ({
                       className="border border-slate-300 px-3 py-1.5 text-center font-mono dark:border-slate-700"
                       dir="ltr"
                     >
-                      {formatCurrency(it.unit_price, details.currency_code)}
+                      {formatDocumentAmount(it.unit_price, details.currency_code, details.exchange_rate)}
                     </td>
                     <td
                       className="border border-slate-300 px-3 py-1.5 text-center font-mono text-slate-500 dark:border-slate-700"
                       dir="ltr"
                     >
                       {it.discount_amount
-                        ? formatCurrency(it.discount_amount, details.currency_code)
+                        ? formatDocumentAmount(it.discount_amount, details.currency_code, details.exchange_rate)
                         : '—'}
                     </td>
                     <td
                       className="border border-slate-300 px-3 py-1.5 text-center font-mono font-bold text-slate-900 dark:border-slate-700 dark:text-white"
                       dir="ltr"
                     >
-                      {formatCurrency(it.total_amount, details.currency_code)}
+                      {formatDocumentAmount(it.total_amount, details.currency_code, details.exchange_rate)}
                     </td>
                   </tr>
                 ))}

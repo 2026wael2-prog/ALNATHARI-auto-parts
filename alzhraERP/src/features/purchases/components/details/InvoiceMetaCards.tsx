@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Phone, MapPin, Calendar, CreditCard, DollarSign } from 'lucide-react';
-import { cn, formatCurrency } from '../../../../core/utils';
+import { cn, formatDocumentAmount } from '../../../../core/utils';
 import type { PurchasePrintInvoice } from '../PurchaseInvoicePrintTemplate';
 
 export interface PurchaseDetailInvoice extends PurchasePrintInvoice {
@@ -195,7 +195,7 @@ const TotalCard: React.FC<{ invoice: PurchaseDetailInvoice; totalUnitsCount: num
           dir="ltr"
           className="font-mono text-base font-black text-blue-700 dark:text-blue-300 sm:text-lg"
         >
-          {formatCurrency(invoice.total_amount, currencyCode)}
+          {formatDocumentAmount(invoice.total_amount, currencyCode, invoice.exchange_rate)}
         </p>
       </div>
       <div className="mt-1.5 flex items-center justify-between border-t border-blue-200/60 pt-1.5 text-[10px] dark:border-blue-800/40 sm:text-[11px]">
